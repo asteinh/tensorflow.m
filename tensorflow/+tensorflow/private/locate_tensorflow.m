@@ -33,15 +33,17 @@ function libtensorflow = locate_tensorflow(hints)
   % platform dependencies
   if ispc
     userdir = getenv('USERPROFILE');
-    libext = 'dll';
+    libfile = 'tensorflow.dll';
+    warning(['If you encounter errors, please consider checking <a href="https://github.com/tensorflow/tensorflow/issues/">the issues</a> in TensorFlow''s github repository. ', ...
+             'Especially on Windows, there''s a number of bugs that need manual intervention, e.g. <a href="https://github.com/tensorflow/tensorflow/issues/31567">this issue</a>.']);
   else
     userdir = getenv('HOME');
     searchpaths = append(searchpaths, '/usr/');
     searchpaths = append(searchpaths, '/usr/local/');
     if ismac
-      libext = 'dylib';
+      libfile = 'libtensorflow.dylib';
     elseif isunix
-      libext = 'so';
+      libfile = 'libtensorflow.so';
     else
       error('Platform not supported.');
     end
@@ -62,7 +64,7 @@ function libtensorflow = locate_tensorflow(hints)
         dir_incl = fullfile(rel, '/include');
         dir_lib = fullfile(rel, '/lib');
         if ( exist(dir_incl, 'dir') && exist(fullfile(dir_incl, '/tensorflow/c/c_api.h'), 'file') ) ... % include folder and header file
-          && ( exist(dir_lib, 'dir') && exist(fullfile(dir_lib, ['/libtensorflow.', libext]), 'file') ) % lib folder and library
+          && ( exist(dir_lib, 'dir') && exist(fullfile(dir_lib, ['/' libfile]), 'file') ) % lib folder and library
           if DEBUG; disp(['Found headers in "', dir_incl, '"!']); end
           if DEBUG; disp(['Found libraries in "', dir_lib, '"!']); end
           libtensorflow = fullfile(rel);
