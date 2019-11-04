@@ -1,6 +1,6 @@
 # tensorflow.m
 
-Matlab bindings for the low-level [C API of Tensorflow 2.0](https://www.tensorflow.org/install/lang_c).
+Matlab bindings for the [C library of Tensorflow](https://www.tensorflow.org/install/lang_c).
 
 ## About
 `tensorflow.m` interfaces TensorFlow's C API via a MEX function and Matlab wrapper classes. This software is in active development, you may stumble upon occasional *Not implemented.* messages - feel free to open an issue or contribute via pull requests.
