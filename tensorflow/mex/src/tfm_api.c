@@ -1,4 +1,6 @@
 #include "mex.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 #include "tensorflow/c/c_api.h"
@@ -32,6 +34,23 @@ void* arr2ptr(const mxArray* arr) {
 void destroy(void* ptr) {
   ptr = NULL;
   mexUnlock();
+}
+
+
+void bytes_to_buffer(const void* data, const size_t num, TF_Buffer* buffer) {
+  if(buffer->data != NULL)
+    mexErrMsgTxt("Buffer data cannot be overwritten, create a new buffer instead.\n");
+  void* data_cp = mxCalloc(num, sizeof(uint8_t));
+  mexMakeMemoryPersistent(data_cp);
+  mexLock();
+  memcpy(data_cp, data, num*sizeof(uint8_t));
+  buffer->data = data_cp;
+  buffer->length = num;
+}
+
+void free_buffer(void* data, size_t length) {
+  mxFree(data);
+  destroy(data);
 }
 
 void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
@@ -117,6 +136,33 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       plhs[0] = mxCreateNumericMatrix(1, len, mxDOUBLE_CLASS, mxREAL);
       memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), MIN(nbytes, TF_TensorByteSize(tensor)));
     }
+    else if(STRCMP(cmd, "TFM_SetBufferData")) {
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      void* data = (void*) mxGetData(prhs[2]);
+      size_t length = (size_t) mxGetN(prhs[2]);
+      bytes_to_buffer(data, length, buffer);
+    }
+    else if(STRCMP(cmd, "TFM_FileToBuffer")) {
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      char* fname = mxArrayToString(prhs[2]);
+
+      FILE* f = fopen(fname, "rb");
+      fseek(f, 0, SEEK_END);
+      size_t length = (size_t) ftell(f);
+      fseek(f, 0, SEEK_SET);
+      void* data = mxCalloc(length, sizeof(uint8_t));
+      fread(data, sizeof(uint8_t), length, f);
+      fclose(f);
+      bytes_to_buffer(data, length, buffer);
+      mxFree(data);
+    }
+    else if(STRCMP(cmd, "TFM_GetBufferData")) {
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      size_t length = buffer->length;
+      // plhs[0] = mxCreateString(buffer->data);
+      plhs[0] = mxCreateNumericMatrix(1, length, mxUINT8_CLASS, mxREAL);
+      memcpy(mxGetData(plhs[0]), buffer->data, length*sizeof(uint8_t));
+    }
     //
     /***************************************************************************
      * Library interface
@@ -164,11 +210,17 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
     else if(STRCMP(cmd, "TF_NewBuffer")) {
-      NOT_IMPLEMENTED()
+      TF_Buffer* buffer = TF_NewBuffer();
+      buffer->data = NULL;
+      buffer->length = 0;
+      buffer->data_deallocator = free_buffer;
+      plhs[0] = ptr2arr((void*) buffer);
     }
-    // TF_CAPI_EXPORT extern void TF_DeleteBuffer(TF_Buffer*);
+    // TF_CAPI_EXPORT extern void  Buffer(TF_Buffer*);
     else if(STRCMP(cmd, "TF_DeleteBuffer")) {
-      NOT_IMPLEMENTED()
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      TF_DeleteBuffer(buffer);  // automatically frees buffer->data via buffer->data_deallocator
+      destroy(buffer);
     }
     // TF_CAPI_EXPORT extern TF_Buffer TF_GetBuffer(TF_Buffer* buffer);
     else if(STRCMP(cmd, "TF_GetBuffer")) {
@@ -752,11 +804,14 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_ImportGraphDefOptions* TF_NewImportGraphDefOptions(void);
     else if(STRCMP(cmd, "TF_NewImportGraphDefOptions")) {
-      NOT_IMPLEMENTED()
+      TF_ImportGraphDefOptions* opts = TF_NewImportGraphDefOptions();
+      plhs[0] = ptr2arr((void*) opts);
     }
     // TF_CAPI_EXPORT extern void TF_DeleteImportGraphDefOptions(TF_ImportGraphDefOptions* opts);
     else if(STRCMP(cmd, "TF_DeleteImportGraphDefOptions")) {
-      NOT_IMPLEMENTED()
+      TF_ImportGraphDefOptions* opts = (TF_ImportGraphDefOptions*) arr2ptr(prhs[1]);
+      TF_DeleteImportGraphDefOptions(opts);
+      destroy(opts);
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsSetPrefix(TF_ImportGraphDefOptions* opts, const char* prefix);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsSetPrefix")) {
@@ -828,7 +883,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphImportGraphDef")) {
-      NOT_IMPLEMENTED()
+      TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[1]);
+      TF_Buffer* graph_def = (TF_Buffer*) arr2ptr(prhs[2]);
+      TF_ImportGraphDefOptions* options = (TF_ImportGraphDefOptions*) arr2ptr(prhs[3]);
+      TF_Status* status = (TF_Status*) arr2ptr(prhs[4]);
+      TF_GraphImportGraphDef(graph, graph_def, options, status);
     }
     // TF_CAPI_EXPORT extern void TF_GraphCopyFunction(TF_Graph* g, const TF_Function* func, const TF_Function* grad, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphCopyFunction")) {
