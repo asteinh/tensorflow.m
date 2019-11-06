@@ -1,21 +1,27 @@
 clear; clc;
 addpath('../../tensorflow');
 
+url_model = 'https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz';
+
 %% fetching data
 disp('Fetching required data ...');
 
+iszip = strcmp(url_model(end-3:end), '.zip');
+
 if exist('data/model.tar.gz', 'file') ~= 2
   disp('Downloading model ...');
-  websave('data/model.tar.gz', 'https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz');
+  websave('data/model.tar.gz', url_model);
 else
   disp('Model already present.');
 end
+
+delete('data/model/*');
 
 disp('Extracting files ...');
 files = untar('data/model.tar.gz','data/model');
 for f = files
   if contains(f, '.pb'); model_file = f{:};
-  else; labels_file = f{:}; end
+  elseif contains(f, '.txt'); labels_file = f{:}; end
 end
 
 % image
@@ -27,9 +33,13 @@ disp('Data fetching done.');
 disp('Pre-processing ...');
 
 % image
+isize = 299;
+mean = 0;
+scale = 255;
+
 img_raw = imread(image_file);
-img = imresize(img_raw, [299 299]);
-img = single(img)./255; % casting and normalization
+img = imresize(img_raw, [isize isize]);
+img = (single(img)-single(mean))./scale; % casting and normalization
 img = reshape(img, [1, size(img)]); % adding batch dimension
 img_t = tensorflow.Tensor(img);
 
