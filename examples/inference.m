@@ -12,9 +12,7 @@ buf.read_file('../data/inception_v3/inception_v3_2016_08_28_frozen.pb');
 
 % create graph and import buffered description
 graph = tensorflow.Graph();
-opts = tensorflow.ImportGraphDefOptions();
+opts = tensorflow.importGraphDefOptions();
 graph.ImportGraphDef(buf, opts);
 
 assert(graph.status.GetCode == 'TF_OK');
-  
-

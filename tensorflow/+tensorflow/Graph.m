@@ -112,7 +112,7 @@ classdef Graph < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
-    function ImportGraphDef(obj, buffer, options)
+    function importGraphDef(obj, buffer, options)
       assert(isa(buffer, 'tensorflow.Buffer'));
       assert(isa(options, 'tensorflow.ImportGraphDefOptions'));
       mex_call('TF_GraphImportGraphDef', obj.ref, buffer.ref, options.ref, obj.status.ref);
