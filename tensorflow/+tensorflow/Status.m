@@ -6,7 +6,7 @@ classdef Status < util.mixin.Pointer
     function obj = Status()
       obj = obj@util.mixin.Pointer(mex_call('TF_NewStatus'));
     end
-    
+
     function maybe_raise(obj)
       c = obj.GetCode();
       if c ~= tensorflow.Code('TF_OK')

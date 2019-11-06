@@ -8,7 +8,7 @@ classdef Pointer < util.mixin.Unique
 
   methods
     function obj = Pointer(ref_)
-      assert(~isempty(ref_) && isa(ref_, 'uint64'), 'You must supply a reference of type ''uint64''.');
+      assert(~isempty(ref_) && isa(ref_, 'uint64') && ref_ ~= 0, 'You must supply a non-empty, non-zero reference of type ''uint64''.');
       obj.ref = ref_;
     end
 

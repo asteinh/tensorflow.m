@@ -10,11 +10,6 @@ classdef Operation < util.mixin.Pointer
       obj = obj@util.mixin.Pointer(ref_);
     end
 
-    % TF_CAPI_EXPORT extern TF_DataType TF_OperationOutputType(TF_Output oper_out);
-    function type = operationOutputType(obj)
-      type = tensorflow.DataType(mex_call('TF_OperationOutputType', obj.ref));
-    end
-
     function delete(obj)
       if ~obj.isempty()
         mex_call('TFM_DeleteOperation', obj.ref);

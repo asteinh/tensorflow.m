@@ -1,0 +1,4 @@
+*.tar.gz
+*.jpg
+data/model/*
+!data/model/.*

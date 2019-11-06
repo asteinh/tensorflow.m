@@ -63,9 +63,9 @@ classdef Session < util.mixin.Pointer
                       uint64([inputs.ref]), uint64([input_values.ref]), int32(ninputs), ...
                       uint64([outputs.ref]), int32(noutputs), ...
                       target_opers, ntargets, run_metadata, obj.status.ref);
-      
+
       obj.status.maybe_raise();
-      
+
       res = tensorflow.Tensor.empty(noutputs,0);
       for i = 1:1:noutputs
         res(i) = tensorflow.Tensor(refs(i));
@@ -80,6 +80,7 @@ classdef Session < util.mixin.Pointer
     function delete(obj)
       if ~obj.isempty()
         mex_call('TF_DeleteSession', obj.ref, obj.status.ref);
+        obj.status.maybe_raise();
       end
       delete@util.mixin.Pointer(obj);
     end

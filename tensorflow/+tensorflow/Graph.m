@@ -97,18 +97,21 @@ classdef Graph < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output, const int64_t* dims, const int num_dims, TF_Status* status);
     function setTensorShape(obj, output, dims)
       mex_call('TF_GraphSetTensorShape', obj.ref, output.ref, int64(dims), int32(numel(dims)), obj.status.ref);
+      obj.status.maybe_raise();
     end
 
     % TF_CAPI_EXPORT extern int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output, TF_Status* status);
     function dims = getTensorNumDims(obj, output)
       assert(isa(output, 'tensorflow.Output'));
       dims = mex_call('TF_GraphGetTensorNumDims', obj.ref, output.ref, obj.status.ref);
+      obj.status.maybe_raise();
     end
 
     % TF_CAPI_EXPORT extern void TF_GraphGetTensorShape(TF_Graph* graph, TF_Output output, int64_t* dims, int num_dims, TF_Status* status);
     function dims = getTensorShape(obj, output)
       assert(isa(output, 'tensorflow.Output'));
       dims = mex_call('TF_GraphGetTensorShape', obj.ref, output.ref, obj.status.ref);
+      obj.status.maybe_raise();
     end
 
     % TF_CAPI_EXPORT extern void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
@@ -116,6 +119,15 @@ classdef Graph < util.mixin.Pointer
       assert(isa(buffer, 'tensorflow.Buffer'));
       assert(isa(options, 'tensorflow.ImportGraphDefOptions'));
       mex_call('TF_GraphImportGraphDef', obj.ref, buffer.ref, options.ref, obj.status.ref);
+      obj.status.maybe_raise();
+    end
+
+    % TF_CAPI_EXPORT extern TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name);
+    function oper = operationByName(obj, oper_name)
+      assert(ischar(oper_name));
+      ref = mex_call('TF_GraphOperationByName', obj.ref, oper_name);
+      assert(ref ~= 0, ['Couldn''t find operation by name ''' oper_name '''.']);
+      oper = tensorflow.Operation(ref);
     end
 
     function delete(obj)

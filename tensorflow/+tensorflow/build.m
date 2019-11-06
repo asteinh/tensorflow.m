@@ -19,7 +19,7 @@ function build()
   libtensorflow = locate_tensorflow();
 
   % the name of the resulting MEX interface
-  filename = 'tfm_api';
+  filename = 'tensorflowm_api';
 
   % include directories for building
   includedirs = { ...
@@ -71,5 +71,5 @@ function build()
   end
   copyfile(fullfile([mex_dir '/build/' filename '.' mexext]), private_mex);
 
-  disp('Built TensorFlow interface.');
+  disp('Built tensorflow.m MEX interface.');
 end

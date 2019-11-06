@@ -22,21 +22,21 @@ function test_multiplication(dtype, ndim)
   a = graph.placeholder(char(dtype));
   b = graph.placeholder(char(dtype));
   y = graph.mul(a, b);
-  
+
   dims = randi([2 10],1,5);
   dims = dims(1:ndim);
-  
+
   aVal = cast(randn(dims), dtype.TF2M);
   bVal = cast(randn(dims), dtype.TF2M);
   exptd = aVal.*bVal;
-  
+
 %   dtype.TF2M
-  
+
   res = session.run([a, b], ...
                     [tensorflow.Tensor(aVal), tensorflow.Tensor(bVal)], ...
                     [y]);
   mulRes = cast(res(1).data(), dtype.TF2M);
-  
+
   if ndim < 3
     assert(norm(double(exptd-mulRes)) < eps);
     warning('Passing...');

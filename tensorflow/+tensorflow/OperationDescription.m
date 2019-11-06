@@ -5,7 +5,7 @@ classdef OperationDescription < util.mixin.Pointer
   properties
     status = [];
   end
-  
+
   methods
     function obj = OperationDescription(graph, op_type, op_name)
       assert(isa(graph, 'tensorflow.Graph'));

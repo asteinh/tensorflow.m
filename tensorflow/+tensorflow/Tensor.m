@@ -61,6 +61,7 @@ classdef Tensor < util.mixin.Pointer
       if nargin == 1
         % read data
         data_ = mex_call('TFM_GetTensorData', obj.ref);
+        data_ = typecast(data_, obj.dtype.TF2M());
         data = reshape(data_, obj.dims);
         if nargout == 1
           varargout{1} = data;

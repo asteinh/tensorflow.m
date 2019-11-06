@@ -70,16 +70,16 @@ classdef DataType < uint32
         throw(e);
       end
     end
-    
+
     function map = direct()
       map = { 'double', 'int32', 'uint8', 'int16', 'int8', 'complex', ...
               'int64', 'uint32', 'uint64' };
     end
-    
+
     function map = indirect_m2tf()
       map = { 'single', 'logical' };
     end
-    
+
     function map = indirect_tf2m()
       map = { 'float', 'bool' };
     end

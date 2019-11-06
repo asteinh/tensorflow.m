@@ -24,53 +24,7 @@
 #include <inttypes.h>
 #include "tensorflow/c/c_api.h"
 
-#define NOT_IMPLEMENTED() mexErrMsgTxt("Not implemented.");
-#define NOT_TESTED()      mexWarnMsgTxt("Implementation untested!");
-
-#define STRCMP(a,b) (strcmp(a,b) == 0 ? true : false)
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-
-mxArray* ptr2arr(const void* ptr) {
-  mexLock();
-  mxArray* arr = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
-  *((uint64_t*) mxGetData(arr)) = (uint64_t) ptr;
-  return arr;
-}
-
-void* arr2ptr(const mxArray* arr) {
-  if(mxGetNumberOfElements(arr) != 1)
-    mexErrMsgTxt("Input to \"arr2ptr\" must be a scalar.");
-  if(mxGetClassID(arr) != mxUINT64_CLASS)
-    mexErrMsgTxt("Input to \"arr2ptr\" must be a uint64.");
-  if(mxIsComplex(arr))
-    mexErrMsgTxt("Input to \"arr2ptr\" must be real.");
-
-  void* ptr = (void*) *((uint64_t*) mxGetData(arr));
-  if(!ptr) mexErrMsgTxt("Invalid handle.");
-  return ptr;
-}
-
-void destroy(void* ptr) {
-  ptr = NULL;
-  mexUnlock();
-}
-
-
-void bytes_to_buffer(const void* data, const size_t num, TF_Buffer* buffer) {
-  if(buffer->data != NULL)
-    mexErrMsgTxt("Buffer data cannot be overwritten, create a new buffer instead.\n");
-  void* data_cp = mxCalloc(num, sizeof(uint8_t));
-  mexMakeMemoryPersistent(data_cp);
-  mexLock();
-  memcpy(data_cp, data, num*sizeof(uint8_t));
-  buffer->data = data_cp;
-  buffer->length = num;
-}
-
-void free_buffer(void* data, size_t length) {
-  mxFree(data);
-  destroy(data);
-}
+#include "tensorflowm_api.h"
 
 void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
 
@@ -151,9 +105,22 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       size_t len = 1;
       for(int i = 0; i < TF_NumDims(tensor); i++)
         len *= TF_Dim(tensor, i);
-      size_t nbytes = len*TF_DataTypeSize(TF_TensorType(tensor));
-      plhs[0] = mxCreateNumericMatrix(1, len, mxDOUBLE_CLASS, mxREAL);
-      memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), MIN(nbytes, TF_TensorByteSize(tensor)));
+
+      // create mxArray depending on the tensor's data type, then casting to
+      // correct type in Matlab
+      size_t bytes = TF_DataTypeSize(TF_TensorType(tensor));
+      if(bytes == 1)
+        plhs[0] = mxCreateNumericMatrix(1, len, mxUINT8_CLASS, mxREAL);
+      else if(bytes == 2)
+        plhs[0] = mxCreateNumericMatrix(1, len, mxUINT16_CLASS, mxREAL);
+      else if(bytes == 4)
+        plhs[0] = mxCreateNumericMatrix(1, len, mxUINT32_CLASS, mxREAL);
+      else if(bytes == 8)
+        plhs[0] = mxCreateNumericMatrix(1, len, mxUINT64_CLASS, mxREAL);
+      else
+        mexErrMsgTxt("Could not figure out the bitsize of tensor's data type.");
+
+      memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), TF_TensorByteSize(tensor));
     }
     else if(STRCMP(cmd, "TFM_SetBufferData")) {
       TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
@@ -178,7 +145,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     else if(STRCMP(cmd, "TFM_GetBufferData")) {
       TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
       size_t length = buffer->length;
-      // plhs[0] = mxCreateString(buffer->data);
       plhs[0] = mxCreateNumericMatrix(1, length, mxUINT8_CLASS, mxREAL);
       memcpy(mxGetData(plhs[0]), buffer->data, length*sizeof(uint8_t));
     }
@@ -621,8 +587,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_DataType TF_OperationOutputType(TF_Output oper_out);
     else if(STRCMP(cmd, "TF_OperationOutputType")) {
-      NOT_TESTED()
-
       TF_Output* output = (TF_Output*) arr2ptr(prhs[1]);
       TF_DataType dtype = TF_OperationOutputType(*output);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT32_CLASS, mxREAL);
@@ -798,8 +762,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name);
     else if(STRCMP(cmd, "TF_GraphOperationByName")) {
-      NOT_TESTED()
-
       TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[1]);
       char* oper_name = mxArrayToString(prhs[2]);
       TF_Operation* oper = TF_GraphOperationByName(graph, oper_name);
