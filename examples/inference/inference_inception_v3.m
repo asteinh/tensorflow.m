@@ -6,8 +6,6 @@ url_model = 'https://storage.googleapis.com/download.tensorflow.org/models/incep
 %% fetching data
 disp('Fetching required data ...');
 
-iszip = strcmp(url_model(end-3:end), '.zip');
-
 if exist('data/model.tar.gz', 'file') ~= 2
   disp('Downloading model ...');
   websave('data/model.tar.gz', url_model);
@@ -37,9 +35,9 @@ isize = 299;
 mean = 0;
 scale = 255;
 
-img_raw = imread(image_file);
+img_raw = single(imread(image_file));
 img = imresize(img_raw, [isize isize]);
-img = (single(img)-single(mean))./scale; % casting and normalization
+img = (img-mean)./scale; % casting and normalization
 img = reshape(img, [1, size(img)]); % adding batch dimension
 img_t = tensorflow.Tensor(img);
 
@@ -58,10 +56,8 @@ opts = tensorflow.ImportGraphDefOptions();
 graph.importGraphDef(buf, opts);
 
 % fetch input and output layers, identified by their name
-input_oper = graph.operationByName('input');
-input_layer = tensorflow.Output(input_oper, 1);
-output_oper = graph.operationByName('InceptionV3/Predictions/Reshape_1');
-output_layer = tensorflow.Output(output_oper, 1);
+input_layer = tensorflow.Output(graph.operationByName('input'));
+output_layer = tensorflow.Output(graph.operationByName('InceptionV3/Predictions/Reshape_1'));
 
 % create session
 session = tensorflow.Session(graph);
@@ -71,10 +67,11 @@ disp('Pre-processing done.');
 %% execution
 disp('Running inference ...');
 
+tic;
 res = session.run(input_layer, img_t, output_layer);
+toc
 
 [vals, indices] = maxk(res.data(), 5);
-figure(); plot(res.data());
 
 % result should be 'military uniform'
 % assert(strcmp(labels{indices(1)}, 'military uniform'))

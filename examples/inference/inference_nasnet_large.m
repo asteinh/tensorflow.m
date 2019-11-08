@@ -1,14 +1,14 @@
 clear; clc;
 addpath('../../tensorflow');
 
-url_model = 'https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip';
+url_model = 'https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_large_2018_04_27.tgz';
 
 %% fetching data
 disp('Fetching required data ...');
 
-if exist('data/model.zip', 'file') ~= 2
+if exist('data/model.tgz', 'file') ~= 2
   disp('Downloading model ...');
-  websave('data/model.zip', url_model);
+  websave('data/model.tgz', url_model);
 else
   disp('Model already present.');
 end
@@ -16,14 +16,14 @@ end
 delete('data/model/*');
 
 disp('Extracting files ...');
-files = unzip('data/model.zip','data/model');
+files = untar('data/model.tgz','data/model');
 for f = files
   if contains(f, '.pb'); model_file = f{:};
   elseif contains(f, '.txt'); labels_file = f{:}; end
 end
 
 % image
-image_file = websave('data/images/terrier.jpg', 'https://cdn.pixabay.com/photo/2014/05/13/07/44/yorkshire-terrier-343198_960_720.jpg');
+image_file = websave('data/images/grace_hopper.jpg', 'https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg');
 
 disp('Data fetching done.');
 
@@ -31,9 +31,9 @@ disp('Data fetching done.');
 disp('Pre-processing ...');
 
 % image
-isize = 224;
-mean = 117;
-scale = 1;
+isize = 299;
+mean = 0;
+scale = 255;
 
 img_raw = imread(image_file);
 img = imresize(img_raw, [isize isize]);
@@ -58,7 +58,7 @@ graph.importGraphDef(buf, opts);
 % fetch input and output layers, identified by their name
 input_oper = graph.operationByName('input');
 input_layer = tensorflow.Output(input_oper, 1);
-output_oper = graph.operationByName('output');
+output_oper = graph.operationByName('final_layer/predictions');
 output_layer = tensorflow.Output(output_oper, 1);
 
 % create session

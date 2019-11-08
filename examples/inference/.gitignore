@@ -1,7 +1,9 @@
 *.tar.gz
+*.tgz
 *.zip
 *.jpg
 *.png
 *.jpeg
 data/model/*
 !data/model/.*
+nogit_*
