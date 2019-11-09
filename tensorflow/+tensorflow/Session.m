@@ -26,7 +26,13 @@ classdef Session < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_CloseSession(TF_Session*, TF_Status* status);
+    % TODO
+
     % TF_CAPI_EXPORT extern void TF_DeleteSession(TF_Session*, TF_Status* status);
+    function deleteSession(obj)
+      obj.delete();
+    end
+
     % TF_CAPI_EXPORT extern void TF_SessionRun(TF_Session* session, const TF_Buffer* run_options, const TF_Output* inputs, TF_Tensor* const* input_values, int ninputs, const TF_Output* outputs, TF_Tensor** output_values, int noutputs, const TF_Operation* const* target_opers, int ntargets, TF_Buffer* run_metadata, TF_Status*);
     function res = run(obj, inputs, input_values, outputs, target_opers, run_options, run_metadata)
       if nargin < 4 || nargin > 8
@@ -74,8 +80,15 @@ classdef Session < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SessionPRunSetup(TF_Session*, const TF_Output* inputs, int ninputs, const TF_Output* outputs, int noutputs, const TF_Operation* const* target_opers, int ntargets, const char** handle, TF_Status*);
+    % TODO
+
     % TF_CAPI_EXPORT extern void TF_SessionPRun(TF_Session*, const char* handle, const TF_Output* inputs, TF_Tensor* const* input_values, int ninputs, const TF_Output* outputs, TF_Tensor** output_values, int noutputs, const TF_Operation* const* target_opers, int ntargets, TF_Status*);
+    % TODO
+
     % TF_CAPI_EXPORT extern TF_DeviceList* TF_SessionListDevices(TF_Session* session, TF_Status* status);
+    % TODO
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
       if ~obj.isempty()

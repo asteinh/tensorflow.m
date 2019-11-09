@@ -8,6 +8,8 @@ classdef Tensor < util.mixin.Pointer
   end
 
   methods
+    % TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor(TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
+    % TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     function obj = Tensor(varargin)
       if nargin == 1 && isscalar(varargin{1}) && isa(varargin{1}, 'uint64')
         % Tensor(ref) ... with ref a uint64 value of a pointer's reference;
@@ -57,6 +59,48 @@ classdef Tensor < util.mixin.Pointer
       end
     end
 
+    % TF_CAPI_EXPORT extern TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor);
+    % TODO
+
+    % TF_CAPI_EXPORT extern void TF_DeleteTensor(TF_Tensor*);
+    function deleteTensor(obj)
+      obj.delete();
+    end
+
+    % TF_CAPI_EXPORT extern TF_DataType TF_TensorType(const TF_Tensor*);
+    function t = tensorType(obj)
+      t = tensorflow.DataType(mex_call('TF_TensorType', obj.ref));
+    end
+    % TF_CAPI_EXPORT extern int TF_NumDims(const TF_Tensor*);
+    function n = numDims(obj)
+      n = mex_call('TF_NumDims', obj.ref);
+    end
+    % TF_CAPI_EXPORT extern int64_t TF_Dim(const TF_Tensor* tensor, int dim_index);
+    function d = dim(obj, idx)
+      d = mex_call('TF_Dim', obj.ref, int32(idx));
+    end
+
+    % TF_CAPI_EXPORT extern size_t TF_TensorByteSize(const TF_Tensor*);
+    % TODO
+
+    % TF_CAPI_EXPORT extern void* TF_TensorData(const TF_Tensor*);
+    % TODO
+
+    % TF_CAPI_EXPORT extern int64_t TF_TensorElementCount(const TF_Tensor* tensor);
+    % TODO
+
+    % TF_CAPI_EXPORT extern void TF_TensorBitcastFrom(const TF_Tensor* from, TF_DataType type, TF_Tensor* to, const int64_t* new_dims, int num_new_dims, TF_Status* status);
+    % TODO
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    function dims = getDimensions(obj)
+      dims = NaN(1, obj.numDims());
+      for i = 1:1:numel(dims)
+        dims(i) = obj.dim(i-1);
+      end
+    end
+
     function varargout = data(obj, varargin)
       if nargin == 1
         % read data
@@ -76,26 +120,6 @@ classdef Tensor < util.mixin.Pointer
       else
         error('Unknown combination of input and output arguments.');
       end
-    end
-
-    function dims = getDimensions(obj)
-      dims = NaN(1, obj.numDims());
-      for i = 1:1:numel(dims)
-        dims(i) = obj.dim(i-1);
-      end
-    end
-
-    % TF_CAPI_EXPORT extern int TF_NumDims(const TF_Tensor*);
-    function n = numDims(obj)
-      n = mex_call('TF_NumDims', obj.ref);
-    end
-    % TF_CAPI_EXPORT extern int64_t TF_Dim(const TF_Tensor* tensor, int dim_index);
-    function d = dim(obj, idx)
-      d = mex_call('TF_Dim', obj.ref, int32(idx));
-    end
-    % TF_CAPI_EXPORT extern TF_DataType TF_TensorType(const TF_Tensor*);
-    function t = tensorType(obj)
-      t = tensorflow.DataType(mex_call('TF_TensorType', obj.ref));
     end
 
     function delete(obj)

@@ -23,6 +23,8 @@ classdef Input < util.mixin.Pointer
       output = tensorflow.Output();
     end
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     function delete(obj)
       if ~obj.isempty()
         mex_call('TFM_DeleteInput', obj.ref);

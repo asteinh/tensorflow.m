@@ -27,6 +27,10 @@ classdef DataType < uint32
   end
 
   methods
+
+    % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
+    % TODO
+
     function m = TF2M(obj)
       id = lower(char(obj)); id = id(4:end);
       if any(strcmp(tensorflow.DataType.direct(), id))

@@ -37,6 +37,8 @@ classdef Output < util.mixin.Pointer
       mex_call('TF_OperationOutputConsumers', obj.ref);
     end
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     function delete(obj)
       if ~obj.isempty()
         mex_call('TFM_DeleteOutput', obj.ref);

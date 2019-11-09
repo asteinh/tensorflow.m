@@ -148,6 +148,15 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       plhs[0] = mxCreateNumericMatrix(1, length, mxUINT8_CLASS, mxREAL);
       memcpy(mxGetData(plhs[0]), buffer->data, length*sizeof(uint8_t));
     }
+    else if(STRCMP(cmd, "TFM_DeleteWhile")) {
+      TF_WhileParams* params = (TF_WhileParams*) arr2ptr(prhs[1]);
+      destroy(params);
+    }
+    else if(STRCMP(cmd, "TFM_DeleteLibrary")) {
+      TF_Library* lib_handle = (TF_Library*) arr2ptr(prhs[1]);
+      TF_DeleteLibraryHandle(lib_handle);
+      destroy(lib_handle);
+    }
     //
     /***************************************************************************
      * Library interface
@@ -852,7 +861,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_DeleteImportGraphDefResults(TF_ImportGraphDefResults* results);
     else if(STRCMP(cmd, "TF_DeleteImportGraphDefResults")) {
-      NOT_IMPLEMENTED()
+      TF_ImportGraphDefResults* results = (TF_ImportGraphDefResults*) arr2ptr(prhs[1]);
+      TF_DeleteImportGraphDefResults(results);
+      destroy(results);
     }
     // TF_CAPI_EXPORT extern TF_ImportGraphDefResults* TF_GraphImportGraphDefWithResults(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphImportGraphDefWithResults")) {
@@ -928,7 +939,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_DeleteFunction(TF_Function* func);
     else if(STRCMP(cmd, "TF_DeleteFunction")) {
-      NOT_IMPLEMENTED()
+      TF_Function* func = (TF_Function*) arr2ptr(prhs[1]);
+      TF_DeleteFunction(func);
+      destroy(func);
     }
     // TF_CAPI_EXPORT extern unsigned char TF_TryEvaluateConstant(TF_Graph* graph, TF_Output output, TF_Tensor** result, TF_Status* status);
     else if(STRCMP(cmd, "TF_TryEvaluateConstant")) {
@@ -1064,7 +1077,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_DeleteDeviceList(TF_DeviceList* list);
     else if(STRCMP(cmd, "TF_DeleteDeviceList")) {
-      NOT_IMPLEMENTED()
+      TF_DeviceList* list = (TF_DeviceList*) arr2ptr(prhs[1]);
+      TF_DeleteDeviceList(list);
+      destroy(list);
     }
     // TF_CAPI_EXPORT extern int TF_DeviceListCount(const TF_DeviceList* list);
     else if(STRCMP(cmd, "TF_DeviceListCount")) {
@@ -1096,7 +1111,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_DeleteLibraryHandle(TF_Library* lib_handle);
     else if(STRCMP(cmd, "TF_DeleteLibraryHandle")) {
-      NOT_IMPLEMENTED()
+      TF_Library* lib_handle = (TF_Library*) arr2ptr(prhs[1]);
+      TF_DeleteLibraryHandle(func);
+      destroy(func);
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_GetAllOpList(void);
     else if(STRCMP(cmd, "TF_GetAllOpList")) {
@@ -1108,7 +1125,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_DeleteApiDefMap(TF_ApiDefMap* apimap);
     else if(STRCMP(cmd, "TF_DeleteApiDefMap")) {
-      NOT_IMPLEMENTED()
+      TF_ApiDefMap* apimap = (TF_ApiDefMap*) arr2ptr(prhs[1]);
+      TF_DeleteApiDefMap(apimap);
+      destroy(apimap);
     }
     // TF_CAPI_EXPORT extern void TF_ApiDefMapPut(TF_ApiDefMap* api_def_map, const char* text, size_t text_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_ApiDefMapPut")) {
@@ -1129,6 +1148,10 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     // TF_CAPI_EXPORT extern TF_Server* TF_NewServer(const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_NewServer")) {
       NOT_IMPLEMENTED()
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+      TF_Server* server = TF_NewServer(buffer->data, buffer->length, status);
+      plhs[0] = ptr2arr((void*) server);
     }
     // TF_CAPI_EXPORT extern void TF_ServerStart(TF_Server* server, TF_Status* status);
     else if(STRCMP(cmd, "TF_ServerStart")) {
@@ -1148,7 +1171,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_DeleteServer(TF_Server* server);
     else if(STRCMP(cmd, "TF_DeleteServer")) {
-      NOT_IMPLEMENTED()
+      TF_Server* server = (TF_Server*) arr2ptr(prhs[1]);
+      TF_DeleteServer(server);
+      destroy(server);
     }
     // TF_CAPI_EXPORT extern void TF_RegisterLogListener(void (*listener)(const char*));
     else if(STRCMP(cmd, "TF_RegisterLogListener")) {

@@ -3,10 +3,24 @@ classdef Buffer < util.mixin.Pointer
   %   Detailed explanation goes here
 
   methods
+    % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
     function obj = Buffer()
       % superclass constructor
       obj = obj@util.mixin.Pointer(mex_call('TF_NewBuffer'));
     end
+
+    % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
+    % TODO
+
+    % TF_CAPI_EXPORT extern TF_Buffer TF_GetBuffer(TF_Buffer* buffer);
+    % TODO
+
+    % TF_CAPI_EXPORT extern void TF_DeleteBuffer(TF_Buffer*);
+    function deleteBuffer(obj)
+      obj.delete();
+    end
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function obj = read_file(obj, fpath)
       mex_call('TFM_FileToBuffer', obj.ref, fpath);

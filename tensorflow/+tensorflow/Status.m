@@ -3,16 +3,9 @@ classdef Status < util.mixin.Pointer
   %   Detailed explanation goes here
 
   methods
+    % TF_CAPI_EXPORT extern TF_Status* TF_NewStatus(void);
     function obj = Status()
       obj = obj@util.mixin.Pointer(mex_call('TF_NewStatus'));
-    end
-
-    function maybe_raise(obj)
-      c = obj.GetCode();
-      if c ~= tensorflow.Code('TF_OK')
-        e = MException(['tensorflow:Status:' char(c)], obj.Message());
-        throw(e);
-      end
     end
 
     % TF_CAPI_EXPORT extern TF_Code TF_GetCode(const TF_Status* s);
@@ -26,8 +19,18 @@ classdef Status < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_DeleteStatus(TF_Status*);
-    function msg = DeleteStatus(obj)
+    function deleteStatus(obj)
       obj.delete();
+    end
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    function maybe_raise(obj)
+      c = obj.GetCode();
+      if c ~= tensorflow.Code('TF_OK')
+        e = MException(['tensorflow:Status:' char(c)], obj.Message());
+        throw(e);
+      end
     end
 
     function delete(obj)
