@@ -99,7 +99,7 @@ classdef Tensor < util.mixin.Pointer
     end
 
     function delete(obj)
-      if ~obj.isempty()
+      if ~obj.isempty() && obj.isowned()
         mex_call('TF_DeleteTensor', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
