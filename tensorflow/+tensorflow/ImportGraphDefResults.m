@@ -9,10 +9,22 @@ classdef ImportGraphDefResults < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOutputs(TF_ImportGraphDefResults* results, int* num_outputs, TF_Output** outputs);
-    % TODO
+    function outputs = returnOutputs(obj)
+      refs = mex_call('TF_ImportGraphDefResultsReturnOutputs', obj.ref);
+      outputs = [];
+      for i = 1:1:numel(refs)
+        outputs = [outputs, tensorflow.Output(refs(i))];
+      end
+    end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOperations(TF_ImportGraphDefResults* results, int* num_opers, TF_Operation*** opers);
-    % TODO
+    function operations = returnOperations(obj)
+      refs = mex_call('TF_ImportGraphDefResultsReturnOperations', obj.ref);
+      operations = [];
+      for i = 1:1:numel(refs)
+        operations = [operations, tensorflow.Operation(refs(i))];
+      end
+    end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsMissingUnusedInputMappings(TF_ImportGraphDefResults* results, int* num_missing_unused_input_mappings, const char*** src_names, int** src_indexes);
     % TODO

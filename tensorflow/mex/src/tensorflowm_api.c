@@ -106,8 +106,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       for(int i = 0; i < TF_NumDims(tensor); i++)
         len *= TF_Dim(tensor, i);
 
-      // create mxArray depending on the tensor's data type, then casting to
-      // correct type in Matlab
+      // mxArray depending on data type; cast to correct type in Matlab
       size_t bytes = TF_DataTypeSize(TF_TensorType(tensor));
       if(bytes == 1)
         plhs[0] = mxCreateNumericMatrix(1, len, mxUINT8_CLASS, mxREAL);
@@ -152,11 +151,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_WhileParams* params = (TF_WhileParams*) arr2ptr(prhs[1]);
       destroy(params);
     }
-    else if(STRCMP(cmd, "TFM_DeleteLibrary")) {
-      TF_Library* lib_handle = (TF_Library*) arr2ptr(prhs[1]);
-      TF_DeleteLibraryHandle(lib_handle);
-      destroy(lib_handle);
-    }
     //
     /***************************************************************************
      * Library interface
@@ -184,8 +178,12 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetStatus(TF_Status* s, TF_Code code, const char* msg);
     else if(STRCMP(cmd, "TF_SetStatus")) {
-      // TF_Status* status = (TF_Status*) arr2ptr(prhs[1]);
-      NOT_IMPLEMENTED()
+      NOT_TESTED
+
+      TF_Status* status = (TF_Status*) arr2ptr(prhs[1]);
+      TF_Code code = *((TF_Code*) mxGetData(prhs[2]));
+      char* msg = mxArrayToString(prhs[3]);
+      TF_SetStatus(status, code, msg);
     }
     // TF_CAPI_EXPORT extern TF_Code TF_GetCode(const TF_Status* s);
     else if(STRCMP(cmd, "TF_GetCode")) {
@@ -200,7 +198,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
     else if(STRCMP(cmd, "TF_NewBufferFromString")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
     else if(STRCMP(cmd, "TF_NewBuffer")) {
@@ -218,11 +216,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Buffer TF_GetBuffer(TF_Buffer* buffer);
     else if(STRCMP(cmd, "TF_GetBuffer")) {
-      NOT_IMPLEMENTED()
+      NOT_SUPPORTED
     }
     // TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor( TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
     else if(STRCMP(cmd, "TF_NewTensor")) {
-      NOT_IMPLEMENTED()
+      NOT_SUPPORTED
     }
     // TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     else if(STRCMP(cmd, "TF_AllocateTensor")) {
@@ -238,7 +236,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor);
     else if(STRCMP(cmd, "TF_TensorMaybeMove")) {
-      NOT_IMPLEMENTED()
+      NOT_SUPPORTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteTensor(TF_Tensor*);
     else if(STRCMP(cmd, "TF_DeleteTensor")) {
@@ -267,7 +265,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern size_t TF_TensorByteSize(const TF_Tensor*);
     else if(STRCMP(cmd, "TF_TensorByteSize")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Tensor* tensor = (TF_Tensor*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -275,8 +273,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void* TF_TensorData(const TF_Tensor*);
     else if(STRCMP(cmd, "TF_TensorData")) {
-      NOT_IMPLEMENTED()
-      // this function should probably not be exposed
+      NOT_SUPPORTED
     }
     // TF_CAPI_EXPORT extern int64_t TF_TensorElementCount(const TF_Tensor* tensor);
     else if(STRCMP(cmd, "TF_TensorElementCount")) {
@@ -286,19 +283,19 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_TensorBitcastFrom(const TF_Tensor* from, TF_DataType type, TF_Tensor* to, const int64_t* new_dims, int num_new_dims, TF_Status* status);
     else if(STRCMP(cmd, "TF_TensorBitcastFrom")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern size_t TF_StringEncode(const char* src, size_t src_len, char* dst, size_t dst_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_StringEncode")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern size_t TF_StringDecode(const char* src, size_t src_len, const char** dst, size_t* dst_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_StringDecode")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern size_t TF_StringEncodedSize(size_t len);
     else if(STRCMP(cmd, "TF_StringEncodedSize")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_SessionOptions* TF_NewSessionOptions(void);
     else if(STRCMP(cmd, "TF_NewSessionOptions")) {
@@ -307,7 +304,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetTarget(TF_SessionOptions* options, const char* target);
     else if(STRCMP(cmd, "TF_SetTarget")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_SessionOptions* opts = (TF_SessionOptions*) arr2ptr(prhs[1]);
       char* target = mxArrayToString(prhs[2]);
@@ -315,7 +312,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetConfig(TF_SessionOptions* options, const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetConfig")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteSessionOptions(TF_SessionOptions*);
     else if(STRCMP(cmd, "TF_DeleteSessionOptions")) {
@@ -336,7 +333,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output, const int64_t* dims, const int num_dims, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphSetTensorShape")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[1]);
       TF_Output* output = (TF_Output*) arr2ptr(prhs[2]);
@@ -381,7 +378,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetDevice(TF_OperationDescription* desc, const char* device);
     else if(STRCMP(cmd, "TF_SetDevice")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* device = mxArrayToString(prhs[2]);
@@ -395,7 +392,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs, int num_inputs);
     else if(STRCMP(cmd, "TF_AddInputList")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       TF_Output* inputs = (TF_Output*) arr2ptr(prhs[2]);
@@ -404,7 +401,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_AddControlInput(TF_OperationDescription* desc, TF_Operation* input);
     else if(STRCMP(cmd, "TF_AddControlInput")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       TF_Operation* input = (TF_Operation*) arr2ptr(prhs[2]);
@@ -412,7 +409,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_ColocateWith(TF_OperationDescription* desc, TF_Operation* op);
     else if(STRCMP(cmd, "TF_ColocateWith")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       TF_Operation* op = (TF_Operation*) arr2ptr(prhs[2]);
@@ -420,15 +417,15 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name, const void* value, size_t length);
     else if(STRCMP(cmd, "TF_SetAttrString")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name, const void* const* values, const size_t* lengths, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrStringList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
     else if(STRCMP(cmd, "TF_SetAttrInt")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -437,7 +434,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name, const int64_t* values, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrIntList")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -447,7 +444,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name, float value);
     else if(STRCMP(cmd, "TF_SetAttrFloat")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -456,7 +453,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name, const float* values, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrFloatList")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -466,7 +463,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name, unsigned char value);
     else if(STRCMP(cmd, "TF_SetAttrBool")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -475,7 +472,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name, const unsigned char* values,int num_values);
     else if(STRCMP(cmd, "TF_SetAttrBoolList")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -492,7 +489,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name, const TF_DataType* values, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrTypeList")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -502,7 +499,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrPlaceholder(TF_OperationDescription* desc, const char* attr_name, const char* placeholder);
     else if(STRCMP(cmd, "TF_SetAttrPlaceholder")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -511,11 +508,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrFuncName(TF_OperationDescription* desc, const char* attr_name, const char* value, size_t length);
     else if(STRCMP(cmd, "TF_SetAttrFuncName")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);
     else if(STRCMP(cmd, "TF_SetAttrShape")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -525,7 +522,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
     else if(STRCMP(cmd, "TF_SetAttrShapeList")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
@@ -536,11 +533,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrTensorShapeProto")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc, const char* attr_name, const void* const* protos, const size_t* proto_lens, int num_shapes, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrTensorShapeProtoList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* value, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrTensor")) {
@@ -552,11 +549,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* const* values, int num_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrTensorList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrValueProto")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Operation* TF_FinishOperation(TF_OperationDescription* desc, TF_Status* status);
     else if(STRCMP(cmd, "TF_FinishOperation")) {
@@ -567,28 +564,28 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern const char* TF_OperationName(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationName")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateString(TF_OperationName(oper));
     }
     // TF_CAPI_EXPORT extern const char* TF_OperationOpType(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationOpType")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateString(TF_OperationOpType(oper));
     }
     // TF_CAPI_EXPORT extern const char* TF_OperationDevice(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationDevice")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateString(TF_OperationDevice(oper));
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumOutputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumOutputs")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -603,7 +600,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationOutputListLength")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       char* arg_name = mxArrayToString(prhs[2]);
@@ -613,7 +610,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumInputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumInputs")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -621,7 +618,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_DataType TF_OperationInputType(TF_Input oper_in);
     else if(STRCMP(cmd, "TF_OperationInputType")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Input* input = (TF_Input*) arr2ptr(prhs[1]);
       TF_DataType dtype = TF_OperationInputType(*input);
@@ -630,7 +627,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationInputListLength")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       char* arg_name = mxArrayToString(prhs[2]);
@@ -640,11 +637,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Output TF_OperationInput(TF_Input oper_in);
     else if(STRCMP(cmd, "TF_OperationInput")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern int TF_OperationOutputNumConsumers(TF_Output oper_out);
     else if(STRCMP(cmd, "TF_OperationOutputNumConsumers")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Output* oper_out = (TF_Output*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -652,7 +649,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers, int max_consumers);
     else if(STRCMP(cmd, "TF_OperationOutputConsumers")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Output* oper_out = (TF_Output*) arr2ptr(prhs[1]);
       TF_Input* consumers = (TF_Input*) arr2ptr(prhs[2]);
@@ -662,7 +659,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumControlInputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumControlInputs")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -670,7 +667,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationGetControlInputs(TF_Operation* oper, TF_Operation** control_inputs, int max_control_inputs);
     else if(STRCMP(cmd, "TF_OperationGetControlInputs")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       TF_Operation** control_inputs = (TF_Operation**) arr2ptr(prhs[2]);
@@ -680,7 +677,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumControlOutputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumControlOutputs")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -688,7 +685,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationGetControlOutputs(TF_Operation* oper, TF_Operation** control_outputs, int max_control_outputs);
     else if(STRCMP(cmd, "TF_OperationGetControlOutputs")) {
-      NOT_TESTED()
+      NOT_TESTED
 
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       TF_Operation** control_outputs = (TF_Operation**) arr2ptr(prhs[2]);
@@ -698,76 +695,76 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper, const char* attr_name, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrMetadata")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
       // requires TF_AttrMetadata object in Matlab
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name, void* value, size_t max_length, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrString")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrStringList(TF_Operation* oper, const char* attr_name, void** values, size_t* lengths, int max_values, void* storage, size_t storage_size, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrStringList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrInt(TF_Operation* oper, const char* attr_name, int64_t* value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrInt")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrIntList(TF_Operation* oper, const char* attr_name, int64_t* values, int max_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrIntList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloat(TF_Operation* oper, const char* attr_name, float* value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrFloat")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloatList(TF_Operation* oper, const char* attr_name, float* values, int max_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrFloatList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrBool(TF_Operation* oper, const char* attr_name, unsigned char* value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrBool")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrBoolList(TF_Operation* oper, const char* attr_name, unsigned char* values, int max_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrBoolList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrType(TF_Operation* oper, const char* attr_name, TF_DataType* value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrType")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrTypeList(TF_Operation* oper, const char* attr_name, TF_DataType* values, int max_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrTypeList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name, int64_t* value, int num_dims, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrShape")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name, int64_t** dims, int* num_dims, int num_shapes, int64_t* storage, int storage_size, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrShapeList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorShapeProto(TF_Operation* oper, const char* attr_name, TF_Buffer* value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrTensorShapeProto")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper, const char* attr_name, TF_Buffer** values, int max_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrTensorShapeProtoList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name, TF_Tensor** value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrTensor")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name, TF_Tensor** values, int max_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrTensorList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name, TF_Buffer* output_attr_value, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationGetAttrValueProto")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name);
     else if(STRCMP(cmd, "TF_GraphOperationByName")) {
@@ -778,19 +775,19 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos);
     else if(STRCMP(cmd, "TF_GraphNextOperation")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_GraphToGraphDef(TF_Graph* graph, TF_Buffer* output_graph_def, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphToGraphDef")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_GraphGetOpDef(TF_Graph* graph, const char* op_name, TF_Buffer* output_op_def, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphGetOpDef")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_GraphVersions(TF_Graph* graph, TF_Buffer* output_version_def, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphVersions")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_ImportGraphDefOptions* TF_NewImportGraphDefOptions(void);
     else if(STRCMP(cmd, "TF_NewImportGraphDefOptions")) {
@@ -805,59 +802,73 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsSetPrefix(TF_ImportGraphDefOptions* opts, const char* prefix);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsSetPrefix")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsSetDefaultDevice(TF_ImportGraphDefOptions* opts, const char* device);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsSetDefaultDevice")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsSetUniquifyNames(TF_ImportGraphDefOptions* opts, unsigned char uniquify_names);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsSetUniquifyNames")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsSetUniquifyPrefix(TF_ImportGraphDefOptions* opts, unsigned char uniquify_prefix);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsSetUniquifyPrefix")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsAddInputMapping(TF_ImportGraphDefOptions* opts, const char* src_name, int src_index, TF_Output dst);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsAddInputMapping")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsRemapControlDependency(TF_ImportGraphDefOptions* opts, const char* src_name, TF_Operation* dst);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsRemapControlDependency")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsAddControlDependency(TF_ImportGraphDefOptions* opts, TF_Operation* oper);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsAddControlDependency")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsAddReturnOutput(TF_ImportGraphDefOptions* opts, const char* oper_name, int index);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsAddReturnOutput")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern int TF_ImportGraphDefOptionsNumReturnOutputs(const TF_ImportGraphDefOptions* opts);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsNumReturnOutputs")) {
-      NOT_IMPLEMENTED()
+      TF_ImportGraphDefOptions* opts = (TF_ImportGraphDefOptions*) arr2ptr(prhs[1]);
+      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+      *((int*) mxGetData(plhs[0])) = TF_ImportGraphDefOptionsNumReturnOutputs(opts);
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsAddReturnOperation(TF_ImportGraphDefOptions* opts, const char* oper_name);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsAddReturnOperation")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern int TF_ImportGraphDefOptionsNumReturnOperations(const TF_ImportGraphDefOptions* opts);
     else if(STRCMP(cmd, "TF_ImportGraphDefOptionsNumReturnOperations")) {
-      NOT_IMPLEMENTED()
+      TF_ImportGraphDefOptions* opts = (TF_ImportGraphDefOptions*) arr2ptr(prhs[1]);
+      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+      *((int*) mxGetData(plhs[0])) = TF_ImportGraphDefOptionsNumReturnOperations(opts);
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOutputs(TF_ImportGraphDefResults* results, int* num_outputs, TF_Output** outputs);
     else if(STRCMP(cmd, "TF_ImportGraphDefResultsReturnOutputs")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
+
+      // TF_ImportGraphDefResults* results = (TF_ImportGraphDefResults*) arr2ptr(prhs[1]);
+      // int* num_outputs;
+      // TF_Output** outputs;
+      // TF_ImportGraphDefResultsReturnOutputs(results, num_outputs, outputs);
+      //
+      // plhs[0] = mxCreateNumericMatrix(1, *num_outputs, mxUINT64_CLASS, mxREAL);
+      // uint64_t* y = (uint64_t*) mxGetData(plhs[0]);
+      // for(int i = 0; i < *num_outputs; i++)
+      //   y[i] = (uint64_t) (outputs[i]);
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOperations(TF_ImportGraphDefResults* results, int* num_opers, TF_Operation*** opers);
     else if(STRCMP(cmd, "TF_ImportGraphDefResultsReturnOperations")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsMissingUnusedInputMappings(TF_ImportGraphDefResults* results, int* num_missing_unused_input_mappings, const char*** src_names, int** src_indexes);
     else if(STRCMP(cmd, "TF_ImportGraphDefResultsMissingUnusedInputMappings")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteImportGraphDefResults(TF_ImportGraphDefResults* results);
     else if(STRCMP(cmd, "TF_DeleteImportGraphDefResults")) {
@@ -867,11 +878,16 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_ImportGraphDefResults* TF_GraphImportGraphDefWithResults(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphImportGraphDefWithResults")) {
-      NOT_IMPLEMENTED()
+      TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[1]);
+      TF_Buffer* graph_def = (TF_Buffer*) arr2ptr(prhs[2]);
+      TF_ImportGraphDefOptions* options = (TF_ImportGraphDefOptions*) arr2ptr(prhs[3]);
+      TF_Status* status = (TF_Status*) arr2ptr(prhs[4]);
+      TF_ImportGraphDefResults* results = TF_GraphImportGraphDefWithResults(graph, graph_def, options, status);
+      plhs[0] = ptr2arr((void*) results);
     }
     // TF_CAPI_EXPORT extern void TF_GraphImportGraphDefWithReturnOutputs(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Output* return_outputs, int num_return_outputs, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphImportGraphDefWithReturnOutputs")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphImportGraphDef")) {
@@ -883,59 +899,61 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_GraphCopyFunction(TF_Graph* g, const TF_Function* func, const TF_Function* grad, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphCopyFunction")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern int TF_GraphNumFunctions(TF_Graph* g);
     else if(STRCMP(cmd, "TF_GraphNumFunctions")) {
-      NOT_IMPLEMENTED()
+      TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[1]);
+      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+      *((int*) mxGetData(plhs[0])) = TF_GraphNumFunctions(graph);
     }
     // TF_CAPI_EXPORT extern int TF_GraphGetFunctions(TF_Graph* g, TF_Function** funcs, int max_func, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphGetFunctions")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_OperationToNodeDef(TF_Operation* oper, TF_Buffer* output_node_def, TF_Status* status);
     else if(STRCMP(cmd, "TF_OperationToNodeDef")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_WhileParams TF_NewWhile(TF_Graph* g, TF_Output* inputs, int ninputs, TF_Status* status);
     else if(STRCMP(cmd, "TF_NewWhile")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_FinishWhile(const TF_WhileParams* params, TF_Status* status, TF_Output* outputs);
     else if(STRCMP(cmd, "TF_FinishWhile")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_AbortWhile(const TF_WhileParams* params);
     else if(STRCMP(cmd, "TF_AbortWhile")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Function* TF_GraphToFunction(const TF_Graph* fn_body, const char* fn_name, unsigned char append_hash_to_fn_name, int num_opers, const TF_Operation* const* opers, int ninputs, const TF_Output* inputs, int noutputs, const TF_Output* outputs, const char* const* output_names, const TF_FunctionOptions* opts, const char* description, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphToFunction")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Function* TF_GraphToFunctionWithControlOutputs(const TF_Graph* fn_body, const char* fn_name, unsigned char append_hash_to_fn_name, int num_opers, const TF_Operation* const* opers, int ninputs, const TF_Output* inputs, int noutputs, const TF_Output* outputs, const char* const* output_names, int ncontrol_outputs, const TF_Operation* const* control_outputs, const char* const* control_output_names, const TF_FunctionOptions* opts, const char* description, TF_Status* st atus);
     else if(STRCMP(cmd,"TF_GraphToFunctionWithControlOutputs")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern const char* TF_FunctionName(TF_Function* func);
     else if(STRCMP(cmd, "TF_FunctionName")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_FunctionToFunctionDef(TF_Function* func, TF_Buffer* output_func_def, TF_Status* status);
     else if(STRCMP(cmd, "TF_FunctionToFunctionDef")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Function* TF_FunctionImportFunctionDef(const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_FunctionImportFunctionDef")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_FunctionSetAttrValueProto(TF_Function* func, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_FunctionSetAttrValueProto")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_FunctionGetAttrValueProto(TF_Function* func, const char* attr_name, TF_Buffer* output_attr_value, TF_Status* status);
     else if(STRCMP(cmd, "TF_FunctionGetAttrValueProto")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteFunction(TF_Function* func);
     else if(STRCMP(cmd, "TF_DeleteFunction")) {
@@ -945,7 +963,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern unsigned char TF_TryEvaluateConstant(TF_Graph* graph, TF_Output output, TF_Tensor** result, TF_Status* status);
     else if(STRCMP(cmd, "TF_TryEvaluateConstant")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Session* TF_NewSession(TF_Graph* graph, const TF_SessionOptions* opts, TF_Status* status);
     else if(STRCMP(cmd, "TF_NewSession")) {
@@ -957,11 +975,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern TF_Session* TF_LoadSessionFromSavedModel(const TF_SessionOptions* session_options, const TF_Buffer* run_options, const char* export_dir, const char* const* tags, int tags_len, TF_Graph* graph, TF_Buffer* meta_graph_def, TF_Status* status);
     else if(STRCMP(cmd, "TF_LoadSessionFromSavedModel")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_CloseSession(TF_Session*, TF_Status* status);
     else if(STRCMP(cmd, "TF_CloseSession")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteSession(TF_Session*, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeleteSession")) {
@@ -1025,55 +1043,55 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SessionPRunSetup(TF_Session*, const TF_Output* inputs, int ninputs, const TF_Output* outputs, int noutputs, const TF_Operation* const* target_opers, int ntargets, const char** handle, TF_Status*);
     else if(STRCMP(cmd, "TF_SessionPRunSetup")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_SessionPRun(TF_Session*, const char* handle, const TF_Output* inputs, TF_Tensor* const* input_values, int ninputs, const TF_Output* outputs, TF_Tensor** output_values, int noutputs, const TF_Operation* const* target_opers, int ntargets, TF_Status*);
     else if(STRCMP(cmd, "TF_SessionPRun")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeletePRunHandle(const char* handle);
     else if(STRCMP(cmd, "TF_DeletePRunHandle")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_DeprecatedSession* TF_NewDeprecatedSession(const TF_SessionOptions*, TF_Status* status);
     else if(STRCMP(cmd, "TF_NewDeprecatedSession")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_CloseDeprecatedSession(TF_DeprecatedSession*, TF_Status* status);
     else if(STRCMP(cmd, "TF_CloseDeprecatedSession")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteDeprecatedSession(TF_DeprecatedSession*, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeleteDeprecatedSession")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_Reset(const TF_SessionOptions* opt, const char** containers, int ncontainers, TF_Status* status);
     else if(STRCMP(cmd, "TF_Reset")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ExtendGraph(TF_DeprecatedSession*, const void* proto, size_t proto_len, TF_Status*);
     else if(STRCMP(cmd, "TF_ExtendGraph")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_Run(TF_DeprecatedSession*, const TF_Buffer* run_options, const char** input_names, TF_Tensor** inputs, int ninputs, const char** output_names, TF_Tensor** outputs, int noutputs, const char** target_oper_names, int ntargets, TF_Buffer* run_metadata, TF_Status*);
     else if(STRCMP(cmd, "TF_Run")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_PRunSetup(TF_DeprecatedSession*, const char** input_names, int ninputs, const char** output_names, int noutputs, const char** target_oper_names, int ntargets, const char** handle, TF_Status*);
     else if(STRCMP(cmd, "TF_PRunSetup")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_PRun(TF_DeprecatedSession*, const char* handle, const char** input_names, TF_Tensor** inputs, int ninputs, const char** output_names, TF_Tensor** outputs, int noutputs, const char** target_oper_names, int ntargets, TF_Status*);
     else if(STRCMP(cmd, "TF_PRun")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_DeviceList* TF_SessionListDevices(TF_Session* session,  TF_Status* status);
     else if(STRCMP(cmd, "TF_SessionListDevices")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_DeviceList* TF_DeprecatedSessionListDevices(TF_DeprecatedSession* session, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeprecatedSessionListDevices")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteDeviceList(TF_DeviceList* list);
     else if(STRCMP(cmd, "TF_DeleteDeviceList")) {
@@ -1083,45 +1101,47 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_DeviceListCount(const TF_DeviceList* list);
     else if(STRCMP(cmd, "TF_DeviceListCount")) {
-      NOT_IMPLEMENTED()
+      TF_DeviceList* list = (TF_DeviceList*) arr2ptr(prhs[1]);
+      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+      *((int*) mxGetData(plhs[0])) = TF_DeviceListCount(list);
     }
     // TF_CAPI_EXPORT extern const char* TF_DeviceListName(const TF_DeviceList* list, int index, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeviceListName")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern const char* TF_DeviceListType(const TF_DeviceList* list, int index, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeviceListType")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern int64_t TF_DeviceListMemoryBytes(const TF_DeviceList* list, int index, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeviceListMemoryBytes")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern uint64_t TF_DeviceListIncarnation(const TF_DeviceList* list, int index, TF_Status* status);
     else if(STRCMP(cmd, "TF_DeviceListIncarnation")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status);
     else if(STRCMP(cmd, "TF_LoadLibrary")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Buffer TF_GetOpList(TF_Library* lib_handle);
     else if(STRCMP(cmd, "TF_GetOpList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteLibraryHandle(TF_Library* lib_handle);
     else if(STRCMP(cmd, "TF_DeleteLibraryHandle")) {
       TF_Library* lib_handle = (TF_Library*) arr2ptr(prhs[1]);
-      TF_DeleteLibraryHandle(func);
-      destroy(func);
+      TF_DeleteLibraryHandle(lib_handle);
+      destroy(lib_handle);
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_GetAllOpList(void);
     else if(STRCMP(cmd, "TF_GetAllOpList")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_ApiDefMap* TF_NewApiDefMap(TF_Buffer* op_list_buffer, TF_Status* status);
     else if(STRCMP(cmd, "TF_NewApiDefMap")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteApiDefMap(TF_ApiDefMap* apimap);
     else if(STRCMP(cmd, "TF_DeleteApiDefMap")) {
@@ -1131,23 +1151,23 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_ApiDefMapPut(TF_ApiDefMap* api_def_map, const char* text, size_t text_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_ApiDefMapPut")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_ApiDefMapGet(TF_ApiDefMap* api_def_map, const char* name, size_t name_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_ApiDefMapGet")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_GetAllRegisteredKernels(TF_Status* status);
     else if(STRCMP(cmd, "TF_GetAllRegisteredKernels")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Buffer* TF_GetRegisteredKernelsForOp(const char* name, TF_Status* status);
     else if(STRCMP(cmd, "TF_GetRegisteredKernelsForOp")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern TF_Server* TF_NewServer(const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_NewServer")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
       TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
       TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
       TF_Server* server = TF_NewServer(buffer->data, buffer->length, status);
@@ -1155,19 +1175,19 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_ServerStart(TF_Server* server, TF_Status* status);
     else if(STRCMP(cmd, "TF_ServerStart")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ServerStop(TF_Server* server, TF_Status* status);
     else if(STRCMP(cmd, "TF_ServerStop")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_ServerJoin(TF_Server* server, TF_Status* status);
     else if(STRCMP(cmd, "TF_ServerJoin")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern const char* TF_ServerTarget(TF_Server* server);
     else if(STRCMP(cmd, "TF_ServerTarget")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // TF_CAPI_EXPORT extern void TF_DeleteServer(TF_Server* server);
     else if(STRCMP(cmd, "TF_DeleteServer")) {
@@ -1177,7 +1197,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_RegisterLogListener(void (*listener)(const char*));
     else if(STRCMP(cmd, "TF_RegisterLogListener")) {
-      NOT_IMPLEMENTED()
+      NOT_IMPLEMENTED
     }
     // couldn't find function
     else {

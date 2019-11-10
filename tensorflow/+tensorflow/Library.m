@@ -23,7 +23,7 @@ classdef Library < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TFM_DeleteLibrary', obj.ref);
+        mex_call('TF_DeleteLibraryHandle', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

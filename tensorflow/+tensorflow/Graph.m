@@ -70,6 +70,7 @@ classdef Graph < util.mixin.Pointer
       assert(isa(buffer, 'tensorflow.Buffer'));
       assert(isa(options, 'tensorflow.ImportGraphDefOptions'));
       res_ref = mex_call('TF_GraphImportGraphDefWithResults', obj.ref, buffer.ref, options.ref, obj.status.ref);
+      obj.status.maybe_raise();
       res = tensorflow.ImportGraphDefResults(res_ref);
     end
 

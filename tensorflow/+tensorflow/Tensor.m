@@ -2,60 +2,36 @@ classdef Tensor < util.mixin.Pointer
   %TENSOR Summary of this class goes here
   %   Detailed explanation goes here
 
-  properties (SetAccess=private)
-    dtype = [];
-    dims = [];
-  end
-
   methods
     % TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor(TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
     % TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     function obj = Tensor(varargin)
-      if nargin == 1 && isscalar(varargin{1}) && isa(varargin{1}, 'uint64')
-        % Tensor(ref) ... with ref a uint64 value of a pointer's reference;
-        %                 untested and not supported
-        newly_allocated = false;
-        ref_ = varargin{1};
-      elseif nargin == 1
-        % Tensor(data) ... with data a tensor that will be parsed to
-        %                  allocate a TF_Tensor with appropriate type,
-        %                  dimension and values
-        newly_allocated = true;
-        data = varargin{1};
-        % retrieve datatype from data
-        dtype = tensorflow.DataType.M2TF(class(data));
+      if nargin == 1 && isa(varargin{1}, 'uint64')
+        ref_ = varargin{1}; % create pointer from given reference
+        owned = false;
+      else
+        if nargin == 1
+          data = varargin{1}; % create Tensor from data
+          dtype = tensorflow.DataType.M2TF(class(data)); % retrieve datatype from data
+          dims = size(data); % data dimensions
+        elseif nargin == 2
+          dtype = varargin{1}; % create Tensor from dtype and dims
+          dims = varargin{2};  % ...
+          data = [];
+        else
+          error(['Cannot create tensorflow.Tensor with given arguments.']);
+        end
         assert(ismember(dtype, enumeration('tensorflow.DataType')));
         dtype = tensorflow.DataType(dtype);
-        % data dimensions
-        dims = size(data);
-        ref_ = mex_call('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
-      elseif nargin == 2
-        % Tensor(type, dims) ... allocate a TF_Tensor without initializing
-        %                        the linked data
-        newly_allocated = true;
-        dtype = varargin{1};
-        assert(ismember(dtype, enumeration('tensorflow.DataType')));
-        dtype = tensorflow.DataType(dtype);
-        dims = varargin{2};
         assert(isvector(dims));
         ref_ = mex_call('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
-        data = [];
-      else
-        error('Unknown combination of input and output arguments.');
+        owned = true;
       end
 
-      % create pointer
-      obj = obj@util.mixin.Pointer(ref_);
+      obj = obj@util.mixin.Pointer(ref_, owned);
 
-      if newly_allocated
-        obj.dtype = dtype;
-        obj.dims = dims;
-        if ~isempty(data)
-          obj.data(data); % set data, if given
-        end
-      else
-        obj.dtype = obj.tensorType();
-        obj.dims = obj.getDimensions();
+      if owned && ~isempty(data)
+        obj.data(data); % set data, if given
       end
     end
 
@@ -106,7 +82,7 @@ classdef Tensor < util.mixin.Pointer
         % read data
         data_ = mex_call('TFM_GetTensorData', obj.ref);
         data_ = typecast(data_, obj.dtype.TF2M());
-        data = reshape(data_, obj.dims);
+        data = reshape(data_, obj.getDimensions());
         if nargout == 1
           varargout{1} = data;
         else

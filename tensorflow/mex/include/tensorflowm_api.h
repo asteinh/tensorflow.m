@@ -4,8 +4,9 @@
 #include "mex.h"
 #include "tensorflow/c/c_api.h"
 
-#define NOT_IMPLEMENTED() mexErrMsgTxt("Not implemented.");
-#define NOT_TESTED()      mexWarnMsgTxt("Implementation untested!");
+#define NOT_IMPLEMENTED mexErrMsgTxt("Not implemented.");
+#define NOT_SUPPORTED   mexErrMsgTxt("Not supported.");
+#define NOT_TESTED      mexWarnMsgTxt("Implementation untested!");
 
 #define STRCMP(X, Y) (strcmp(X, Y) == 0 ? true : false)
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))

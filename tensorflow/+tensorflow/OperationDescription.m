@@ -104,8 +104,9 @@ classdef OperationDescription < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_Operation* TF_FinishOperation(TF_OperationDescription* desc, TF_Status* status);
     function oper = finishOperation(obj)
-      oper = tensorflow.Operation(mex_call('TF_FinishOperation', obj.ref, obj.status.ref));
+      ref = mex_call('TF_FinishOperation', obj.ref, obj.status.ref);
       obj.status.maybe_raise();
+      oper = tensorflow.Operation(ref);
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
