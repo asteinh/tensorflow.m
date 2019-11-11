@@ -31,8 +31,12 @@ classdef DataType < uint32
     % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
     % TODO
 
-    function m = TF2M(obj)
-      id = lower(char(obj)); id = id(4:end);
+  end
+
+  methods (Static)
+    function m = tf2m(tftype)
+      % convert a TensorFlow type to the corresponding Matlab class
+      id = lower(char(tftype)); id = id(4:end);
       if any(strcmp(tensorflow.DataType.direct(), id))
         % direct mapping
         m = id;
@@ -47,14 +51,13 @@ classdef DataType < uint32
             error('No implemented indirect mapping found - please inform the developers.');
         end
       else
-        e = MException('tensorflow:DataType:TF2M', ['No known Matlab equivalent for ' char(obj) '.']);
+        e = MException('tensorflow:DataType:tf2m', ['No known Matlab equivalent for ' char(tftype) '.']);
         throw(e);
       end
     end
-  end
 
-  methods (Static)
-    function tf = M2TF(matclass)
+    function tf = m2tf(matclass)
+      % convert a Matlab class to the corresponding TensorFlow type
       assert(ischar(matclass), 'The supplied argument must be a string identifying a Matlab class.');
       if any(strcmp(tensorflow.DataType.direct(), matclass))
         % direct mapping
@@ -70,21 +73,24 @@ classdef DataType < uint32
             error('No implemented indirect mapping found - please inform the developers.');
         end
       else
-        e = MException('tensorflow:DataType:M2TF', ['No known Matlab equivalent for ' matclass '.']);
+        e = MException('tensorflow:DataType:m2tf', ['No known Matlab equivalent for ' matclass '.']);
         throw(e);
       end
     end
 
     function map = direct()
+      % Matlab classes with direct equivalent in TensorFlow
       map = { 'double', 'int32', 'uint8', 'int16', 'int8', 'complex', ...
               'int64', 'uint32', 'uint64' };
     end
 
     function map = indirect_m2tf()
+      % indirect mapping from Matlab classes to TensorFlow types
       map = { 'single', 'logical' };
     end
 
     function map = indirect_tf2m()
+      % indirect mapping from TensorFlow types to Matlab classes
       map = { 'float', 'bool' };
     end
   end

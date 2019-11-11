@@ -9,9 +9,9 @@ classdef OperationDescription < util.mixin.Pointer
   methods
     % TF_CAPI_EXPORT extern TF_OperationDescription* TF_NewOperation(TF_Graph* graph, const char* op_type, const char* oper_name);
     function obj = OperationDescription(graph, op_type, op_name)
-      assert(isa(graph, 'tensorflow.Graph'));
-      assert(ischar(op_type));
-      assert(ischar(op_name));
+      assert(isa(graph, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
+      assert(ischar(op_type), 'Provided operation tupe must be a string.');
+      assert(ischar(op_name), 'Provided operation name must be a string.');
 
       % create operation description
       obj = obj@util.mixin.Pointer(mex_call('TF_NewOperation', graph.ref, op_type, op_name));
@@ -24,7 +24,7 @@ classdef OperationDescription < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_AddInput(TF_OperationDescription* desc, TF_Output input);
     function addInput(obj, inp)
-      assert(isa(inp, 'tensorflow.Output'));
+      assert(isa(inp, 'tensorflow.Output'), 'Provided input must be of class tensorflow.Output.');
       mex_call('TF_AddInput', obj.ref, inp.ref);
     end
 
@@ -62,9 +62,11 @@ classdef OperationDescription < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name, TF_DataType value);
-    function setAttrType(obj, type_)
-      assert(ischar(type_) && ismember(type_, enumeration('tensorflow.DataType')));
-      type = tensorflow.DataType(type_);
+    function setAttrType(obj, type)
+      if ~isa(type, 'tensorflow.DataType')
+        assert(ismember(type, enumeration('tensorflow.DataType')), 'Provided data type cannot be interpreted.');
+        type = tensorflow.DataType(type);
+      end
       mex_call('TF_SetAttrType', obj.ref, 'dtype', uint32(type));
     end
 
@@ -79,7 +81,7 @@ classdef OperationDescription < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);
     function setAttrShape(obj, dims)
-      assert(numel(dims) > 0);
+      assert(numel(dims) > 0, 'Number of dimension must be greater than zero.');
       num_dims = numel(dims);
       mex_call('TF_SetAttrShape', obj.ref, 'shape', int64(dims), int32(num_dims));
     end
@@ -94,7 +96,11 @@ classdef OperationDescription < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* value, TF_Status* status);
-    % TODO
+    function setAttrTensor(obj, tensor)
+      assert(isa(tensor, 'tensorflow.Tensor'), 'Provided tensor must be of class tensorflow.Tensor.');
+      mex_call('TF_SetAttrTensor', obj.ref, 'value', tensor.ref, obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* const* values, int num_values, TF_Status* status);
     % TODO

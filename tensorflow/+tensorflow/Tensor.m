@@ -12,7 +12,7 @@ classdef Tensor < util.mixin.Pointer
       else
         if nargin == 1
           data = varargin{1}; % create Tensor from data
-          dtype = tensorflow.DataType.M2TF(class(data)); % retrieve datatype from data
+          dtype = tensorflow.DataType.m2tf(class(data)); % retrieve datatype from data
           dims = size(data); % data dimensions
         elseif nargin == 2
           dtype = varargin{1}; % create Tensor from dtype and dims
@@ -81,7 +81,7 @@ classdef Tensor < util.mixin.Pointer
       if nargin == 1
         % read data
         data_ = mex_call('TFM_GetTensorData', obj.ref);
-        data_ = typecast(data_, obj.dtype.TF2M());
+        data_ = typecast(data_, tensorflow.DataType.tf2m(obj.tensorType()));
         data = reshape(data_, obj.getDimensions());
         if nargout == 1
           varargout{1} = data;

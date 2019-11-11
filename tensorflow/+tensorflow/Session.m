@@ -10,7 +10,7 @@ classdef Session < util.mixin.Pointer
 
   methods
     function obj = Session(graph_)
-      assert(isa(graph_, 'tensorflow.Graph'));
+      assert(isa(graph_, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
 
       % create SessionOptions and Status
       opts_ = tensorflow.SessionOptions();
@@ -38,35 +38,45 @@ classdef Session < util.mixin.Pointer
       if nargin < 4 || nargin > 8
         error('Wrong number of input arguments.');
       end
-      assert(isa(inputs, 'tensorflow.Output'));
-      assert(isa(input_values, 'tensorflow.Tensor'));
-      assert(isa(outputs, 'tensorflow.Output'));
+      if ~isempty(inputs)
+        assert(isa(inputs, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
+        assert(isa(input_values, 'tensorflow.Tensor'), 'Provided input values must be of class tensorflow.Tensor.');
+      end
+      assert(~isempty(outputs) && isa(outputs, 'tensorflow.Output'), 'Provided outputs must be non-empty and of class tensorflow.Output.');
 
       % TODO additional arguments are not supported yet; consider this pseudo code
       if nargin > 4
-        assert(isa(target_opers, 'tensorflow.Operation'));
+        assert(isa(target_opers, 'tensorflow.Operation'), 'Provided target operations must be of class tensorflow.Operation.');
         ntargets = numel(target_opers);
       else
         target_opers = [];
         ntargets = 0;
       end
       if nargin > 5
-        assert(isa(run_options, 'tensorflow.Buffer'));
+        assert(isa(run_options, 'tensorflow.Buffer'), 'Provided run options must be of class tensorflow.Buffer.');
       else
         run_options = [];
       end
       if nargin > 6
-        assert(isa(run_metadata, 'tensorflow.Buffer'));
+        assert(isa(run_metadata, 'tensorflow.Buffer'), 'Provided run metadata must be of class tensorflow.Buffer.');
       else
         run_metadata = [];
       end
 
       ninputs = numel(inputs);
-      assert(ninputs == numel(input_values));
+      assert(ninputs == numel(input_values), 'Number of provided inputs and input values must be equal.');
       noutputs = numel(outputs);
 
+      if ninputs > 0
+        inputs_ref = [inputs.ref];
+        input_values_ref = [input_values.ref];
+      else
+        inputs_ref = [];
+        input_values_ref = [];
+      end
+
       refs = mex_call('TF_SessionRun', obj.ref, run_options, ...
-                      uint64([inputs.ref]), uint64([input_values.ref]), int32(ninputs), ...
+                      uint64(inputs_ref), uint64(input_values_ref), int32(ninputs), ...
                       uint64([outputs.ref]), int32(noutputs), ...
                       target_opers, ntargets, run_metadata, obj.status.ref);
 

@@ -28,15 +28,15 @@ classdef Graph < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output, TF_Status* status);
     function dims = getTensorNumDims(obj, output)
-      assert(isa(output, 'tensorflow.Output'));
-      dims = mex_call('TF_GraphGetTensorNumDims', obj.ref, output.ref, obj.status.ref);
+      assert(isa(output, 'tensorflow.Output'), 'Provided output must be of class tensorflow.Output.');
+      dims = double(mex_call('TF_GraphGetTensorNumDims', obj.ref, output.ref, obj.status.ref));
       obj.status.maybe_raise();
     end
 
     % TF_CAPI_EXPORT extern void TF_GraphGetTensorShape(TF_Graph* graph, TF_Output output, int64_t* dims, int num_dims, TF_Status* status);
     function dims = getTensorShape(obj, output)
-      assert(isa(output, 'tensorflow.Output'));
-      dims = mex_call('TF_GraphGetTensorShape', obj.ref, output.ref, obj.status.ref);
+      assert(isa(output, 'tensorflow.Output'), 'Provided output must be of class tensorflow.Output.');
+      dims = double(mex_call('TF_GraphGetTensorShape', obj.ref, output.ref, obj.status.ref));
       obj.status.maybe_raise();
     end
 
@@ -47,7 +47,7 @@ classdef Graph < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name);
     function oper = operationByName(obj, oper_name)
-      assert(ischar(oper_name));
+      assert(ischar(oper_name), 'Provided operation name must be a string.');
       ref = mex_call('TF_GraphOperationByName', obj.ref, oper_name);
       assert(ref ~= 0, ['Couldn''t find operation by name ''' oper_name '''.']);
       oper = tensorflow.Operation(ref);
@@ -67,8 +67,8 @@ classdef Graph < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_ImportGraphDefResults* TF_GraphImportGraphDefWithResults(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
     function res = importGraphDefWithResults(obj, buffer, options)
-      assert(isa(buffer, 'tensorflow.Buffer'));
-      assert(isa(options, 'tensorflow.ImportGraphDefOptions'));
+      assert(isa(buffer, 'tensorflow.Buffer'), 'Provided graph definition must be of class tensorflow.Buffer.');
+      assert(isa(options, 'tensorflow.ImportGraphDefOptions'), 'Provided options must be of class tensorflow.ImportGraphDefOptions.');
       res_ref = mex_call('TF_GraphImportGraphDefWithResults', obj.ref, buffer.ref, options.ref, obj.status.ref);
       obj.status.maybe_raise();
       res = tensorflow.ImportGraphDefResults(res_ref);
@@ -79,8 +79,8 @@ classdef Graph < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def, const TF_ImportGraphDefOptions* options, TF_Status* status);
     function importGraphDef(obj, buffer, options)
-      assert(isa(buffer, 'tensorflow.Buffer'));
-      assert(isa(options, 'tensorflow.ImportGraphDefOptions'));
+      assert(isa(buffer, 'tensorflow.Buffer'), 'Provided graph definition must be of class tensorflow.Buffer.');
+      assert(isa(options, 'tensorflow.ImportGraphDefOptions'), 'Provided options must be of class tensorflow.ImportGraphDefOptions.');
       mex_call('TF_GraphImportGraphDef', obj.ref, buffer.ref, options.ref, obj.status.ref);
       obj.status.maybe_raise();
     end
@@ -95,11 +95,11 @@ classdef Graph < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern TF_WhileParams TF_NewWhile(TF_Graph* g, TF_Output* inputs, int ninputs, TF_Status* status);
-    function wparams = newWhile(obj, inputs)
-      error('Not implemented.');
-      % ref = mex_call('TF_NewWhile', obj.ref, inputs.ref, numel(inputs));
-      % wparams = tensorflow.WhileParams(ref);
-    end
+    % TODO
+    % function wparams = newWhile(obj, inputs)
+    %   % ref = mex_call('TF_NewWhile', obj.ref, inputs.ref, numel(inputs));
+    %   % wparams = tensorflow.WhileParams(ref);
+    % end
 
     % TF_CAPI_EXPORT void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx, TF_Output* dx, TF_Status* status, TF_Output* dy);
     % TODO
@@ -118,24 +118,23 @@ classdef Graph < util.mixin.Pointer
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function output = const(obj, tensor)
-      error('Not yet implemented.');
+    function output = constant(obj, data, op_name)
+      assert(nargin >= 2 && nargin <= 3, 'Wrong number of input arguments.');
+      if nargin < 3
+        [~, op_name] = util.KeyGen.sha1();
+      end
+      desc = obj.newOperation('Const', ['Constant_' op_name]);
 
-      % desc = tensorflow.OperationDescription(obj, 'Constant', ['Constant_' op_name]);
-      %
-    	% desc = TF_NewOperation(graph, "Const", name);
-    	% TF_SetAttrTensor(desc, "value", tensor, status);
-    	% TF_SetAttrType(desc, "dtype", TF_TensorType(tensor));
-    	% return TF_FinishOperation(desc, status);
-      %
-      % oper = desc.finishOperation();
-      % output = tensorflow.Output(oper, 1);
+      t = tensorflow.Tensor(data);
+      desc.setAttrTensor(t);
+      desc.setAttrType(t.tensorType);
+
+      oper = desc.finishOperation();
+      output = tensorflow.Output(oper);
     end
 
     function output = placeholder(obj, dtype, shape, op_name)
-      if nargin < 2 || nargin > 4
-        error('Wrong number of input arguments.');
-      end
+      assert(nargin >= 2 && nargin <= 4, 'Wrong number of input arguments.');
       if nargin < 4
         [~, op_name] = util.KeyGen.sha1();
       end
@@ -143,7 +142,7 @@ classdef Graph < util.mixin.Pointer
         shape = [];
       end
 
-      desc = tensorflow.OperationDescription(obj, 'Placeholder', ['Placeholder_' op_name]);
+      desc = obj.newOperation('Placeholder', ['Placeholder_' op_name]);
 
       % TODO handle control inputs
       % foreach ( TFOperation control in CurrentDependencies )
@@ -155,38 +154,32 @@ classdef Graph < util.mixin.Pointer
       end
 
       oper = desc.finishOperation();
-      output = tensorflow.Output(oper, 1);
+      output = tensorflow.Output(oper);
     end
 
     function output = add(obj, x, y, op_name)
-      if nargin < 3 || nargin > 4
-        error('Wrong number of input arguments.');
-      end
-      assert(isa(x, 'tensorflow.Output'));
-      assert(isa(y, 'tensorflow.Output'));
+      assert(nargin >= 3 && nargin <= 4, 'Wrong number of input arguments.');
+      assert(isa(x, 'tensorflow.Output') && isa(y, 'tensorflow.Output'), 'Provided arguments must be of class tensorflow.Output.');
       if nargin < 4
         [~, op_name] = util.KeyGen.sha1();
       end
 
-      desc = tensorflow.OperationDescription(obj, 'Add', ['Add_' op_name]);
+      desc = obj.newOperation('Add', ['Add_' op_name]);
       desc.addInput(x);
       desc.addInput(y);
 
       oper = desc.finishOperation();
-      output = tensorflow.Output(oper, 1);
+      output = tensorflow.Output(oper);
     end
 
     function output = mul(obj, x, y, op_name)
-      if nargin < 3 || nargin > 4
-        error('Wrong number of input arguments.');
-      end
-      assert(isa(x, 'tensorflow.Output'));
-      assert(isa(y, 'tensorflow.Output'));
+      assert(nargin >= 3 && nargin <= 4, 'Wrong number of input arguments.');
+      assert(isa(x, 'tensorflow.Output') && isa(y, 'tensorflow.Output'), 'Provided arguments must be of class tensorflow.Output.');
       if nargin < 4
         [~, op_name] = util.KeyGen.sha1();
       end
 
-      desc = tensorflow.OperationDescription(obj, 'Mul', ['Mul_' op_name]);
+      desc = obj.newOperation('Mul', ['Mul_' op_name]);
       desc.addInput(x);
       desc.addInput(y);
 
