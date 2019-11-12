@@ -8,5 +8,5 @@ import matlab.unittest.plugins.CodeCoveragePlugin
 runner = TestRunner.withTextOutput;
 runner.addPlugin(CodeCoveragePlugin.forFolder('../tensorflow/+tensorflow'));
 
-suite = TestSuite.fromPackage('tests');
+suite = TestSuite.fromPackage('unittests');
 result = runner.run(suite);

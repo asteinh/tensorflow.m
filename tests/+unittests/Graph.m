@@ -1,4 +1,4 @@
-classdef GraphTest < matlab.unittest.TestCase
+classdef Graph < matlab.unittest.TestCase
   methods (Test)
     function interface(testCase)
       % Testing interface of Graph

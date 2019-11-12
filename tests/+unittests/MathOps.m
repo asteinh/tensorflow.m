@@ -1,4 +1,4 @@
-classdef OpsTest < matlab.unittest.TestCase
+classdef MathOps < matlab.unittest.TestCase
   methods (Test)
     function add(testCase)
       % Testing addition
@@ -33,7 +33,7 @@ classdef OpsTest < matlab.unittest.TestCase
         end
       end
     end
-    
+
     function mul(testCase)
       % Testing element-wise multiplication
 

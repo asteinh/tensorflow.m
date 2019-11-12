@@ -333,8 +333,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output, const int64_t* dims, const int num_dims, TF_Status* status);
     else if(STRCMP(cmd, "TF_GraphSetTensorShape")) {
-      NOT_TESTED
-
       TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[1]);
       TF_Output* output = (TF_Output*) arr2ptr(prhs[2]);
       int64_t* dims = (int64_t*) mxGetData(prhs[3]);
@@ -512,8 +510,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);
     else if(STRCMP(cmd, "TF_SetAttrShape")) {
-      NOT_TESTED
-
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* attr_name = mxArrayToString(prhs[2]);
       int64_t* dims = (int64_t*) mxGetData(prhs[3]);
@@ -653,9 +649,9 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
 
       TF_Output* oper_out = (TF_Output*) arr2ptr(prhs[1]);
       TF_Input* consumers = (TF_Input*) arr2ptr(prhs[2]);
-      int* max_consumers = (int*) mxGetData(prhs[3]);
+      int max_consumers = *((int*) mxGetData(prhs[3]));
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
-      *((int*) mxGetData(plhs[0])) = TF_OperationOutputConsumers(*oper_out, consumers, *max_consumers);
+      *((int*) mxGetData(plhs[0])) = TF_OperationOutputConsumers(*oper_out, consumers, max_consumers);
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumControlInputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumControlInputs")) {

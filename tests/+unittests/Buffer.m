@@ -1,8 +1,8 @@
-classdef BufferTest < matlab.unittest.TestCase
+classdef Buffer < matlab.unittest.TestCase
   methods (Test)
     function interface(testCase)
       % Testing interface of Buffer
-      
+
       % empty Buffer (de)allocation
       buf = tensorflow.Buffer();
       testCase.assertEmpty(buf.data());
