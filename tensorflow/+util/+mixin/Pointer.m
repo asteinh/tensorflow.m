@@ -1,4 +1,4 @@
-classdef Pointer < util.mixin.Unique
+classdef Pointer < util.mixin.Base
   %POINTER Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -29,6 +29,7 @@ classdef Pointer < util.mixin.Unique
 
     function delete(obj)
       obj.ref = [];
+      delete@util.mixin.Base(obj);
     end
   end
 

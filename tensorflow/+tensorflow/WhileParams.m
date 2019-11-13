@@ -13,7 +13,7 @@ classdef WhileParams < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_AbortWhile(const TF_WhileParams* params);
     function abortWhile(obj)
-      mex_call('TF_AbortWhile', obj.ref);
+      tensorflow_m_('TF_AbortWhile', obj.ref);
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,7 +21,7 @@ classdef WhileParams < util.mixin.Pointer
     function delete(obj)
       if ~obj.isempty()
         obj.abortWhile();
-        mex_call('TFM_DeleteWhile', obj.ref);
+        tensorflow_m_('TFM_DeleteWhile', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

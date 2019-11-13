@@ -19,7 +19,7 @@ classdef Output < util.mixin.Pointer
         end
         assert(isa(oper, 'tensorflow.Operation'));
         assert(isnumeric(index));
-        ref_ = mex_call('TFM_NewOutput', oper.ref, index);
+        ref_ = tensorflow_m_('TFM_NewOutput', oper.ref, index);
         owned = true;
       end
 
@@ -28,12 +28,12 @@ classdef Output < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_DataType TF_OperationOutputType(TF_Output oper_out);
     function type = operationOutputType(obj)
-      type = tensorflow.DataType(mex_call('TF_OperationOutputType', obj.ref));
+      type = tensorflow.DataType(tensorflow_m_('TF_OperationOutputType', obj.ref));
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputNumConsumers(TF_Output oper_out);
     function num = operationOutputNumConsumers(obj)
-      num = mex_call('TF_OperationOutputNumConsumers', obj.ref);
+      num = tensorflow_m_('TF_OperationOutputNumConsumers', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers, int max_consumers);
@@ -45,14 +45,14 @@ classdef Output < util.mixin.Pointer
       for i = 1:1:max_consumers
         consumers = [consumers; tensorflow.Input()];
       end
-      mex_call('TF_OperationOutputConsumers', obj.ref);
+      tensorflow_m_('TF_OperationOutputConsumers', obj.ref);
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
       if ~obj.isempty() && obj.isowned()
-        mex_call('TFM_DeleteOutput', obj.ref);
+        tensorflow_m_('TFM_DeleteOutput', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

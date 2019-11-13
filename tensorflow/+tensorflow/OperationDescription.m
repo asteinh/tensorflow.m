@@ -14,7 +14,7 @@ classdef OperationDescription < util.mixin.Pointer
       assert(ischar(op_name), 'Provided operation name must be a string.');
 
       % create operation description
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewOperation', graph.ref, op_type, op_name));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewOperation', graph.ref, op_type, op_name));
 
       obj.status = tensorflow.Status();
     end
@@ -25,7 +25,7 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_AddInput(TF_OperationDescription* desc, TF_Output input);
     function addInput(obj, inp)
       assert(isa(inp, 'tensorflow.Output'), 'Provided input must be of class tensorflow.Output.');
-      mex_call('TF_AddInput', obj.ref, inp.ref);
+      tensorflow_m_('TF_AddInput', obj.ref, inp.ref);
     end
 
     % TF_CAPI_EXPORT extern void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs, int num_inputs);
@@ -67,7 +67,7 @@ classdef OperationDescription < util.mixin.Pointer
         assert(ismember(type, enumeration('tensorflow.DataType')), 'Provided data type cannot be interpreted.');
         type = tensorflow.DataType(type);
       end
-      mex_call('TF_SetAttrType', obj.ref, 'dtype', uint32(type));
+      tensorflow_m_('TF_SetAttrType', obj.ref, 'dtype', uint32(type));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name, const TF_DataType* values, int num_values);
@@ -83,7 +83,7 @@ classdef OperationDescription < util.mixin.Pointer
     function setAttrShape(obj, dims)
       assert(numel(dims) > 0, 'Number of dimension must be greater than zero.');
       num_dims = numel(dims);
-      mex_call('TF_SetAttrShape', obj.ref, 'shape', int64(dims), int32(num_dims));
+      tensorflow_m_('TF_SetAttrShape', obj.ref, 'shape', int64(dims), int32(num_dims));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
@@ -98,7 +98,7 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* value, TF_Status* status);
     function setAttrTensor(obj, tensor)
       assert(isa(tensor, 'tensorflow.Tensor'), 'Provided tensor must be of class tensorflow.Tensor.');
-      mex_call('TF_SetAttrTensor', obj.ref, 'value', tensor.ref, obj.status.ref);
+      tensorflow_m_('TF_SetAttrTensor', obj.ref, 'value', tensor.ref, obj.status.ref);
       obj.status.maybe_raise();
     end
 
@@ -110,7 +110,7 @@ classdef OperationDescription < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_Operation* TF_FinishOperation(TF_OperationDescription* desc, TF_Status* status);
     function oper = finishOperation(obj)
-      ref = mex_call('TF_FinishOperation', obj.ref, obj.status.ref);
+      ref = tensorflow_m_('TF_FinishOperation', obj.ref, obj.status.ref);
       obj.status.maybe_raise();
       oper = tensorflow.Operation(ref);
     end
@@ -119,7 +119,7 @@ classdef OperationDescription < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TFM_DeleteOperationDescription', obj.ref);
+        tensorflow_m_('TFM_DeleteOperationDescription', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

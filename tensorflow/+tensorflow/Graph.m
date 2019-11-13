@@ -10,7 +10,7 @@ classdef Graph < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Graph* TF_NewGraph(void);
     function obj = Graph()
       % superclass constructor
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewGraph'));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewGraph'));
 
       obj.status = tensorflow.Status();
     end
@@ -22,21 +22,21 @@ classdef Graph < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output, const int64_t* dims, const int num_dims, TF_Status* status);
     function setTensorShape(obj, output, dims)
-      mex_call('TF_GraphSetTensorShape', obj.ref, output.ref, int64(dims), int32(numel(dims)), obj.status.ref);
+      tensorflow_m_('TF_GraphSetTensorShape', obj.ref, output.ref, int64(dims), int32(numel(dims)), obj.status.ref);
       obj.status.maybe_raise();
     end
 
     % TF_CAPI_EXPORT extern int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output, TF_Status* status);
     function dims = getTensorNumDims(obj, output)
       assert(isa(output, 'tensorflow.Output'), 'Provided output must be of class tensorflow.Output.');
-      dims = double(mex_call('TF_GraphGetTensorNumDims', obj.ref, output.ref, obj.status.ref));
+      dims = double(tensorflow_m_('TF_GraphGetTensorNumDims', obj.ref, output.ref, obj.status.ref));
       obj.status.maybe_raise();
     end
 
     % TF_CAPI_EXPORT extern void TF_GraphGetTensorShape(TF_Graph* graph, TF_Output output, int64_t* dims, int num_dims, TF_Status* status);
     function dims = getTensorShape(obj, output)
       assert(isa(output, 'tensorflow.Output'), 'Provided output must be of class tensorflow.Output.');
-      dims = double(mex_call('TF_GraphGetTensorShape', obj.ref, output.ref, obj.status.ref));
+      dims = double(tensorflow_m_('TF_GraphGetTensorShape', obj.ref, output.ref, obj.status.ref));
       obj.status.maybe_raise();
     end
 
@@ -48,7 +48,7 @@ classdef Graph < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name);
     function oper = operationByName(obj, oper_name)
       assert(ischar(oper_name), 'Provided operation name must be a string.');
-      ref = mex_call('TF_GraphOperationByName', obj.ref, oper_name);
+      ref = tensorflow_m_('TF_GraphOperationByName', obj.ref, oper_name);
       assert(ref ~= 0, ['Couldn''t find operation by name ''' oper_name '''.']);
       oper = tensorflow.Operation(ref);
     end
@@ -69,7 +69,7 @@ classdef Graph < util.mixin.Pointer
     function res = importGraphDefWithResults(obj, buffer, options)
       assert(isa(buffer, 'tensorflow.Buffer'), 'Provided graph definition must be of class tensorflow.Buffer.');
       assert(isa(options, 'tensorflow.ImportGraphDefOptions'), 'Provided options must be of class tensorflow.ImportGraphDefOptions.');
-      res_ref = mex_call('TF_GraphImportGraphDefWithResults', obj.ref, buffer.ref, options.ref, obj.status.ref);
+      res_ref = tensorflow_m_('TF_GraphImportGraphDefWithResults', obj.ref, buffer.ref, options.ref, obj.status.ref);
       obj.status.maybe_raise();
       res = tensorflow.ImportGraphDefResults(res_ref);
     end
@@ -81,7 +81,7 @@ classdef Graph < util.mixin.Pointer
     function importGraphDef(obj, buffer, options)
       assert(isa(buffer, 'tensorflow.Buffer'), 'Provided graph definition must be of class tensorflow.Buffer.');
       assert(isa(options, 'tensorflow.ImportGraphDefOptions'), 'Provided options must be of class tensorflow.ImportGraphDefOptions.');
-      mex_call('TF_GraphImportGraphDef', obj.ref, buffer.ref, options.ref, obj.status.ref);
+      tensorflow_m_('TF_GraphImportGraphDef', obj.ref, buffer.ref, options.ref, obj.status.ref);
       obj.status.maybe_raise();
     end
 
@@ -97,7 +97,7 @@ classdef Graph < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_WhileParams TF_NewWhile(TF_Graph* g, TF_Output* inputs, int ninputs, TF_Status* status);
     % TODO
     % function wparams = newWhile(obj, inputs)
-    %   % ref = mex_call('TF_NewWhile', obj.ref, inputs.ref, numel(inputs));
+    %   % ref = tensorflow_m_('TF_NewWhile', obj.ref, inputs.ref, numel(inputs));
     %   % wparams = tensorflow.WhileParams(ref);
     % end
 
@@ -193,7 +193,7 @@ classdef Graph < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteGraph', obj.ref);
+        tensorflow_m_('TF_DeleteGraph', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

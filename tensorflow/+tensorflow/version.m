@@ -1,3 +1,3 @@
 function version()
-  mex_call('TF_Version');
+  tensorflow_m_('TF_Version');
 end

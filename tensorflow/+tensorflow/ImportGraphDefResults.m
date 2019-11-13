@@ -10,7 +10,7 @@ classdef ImportGraphDefResults < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOutputs(TF_ImportGraphDefResults* results, int* num_outputs, TF_Output** outputs);
     function outputs = returnOutputs(obj)
-      refs = mex_call('TF_ImportGraphDefResultsReturnOutputs', obj.ref);
+      refs = tensorflow_m_('TF_ImportGraphDefResultsReturnOutputs', obj.ref);
       outputs = [];
       for i = 1:1:numel(refs)
         outputs = [outputs, tensorflow.Output(refs(i))];
@@ -19,7 +19,7 @@ classdef ImportGraphDefResults < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOperations(TF_ImportGraphDefResults* results, int* num_opers, TF_Operation*** opers);
     function operations = returnOperations(obj)
-      refs = mex_call('TF_ImportGraphDefResultsReturnOperations', obj.ref);
+      refs = tensorflow_m_('TF_ImportGraphDefResultsReturnOperations', obj.ref);
       operations = [];
       for i = 1:1:numel(refs)
         operations = [operations, tensorflow.Operation(refs(i))];
@@ -38,7 +38,7 @@ classdef ImportGraphDefResults < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteImportGraphDefResults', obj.ref);
+        tensorflow_m_('TF_DeleteImportGraphDefResults', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

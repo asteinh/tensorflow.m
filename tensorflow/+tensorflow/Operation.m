@@ -10,22 +10,22 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern const char* TF_OperationName(TF_Operation* oper);
     function res = name(obj)
-      res = mex_call('TF_OperationName', obj.ref);
+      res = tensorflow_m_('TF_OperationName', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern const char* TF_OperationOpType(TF_Operation* oper);
     function res = opType(obj)
-      res = mex_call('TF_OperationOpType', obj.ref);
+      res = tensorflow_m_('TF_OperationOpType', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern const char* TF_OperationDevice(TF_Operation* oper);
     function res = device(obj)
-      res = mex_call('TF_OperationDevice', obj.ref);
+      res = tensorflow_m_('TF_OperationDevice', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationNumOutputs(TF_Operation* oper);
     function res = numOutputs(obj)
-      res = mex_call('TF_OperationNumOutputs', obj.ref);
+      res = tensorflow_m_('TF_OperationNumOutputs', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
@@ -33,7 +33,7 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationNumInputs(TF_Operation* oper);
     function res = numInputs(obj)
-      res = mex_call('TF_OperationNumInputs', obj.ref);
+      res = tensorflow_m_('TF_OperationNumInputs', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
@@ -41,7 +41,7 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationNumControlInputs(TF_Operation* oper);
     function res = numControlInputs(obj)
-      res = mex_call('TF_OperationNumControlInputs', obj.ref);
+      res = tensorflow_m_('TF_OperationNumControlInputs', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlInputs(TF_Operation* oper, TF_Operation** control_inputs, int max_control_inputs);
@@ -49,7 +49,7 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationNumControlOutputs(TF_Operation* oper);
     function res = numControlOutputs(obj)
-      res = mex_call('TF_OperationNumControlOutputs', obj.ref);
+      res = tensorflow_m_('TF_OperationNumControlOutputs', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlOutputs(TF_Operation* oper, TF_Operation** control_outputs, int max_control_outputs);
@@ -116,7 +116,7 @@ classdef Operation < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TFM_DeleteOperation', obj.ref);
+        tensorflow_m_('TFM_DeleteOperation', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

@@ -14,7 +14,7 @@ exptd = aVal.*bVal;
 res = session.run([a, b], ...
                   [tensorflow.Tensor(aVal), tensorflow.Tensor(bVal)], ...
                   [y]);
-mulRes = res(1).data();
+mulRes = res(1).value();
 
 tensorflow.info % post status
 

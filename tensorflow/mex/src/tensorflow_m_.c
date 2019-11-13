@@ -24,7 +24,7 @@
 #include <inttypes.h>
 #include "tensorflow/c/c_api.h"
 
-#include "tensorflowm_api.h"
+#include "tensorflow_m_.h"
 
 void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
 
@@ -127,7 +127,14 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       size_t length = (size_t) mxGetN(prhs[2]);
       bytes_to_buffer(data, length, buffer);
     }
+    else if(STRCMP(cmd, "TFM_GetBufferData")) {
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      size_t length = buffer->length;
+      plhs[0] = mxCreateNumericMatrix(1, length, mxUINT8_CLASS, mxREAL);
+      memcpy(mxGetData(plhs[0]), buffer->data, length*sizeof(uint8_t));
+    }
     else if(STRCMP(cmd, "TFM_FileToBuffer")) {
+      // MEX implementation of file read for big files
       TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
       char* fname = mxArrayToString(prhs[2]);
 
@@ -140,12 +147,17 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       fclose(f);
       bytes_to_buffer(data, length, buffer);
       mxFree(data);
+
+      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+      *((int*) mxGetData(plhs[0])) = (int) length;
     }
-    else if(STRCMP(cmd, "TFM_GetBufferData")) {
+    else if(STRCMP(cmd, "TFM_BufferToFile")) {
+      // MEX implementation of file write for big files
       TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
-      size_t length = buffer->length;
-      plhs[0] = mxCreateNumericMatrix(1, length, mxUINT8_CLASS, mxREAL);
-      memcpy(mxGetData(plhs[0]), buffer->data, length*sizeof(uint8_t));
+      char* fname = mxArrayToString(prhs[2]);
+      FILE* f = fopen(fname, "wb");
+      fwrite(buffer->data, 1, buffer->length, f);
+      fclose(f);
     }
     else if(STRCMP(cmd, "TFM_DeleteWhile")) {
       TF_WhileParams* params = (TF_WhileParams*) arr2ptr(prhs[1]);
@@ -655,8 +667,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumControlInputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumControlInputs")) {
-      NOT_TESTED
-
       TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
       *((int*) mxGetData(plhs[0])) = TF_OperationNumControlInputs(oper);

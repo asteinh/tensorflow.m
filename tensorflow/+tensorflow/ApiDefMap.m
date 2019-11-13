@@ -13,7 +13,7 @@ classdef ApiDefMap < util.mixin.Pointer
       status_ = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewApiDefMap', op_list_buffer.ref, status_.ref));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewApiDefMap', op_list_buffer.ref, status_.ref));
       obj.status = status_;
 
     end
@@ -33,7 +33,7 @@ classdef ApiDefMap < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteApiDefMap', obj.ref);
+        tensorflow_m_('TF_DeleteApiDefMap', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

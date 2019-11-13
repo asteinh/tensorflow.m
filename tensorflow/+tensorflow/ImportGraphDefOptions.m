@@ -6,7 +6,7 @@ classdef ImportGraphDefOptions < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_ImportGraphDefOptions* TF_NewImportGraphDefOptions(void);
     function obj = ImportGraphDefOptions()
       % create operation description
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewImportGraphDefOptions'));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewImportGraphDefOptions'));
     end
 
     % TF_CAPI_EXPORT extern void TF_DeleteImportGraphDefOptions(TF_ImportGraphDefOptions* opts);
@@ -51,7 +51,7 @@ classdef ImportGraphDefOptions < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteImportGraphDefOptions', obj.ref);
+        tensorflow_m_('TF_DeleteImportGraphDefOptions', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

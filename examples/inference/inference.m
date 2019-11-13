@@ -1,6 +1,8 @@
 clear; clc;
 addpath('../../tensorflow');
 
+DEBUG = true;
+
 % choose a model to be used
 model.name = 'inception_v3';
 
@@ -86,7 +88,7 @@ tic;
 res = session.run(input_layer, img_t, output_layer);
 toc
 
-[vals, indices] = maxk(res.data(), 5);
+[vals, indices] = maxk(res(1).value(), 5);
 
 % result should be 'military uniform'
 % assert(strcmp(labels{indices(1)}, 'military uniform'))

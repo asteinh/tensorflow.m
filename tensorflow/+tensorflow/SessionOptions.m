@@ -5,7 +5,7 @@ classdef SessionOptions < util.mixin.Pointer
   methods
     % TF_CAPI_EXPORT extern TF_SessionOptions* TF_NewSessionOptions(void);
     function obj = SessionOptions()
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewSessionOptions'));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewSessionOptions'));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetTarget(TF_SessionOptions* options, const char* target);
@@ -26,7 +26,7 @@ classdef SessionOptions < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteSessionOptions', obj.ref);
+        tensorflow_m_('TF_DeleteSessionOptions', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

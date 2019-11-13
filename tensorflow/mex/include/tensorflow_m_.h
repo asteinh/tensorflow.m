@@ -1,5 +1,5 @@
-#ifndef TENSORFLOWM_API_H
-#define TENSORFLOWM_API_H
+#ifndef TENSORFLOW_M_H
+#define TENSORFLOW_M_H
 
 #include "mex.h"
 #include "tensorflow/c/c_api.h"
@@ -52,4 +52,4 @@ void free_buffer(void* data, size_t length) {
   destroy(data);
 }
 
-#endif // TENSORFLOWM_API_H
+#endif // TENSORFLOW_M_H

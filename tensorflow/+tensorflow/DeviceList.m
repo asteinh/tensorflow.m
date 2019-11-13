@@ -32,7 +32,7 @@ classdef DeviceList < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteDeviceList', obj.ref);
+        tensorflow_m_('TF_DeleteDeviceList', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

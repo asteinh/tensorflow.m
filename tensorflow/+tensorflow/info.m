@@ -1,3 +1,3 @@
 function info()
-  mex_call('INFO');
+  tensorflow_m_('INFO');
 end

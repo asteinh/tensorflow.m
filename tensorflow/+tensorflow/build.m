@@ -19,7 +19,7 @@ function build()
   libtensorflow = locate_tensorflow();
 
   % the name of the resulting MEX interface
-  filename = 'tensorflowm_api';
+  filename = 'tensorflow_m_';
 
   % include directories for building
   includedirs = { ...

@@ -24,14 +24,14 @@ classdef Tensor < util.mixin.Pointer
         assert(ismember(dtype, enumeration('tensorflow.DataType')));
         dtype = tensorflow.DataType(dtype);
         assert(isvector(dims));
-        ref_ = mex_call('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
+        ref_ = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
         owned = true;
       end
 
       obj = obj@util.mixin.Pointer(ref_, owned);
 
       if owned && ~isempty(data)
-        obj.data(data); % set data, if given
+        obj.value(data); % set data, if given
       end
     end
 
@@ -45,22 +45,25 @@ classdef Tensor < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_DataType TF_TensorType(const TF_Tensor*);
     function t = tensorType(obj)
-      t = tensorflow.DataType(mex_call('TF_TensorType', obj.ref));
+      t = tensorflow.DataType(tensorflow_m_('TF_TensorType', obj.ref));
     end
     % TF_CAPI_EXPORT extern int TF_NumDims(const TF_Tensor*);
     function n = numDims(obj)
-      n = mex_call('TF_NumDims', obj.ref);
+      n = tensorflow_m_('TF_NumDims', obj.ref);
     end
     % TF_CAPI_EXPORT extern int64_t TF_Dim(const TF_Tensor* tensor, int dim_index);
     function d = dim(obj, idx)
-      d = mex_call('TF_Dim', obj.ref, int32(idx));
+      d = tensorflow_m_('TF_Dim', obj.ref, int32(idx));
     end
 
     % TF_CAPI_EXPORT extern size_t TF_TensorByteSize(const TF_Tensor*);
     % TODO
 
     % TF_CAPI_EXPORT extern void* TF_TensorData(const TF_Tensor*);
-    % TODO
+    function buf = data(obj)
+      % wrap returned Tensor data in a TF_Buffer
+      % data_ = tensorflow_m_('TFM_GetTensorData', obj.ref);
+    end
 
     % TF_CAPI_EXPORT extern int64_t TF_TensorElementCount(const TF_Tensor* tensor);
     % TODO
@@ -77,10 +80,10 @@ classdef Tensor < util.mixin.Pointer
       end
     end
 
-    function varargout = data(obj, varargin)
+    function varargout = value(obj, varargin)
       if nargin == 1
         % read data
-        data_ = mex_call('TFM_GetTensorData', obj.ref);
+        data_ = tensorflow_m_('TFM_GetTensorData', obj.ref);
         data_ = typecast(data_, tensorflow.DataType.tf2m(obj.tensorType()));
         data = reshape(data_, obj.getDimensions());
         if nargout == 1
@@ -92,7 +95,7 @@ classdef Tensor < util.mixin.Pointer
         % write data
         varargout = {};
         data = varargin{1};
-        mex_call('TFM_SetTensorData', obj.ref, data);
+        tensorflow_m_('TFM_SetTensorData', obj.ref, data);
       else
         error('Unknown combination of input and output arguments.');
       end
@@ -100,7 +103,7 @@ classdef Tensor < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty() && obj.isowned()
-        mex_call('TF_DeleteTensor', obj.ref);
+        tensorflow_m_('TF_DeleteTensor', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

@@ -21,7 +21,7 @@ classdef MathOps < matlab.unittest.TestCase
 
             y = graph.add(graph.constant(aVal), graph.constant(bVal));
             res = session.run([], [], y);
-            addRes = res(1).data();
+            addRes = res(1).value();
             testCase.verifyEqual(exptd(:), addRes(:));
           end
         catch e
@@ -55,7 +55,7 @@ classdef MathOps < matlab.unittest.TestCase
 
             y = graph.mul(graph.constant(aVal), graph.constant(bVal));
             res = session.run([], [], y);
-            mulRes = res(1).data();
+            mulRes = res(1).value();
             testCase.verifyEqual(exptd(:), mulRes(:));
           end
         catch e

@@ -3,26 +3,25 @@ classdef Session < util.mixin.Pointer
   %   Detailed explanation goes here
 
   properties (SetAccess=protected)
-    graph = [];
+    % graph = [];
     opts = [];
     status = [];
   end
 
   methods
-    function obj = Session(graph_)
-      assert(isa(graph_, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
+    function obj = Session(graph)
+      assert(isa(graph, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
 
       % create SessionOptions and Status
-      opts_ = tensorflow.SessionOptions();
-      status_ = tensorflow.Status();
+      opts = tensorflow.SessionOptions();
+      status = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewSession', graph_.ref, opts_.ref, status_.ref));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewSession', graph.ref, opts.ref, status.ref));
 
-      % obj.graph = graph_;
-      obj.opts = opts_;
-      obj.status = status_;
-      obj.graph = graph_;
+      obj.opts = opts;
+      obj.status = status;
+      % obj.graph = graph;
     end
 
     % TF_CAPI_EXPORT extern void TF_CloseSession(TF_Session*, TF_Status* status);
@@ -75,7 +74,7 @@ classdef Session < util.mixin.Pointer
         input_values_ref = [];
       end
 
-      refs = mex_call('TF_SessionRun', obj.ref, run_options, ...
+      refs = tensorflow_m_('TF_SessionRun', obj.ref, run_options, ...
                       uint64(inputs_ref), uint64(input_values_ref), int32(ninputs), ...
                       uint64([outputs.ref]), int32(noutputs), ...
                       target_opers, ntargets, run_metadata, obj.status.ref);
@@ -102,7 +101,7 @@ classdef Session < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteSession', obj.ref, obj.status.ref);
+        tensorflow_m_('TF_DeleteSession', obj.ref, obj.status.ref);
         obj.status.maybe_raise();
       end
       delete@util.mixin.Pointer(obj);

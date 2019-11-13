@@ -14,7 +14,7 @@ classdef Server < util.mixin.Pointer
       status_ = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(mex_call('TF_NewServer', proto.ref, status_.ref));
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewServer', proto.ref, status_.ref));
       obj.status = status_;
     end
 
@@ -41,7 +41,7 @@ classdef Server < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteServer', obj.ref);
+        tensorflow_m_('TF_DeleteServer', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end

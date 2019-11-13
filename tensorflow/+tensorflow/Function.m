@@ -32,7 +32,7 @@ classdef Function < util.mixin.Pointer
 
     function delete(obj)
       if ~obj.isempty()
-        mex_call('TF_DeleteFunction', obj.ref);
+        tensorflow_m_('TF_DeleteFunction', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
     end
