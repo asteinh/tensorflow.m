@@ -16,7 +16,7 @@ function build()
   mex_dir = fullfile([priv_dir '/../../mex']);
 
   % locate the tensorflow C library
-  libtensorflow = locate_tensorflow();
+  [lib_tf, ver_tf] = find_libtensorflow();
 
   % the name of the resulting MEX interface
   filename = 'tensorflow_m_';
@@ -24,7 +24,7 @@ function build()
   % include directories for building
   includedirs = { ...
     fullfile(['-I' mex_dir '/include']), ...
-    fullfile(['-I' libtensorflow '/include']) ...
+    fullfile(['-I' lib_tf '/include']) ...
   };
 
   % the source to be MEXed
@@ -34,20 +34,20 @@ function build()
   sources = {};
 
   % directories to be considered to resolve library dependencies
-  libdirs = { fullfile(['-L' libtensorflow '/lib']) };
+  libdirs = { fullfile(['-L' lib_tf '/lib']) };
 
   % library dependencies
   libs = { '-ltensorflow' };
 
-  % helping Matlab to 'libtensorflow.*' when executing the MEX function
+  % helping Matlab to 'lib_tf.*' when executing the MEX function
   LD_RUN_PATH = getenv('LD_RUN_PATH');
-  if ~contains(LD_RUN_PATH, [libtensorflow '/lib'])
-    setenv('LD_RUN_PATH', [libtensorflow, '/lib:', LD_RUN_PATH])
+  if ~contains(LD_RUN_PATH, [lib_tf '/lib'])
+    setenv('LD_RUN_PATH', [lib_tf, '/lib:', LD_RUN_PATH])
   end
 
   % collected arguments for MEX
   mexargs = [ {'LDOPTIMFLAGS=-O3'}, ...
-              {['LDFLAGS=$LDFLAGS,-rpath,' libtensorflow '/lib']}, ...
+              {['LDFLAGS=$LDFLAGS,-rpath,' lib_tf '/lib']}, ...
               includedirs(:)', ...
               {file}, ...
               sources(:)', ...

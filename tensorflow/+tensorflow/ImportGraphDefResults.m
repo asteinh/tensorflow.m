@@ -3,9 +3,9 @@ classdef ImportGraphDefResults < util.mixin.Pointer
   %   Detailed explanation goes here
 
   methods
-    function obj = ImportGraphDefResults(ref_)
-      assert(isa(ref_, 'uint64'));
-      obj = obj@util.mixin.Pointer(ref_);
+    function obj = ImportGraphDefResults(ref)
+      assert(isa(ref, 'uint64'));
+      obj = obj@util.mixin.Pointer(ref);
     end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOutputs(TF_ImportGraphDefResults* results, int* num_outputs, TF_Output** outputs);

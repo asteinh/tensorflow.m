@@ -4,6 +4,9 @@ classdef Base < handle
 
   properties (SetAccess=private)
     hash = [];
+  end
+  
+  properties (Access=private)
     debug = false;
   end
 

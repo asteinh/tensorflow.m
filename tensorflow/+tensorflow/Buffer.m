@@ -2,21 +2,34 @@ classdef Buffer < util.mixin.Pointer
   %BUFFER Summary of this class goes here
   %   Detailed explanation goes here
 
-  properties (Constant, SetAccess=private)
+  properties (Constant)
     % maximum size of Buffer (in bytes) to be handled by Matlab; if exceeded,
     % file I/O will be handled by MEX interface
     MAXSIZE = 1e6;
   end
 
   properties (SetAccess=private)
-    length = [];
+    length_ = [];
   end
 
   methods
     % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
-    function obj = Buffer()
-      % superclass constructor
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewBuffer'));
+    function obj = Buffer(varargin)
+      if nargin == 1 && isa(varargin{1}, 'uint64')
+        ref = varargin{1}; % create pointer from given reference
+        owned = false;
+      elseif nargin == 0
+        ref = tensorflow_m_('TF_NewBuffer');
+        owned = true;
+      else
+        error(['Cannot create tensorflow.Buffer with given arguments.']);
+      end
+
+      obj = obj@util.mixin.Pointer(ref, owned);
+
+      if ~owned
+        obj.length_ = tensorflow_m_('TFM_BufferLength', obj.ref);
+      end
     end
 
     % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
@@ -37,7 +50,8 @@ classdef Buffer < util.mixin.Pointer
       if info.bytes > obj.MAXSIZE
         % handle by MEX interface if exceeding size limit
         obj.debugMsg('tensorflow.Buffer.read_file: %.0d bytes, handled by MEX\n', info.bytes);
-        obj.length = tensorflow_m_('TFM_FileToBuffer', obj.ref, fpath);
+        tensorflow_m_('TFM_FileToBuffer', obj.ref, fpath);
+        obj.length_ = tensorflow_m_('TFM_BufferLength', obj.ref);
       else
         obj.debugMsg('tensorflow.Buffer.read_file: %.0d bytes, handled by Matlab\n', info.bytes);
         f = fopen(fpath);
@@ -46,13 +60,13 @@ classdef Buffer < util.mixin.Pointer
       end
     end
 
-    function res = write_file(obj, fpath)
-      if obj.length > obj.MAXSIZE
+    function write_file(obj, fpath)
+      if obj.length_ > obj.MAXSIZE
         % handle by MEX interface if exceeding size limit
-        obj.debugMsg('tensorflow.Buffer.write_file: %.0d bytes, handled by MEX\n', obj.length);
+        obj.debugMsg('tensorflow.Buffer.write_file: %.0d bytes, handled by MEX\n', obj.length_);
         tensorflow_m_('TFM_BufferToFile', obj.ref, fpath);
       else
-        obj.debugMsg('tensorflow.Buffer.write_file: %.0d bytes, handled by Matlab\n', obj.length);
+        obj.debugMsg('tensorflow.Buffer.write_file: %.0d bytes, handled by Matlab\n', obj.length_);
         bytes = obj.data();
         f = fopen(fpath, 'wb');
         fwrite(f, bytes, 'uint8');
@@ -60,9 +74,8 @@ classdef Buffer < util.mixin.Pointer
       end
     end
 
-    function s = size(obj)
-      % overloading size()
-      s = obj.length;
+    function s = length(obj)
+      s = double(obj.length_);
     end
 
     function varargout = data(obj, varargin)
@@ -75,7 +88,7 @@ classdef Buffer < util.mixin.Pointer
         % write data
         varargout = {};
         data = uint8(varargin{1}(:)');
-        obj.length = numel(data);
+        obj.length_ = numel(data);
         tensorflow_m_('TFM_SetBufferData', obj.ref, data);
       end
     end

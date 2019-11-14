@@ -3,9 +3,9 @@ classdef DeviceList < util.mixin.Pointer
   %   Detailed explanation goes here
 
   methods
-    function obj = DeviceList(ref_)
-      assert(isa(ref_, 'uint64'));
-      obj = obj@util.mixin.Pointer(ref_);
+    function obj = DeviceList(ref)
+      assert(isa(ref, 'uint64'));
+      obj = obj@util.mixin.Pointer(ref);
     end
 
     % TF_CAPI_EXPORT extern void TF_DeleteDeviceList(TF_DeviceList* list);

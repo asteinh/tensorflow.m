@@ -10,11 +10,11 @@ classdef ApiDefMap < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_ApiDefMap* TF_NewApiDefMap(TF_Buffer* op_list_buffer, TF_Status* status);
     function obj = ApiDefMap(op_list_buffer)
       assert(isa(op_list_buffer, 'tensorflow.Buffer'));
-      status_ = tensorflow.Status();
+      status = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewApiDefMap', op_list_buffer.ref, status_.ref));
-      obj.status = status_;
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewApiDefMap', op_list_buffer.ref, status.ref));
+      obj.status = status;
 
     end
 

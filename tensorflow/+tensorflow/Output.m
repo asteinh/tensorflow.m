@@ -5,7 +5,7 @@ classdef Output < util.mixin.Pointer
   methods
     function obj = Output(varargin)
       if nargin == 1 && isa(varargin{1}, 'uint64')
-        ref_ = varargin{1}; % create pointer from given reference
+        ref = varargin{1}; % create pointer from given reference
         owned = false;
       else
         if nargin == 1
@@ -19,11 +19,11 @@ classdef Output < util.mixin.Pointer
         end
         assert(isa(oper, 'tensorflow.Operation'));
         assert(isnumeric(index));
-        ref_ = tensorflow_m_('TFM_NewOutput', oper.ref, index);
+        ref = tensorflow_m_('TFM_NewOutput', oper.ref, index);
         owned = true;
       end
 
-      obj = obj@util.mixin.Pointer(ref_, owned);
+      obj = obj@util.mixin.Pointer(ref, owned);
     end
 
     % TF_CAPI_EXPORT extern TF_DataType TF_OperationOutputType(TF_Output oper_out);

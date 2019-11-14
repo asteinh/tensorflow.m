@@ -8,9 +8,9 @@ classdef Pointer < util.mixin.Base
   end
 
   methods
-    function obj = Pointer(ref_, owned)
-      assert(~isempty(ref_) && isa(ref_, 'uint64') && ref_ ~= 0, 'You must supply a non-empty, non-zero reference of type ''uint64''.');
-      obj.ref = ref_;
+    function obj = Pointer(ref, owned)
+      assert(~isempty(ref) && isa(ref, 'uint64') && ref ~= 0, 'You must supply a non-empty, non-zero reference of type ''uint64''.');
+      obj.ref = ref;
 
       if nargin == 2 && owned == false
         obj.release();

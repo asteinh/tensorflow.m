@@ -3,9 +3,9 @@ classdef Function < util.mixin.Pointer
   %   Detailed explanation goes here
 
   methods
-    function obj = Function(ref_)
-      assert(isa(ref_, 'uint64'));
-      obj = obj@util.mixin.Pointer(ref_);
+    function obj = Function(ref)
+      assert(isa(ref, 'uint64'));
+      obj = obj@util.mixin.Pointer(ref);
     end
 
     % TF_CAPI_EXPORT extern const char* TF_FunctionName(TF_Function* func);

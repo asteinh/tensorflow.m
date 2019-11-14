@@ -1,7 +1,7 @@
 clear; clc;
 addpath('../../tensorflow');
 
-DEBUG = true;
+% DEBUG = true;
 
 % choose a model to be used
 model.name = 'inception_v3';
@@ -25,26 +25,27 @@ end
 
 %% fetching data
 disp('Fetching required data ...');
+mkdir('data-inference/');
 
-model.dl_file = ['data/model-' model.name '.tar.gz'];
+model.dl_file = ['data-inference/model-' model.name '.tar.gz'];
 if exist(model.dl_file, 'file') ~= 2
   disp('Downloading model ...');
   websave(model.dl_file, model.dl_url);
 else
   disp('Model already present.');
 end
-delete('data/model/*.ckpt.*', 'data/model/*.txt', 'data/model/*.pb*', 'data/model/*.tflite');
+if exist('data-inference/model','dir') == 7; rmdir('data-inference/model', 's'); end
 
 disp('Extracting files ...');
-files = untar(model.dl_file, 'data/model');
+files = untar(model.dl_file, 'data-inference/model');
 for f = files
   if strcmp(f{1}(end-2:end), '.pb'); model.graph_file = f{:};
   elseif contains(f, '.txt'); model.labels_file = f{:}; end
 end
 
 % image
-image_file = websave('data/images/grace_hopper.jpg', 'https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg');
-% image_file = 'data/images/terrier.jpg';
+mkdir('data-inference/images');
+image_file = websave('data-inference/images/grace_hopper.jpg', 'https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg');
 
 disp('Data fetching done.');
 

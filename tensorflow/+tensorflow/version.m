@@ -1,3 +1,3 @@
 function version()
-  tensorflow_m_('TF_Version');
+  disp(tensorflow_m_('TF_Version'));
 end

@@ -11,11 +11,11 @@ classdef Server < util.mixin.Pointer
     function obj = Server(proto)
       % using a TF_Buffer to handle proto and its length
       assert(isa(proto, 'tensorflow.Buffer'));
-      status_ = tensorflow.Status();
+      status = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewServer', proto.ref, status_.ref));
-      obj.status = status_;
+      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewServer', proto.ref, status.ref));
+      obj.status = status;
     end
 
     % TODO

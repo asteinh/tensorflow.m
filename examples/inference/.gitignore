@@ -4,6 +4,5 @@
 *.jpg
 *.png
 *.jpeg
-data/model/*
-!data/model/.*
+data*
 nogit_*

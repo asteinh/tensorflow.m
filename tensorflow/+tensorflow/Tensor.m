@@ -7,7 +7,7 @@ classdef Tensor < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     function obj = Tensor(varargin)
       if nargin == 1 && isa(varargin{1}, 'uint64')
-        ref_ = varargin{1}; % create pointer from given reference
+        ref = varargin{1}; % create pointer from given reference
         owned = false;
       else
         if nargin == 1
@@ -24,11 +24,11 @@ classdef Tensor < util.mixin.Pointer
         assert(ismember(dtype, enumeration('tensorflow.DataType')));
         dtype = tensorflow.DataType(dtype);
         assert(isvector(dims));
-        ref_ = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
+        ref = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
         owned = true;
       end
 
-      obj = obj@util.mixin.Pointer(ref_, owned);
+      obj = obj@util.mixin.Pointer(ref, owned);
 
       if owned && ~isempty(data)
         obj.value(data); % set data, if given
@@ -47,26 +47,33 @@ classdef Tensor < util.mixin.Pointer
     function t = tensorType(obj)
       t = tensorflow.DataType(tensorflow_m_('TF_TensorType', obj.ref));
     end
+
     % TF_CAPI_EXPORT extern int TF_NumDims(const TF_Tensor*);
     function n = numDims(obj)
       n = tensorflow_m_('TF_NumDims', obj.ref);
     end
+
     % TF_CAPI_EXPORT extern int64_t TF_Dim(const TF_Tensor* tensor, int dim_index);
     function d = dim(obj, idx)
       d = tensorflow_m_('TF_Dim', obj.ref, int32(idx));
     end
 
     % TF_CAPI_EXPORT extern size_t TF_TensorByteSize(const TF_Tensor*);
-    % TODO
+    function bytes = byteSize(obj)
+      bytes = double(tensorflow_m_('TF_TensorByteSize', obj.ref));
+    end
 
     % TF_CAPI_EXPORT extern void* TF_TensorData(const TF_Tensor*);
     function buf = data(obj)
-      % wrap returned Tensor data in a TF_Buffer
-      % data_ = tensorflow_m_('TFM_GetTensorData', obj.ref);
+      % return Tensor data in a TF_Buffer wrapper
+      buf_ref = tensorflow_m_('TF_TensorData', obj.ref);
+      buf = tensorflow.Buffer(buf_ref);
     end
 
     % TF_CAPI_EXPORT extern int64_t TF_TensorElementCount(const TF_Tensor* tensor);
-    % TODO
+    function elms = elementCount(obj)
+      elms = double(tensorflow_m_('TF_TensorElementCount', obj.ref));
+    end
 
     % TF_CAPI_EXPORT extern void TF_TensorBitcastFrom(const TF_Tensor* from, TF_DataType type, TF_Tensor* to, const int64_t* new_dims, int num_new_dims, TF_Status* status);
     % TODO
@@ -83,9 +90,9 @@ classdef Tensor < util.mixin.Pointer
     function varargout = value(obj, varargin)
       if nargin == 1
         % read data
-        data_ = tensorflow_m_('TFM_GetTensorData', obj.ref);
-        data_ = typecast(data_, tensorflow.DataType.tf2m(obj.tensorType()));
-        data = reshape(data_, obj.getDimensions());
+        data = tensorflow_m_('TFM_GetTensorData', obj.ref);
+        data = typecast(data, tensorflow.DataType.tf2m(obj.tensorType()));
+        data = reshape(data, [obj.getDimensions() 1]);
         if nargout == 1
           varargout{1} = data;
         else

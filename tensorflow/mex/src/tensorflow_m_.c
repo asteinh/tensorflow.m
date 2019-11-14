@@ -121,6 +121,11 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
 
       memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), TF_TensorByteSize(tensor));
     }
+    else if(STRCMP(cmd, "TFM_BufferLength")) {
+      TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+      *((int*) mxGetData(plhs[0])) = (int) buffer->length;
+    }
     else if(STRCMP(cmd, "TFM_SetBufferData")) {
       TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
       void* data = (void*) mxGetData(prhs[2]);
@@ -147,9 +152,6 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       fclose(f);
       bytes_to_buffer(data, length, buffer);
       mxFree(data);
-
-      plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
-      *((int*) mxGetData(plhs[0])) = (int) length;
     }
     else if(STRCMP(cmd, "TFM_BufferToFile")) {
       // MEX implementation of file write for big files
@@ -277,15 +279,20 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
     }
     // TF_CAPI_EXPORT extern size_t TF_TensorByteSize(const TF_Tensor*);
     else if(STRCMP(cmd, "TF_TensorByteSize")) {
-      NOT_TESTED
-
       TF_Tensor* tensor = (TF_Tensor*) arr2ptr(prhs[1]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
       *((int*) mxGetData(plhs[0])) = TF_TensorByteSize(tensor);
     }
     // TF_CAPI_EXPORT extern void* TF_TensorData(const TF_Tensor*);
     else if(STRCMP(cmd, "TF_TensorData")) {
-      NOT_SUPPORTED
+      TF_Tensor* tensor = (TF_Tensor*) arr2ptr(prhs[1]);
+
+      // a simple wrapper; NOT owning the data, but referring to it
+      TF_Buffer* buffer = TF_NewBuffer();
+      buffer->data = TF_TensorData(tensor);
+      buffer->length = TF_TensorByteSize(tensor);
+      buffer->data_deallocator = NULL;
+      plhs[0] = ptr2arr((void*) buffer);
     }
     // TF_CAPI_EXPORT extern int64_t TF_TensorElementCount(const TF_Tensor* tensor);
     else if(STRCMP(cmd, "TF_TensorElementCount")) {

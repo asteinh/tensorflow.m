@@ -41,43 +41,47 @@ classdef Session < util.mixin.Pointer
         assert(isa(inputs, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
         assert(isa(input_values, 'tensorflow.Tensor'), 'Provided input values must be of class tensorflow.Tensor.');
       end
-      assert(~isempty(outputs) && isa(outputs, 'tensorflow.Output'), 'Provided outputs must be non-empty and of class tensorflow.Output.');
+      assert(numel(outputs) > 0 && isa(outputs, 'tensorflow.Output'), 'Provided outputs must be non-empty and of class tensorflow.Output.');
 
       % TODO additional arguments are not supported yet; consider this pseudo code
+      target_opers = [];
       if nargin > 4
         assert(isa(target_opers, 'tensorflow.Operation'), 'Provided target operations must be of class tensorflow.Operation.');
-        ntargets = numel(target_opers);
-      else
-        target_opers = [];
-        ntargets = 0;
       end
+      run_options = [];
       if nargin > 5
         assert(isa(run_options, 'tensorflow.Buffer'), 'Provided run options must be of class tensorflow.Buffer.');
-      else
-        run_options = [];
       end
+      run_metadata = [];
       if nargin > 6
         assert(isa(run_metadata, 'tensorflow.Buffer'), 'Provided run metadata must be of class tensorflow.Buffer.');
-      else
-        run_metadata = [];
       end
 
       ninputs = numel(inputs);
-      assert(ninputs == numel(input_values), 'Number of provided inputs and input values must be equal.');
-      noutputs = numel(outputs);
-
+      inputs_ref = [];
+      input_values_ref = [];
       if ninputs > 0
+        assert(ninputs == numel(input_values), 'Number of provided inputs and input values must be equal.');
         inputs_ref = [inputs.ref];
         input_values_ref = [input_values.ref];
-      else
-        inputs_ref = [];
-        input_values_ref = [];
+      end
+      
+      noutputs = numel(outputs);
+      outputs_ref = [];
+      if noutputs > 0
+        outputs_ref = [outputs.ref];
+      end
+      
+      ntargets = numel(target_opers);
+      target_opers_ref = [];
+      if ntargets > 0
+        target_opers_ref = [target_opers.ref];
       end
 
       refs = tensorflow_m_('TF_SessionRun', obj.ref, run_options, ...
-                      uint64(inputs_ref), uint64(input_values_ref), int32(ninputs), ...
-                      uint64([outputs.ref]), int32(noutputs), ...
-                      target_opers, ntargets, run_metadata, obj.status.ref);
+                      inputs_ref, input_values_ref, int32(ninputs), ...
+                      outputs_ref, int32(noutputs), ...
+                      target_opers_ref, ntargets, run_metadata, obj.status.ref);
 
       obj.status.maybe_raise();
 
