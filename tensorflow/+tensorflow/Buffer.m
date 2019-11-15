@@ -2,7 +2,7 @@ classdef Buffer < util.mixin.Pointer
   %BUFFER Summary of this class goes here
   %   Detailed explanation goes here
 
-  properties (Constant)
+  properties (Constant, Access=private)
     % maximum size of Buffer (in bytes) to be handled by Matlab; if exceeded,
     % file I/O will be handled by MEX interface
     MAXSIZE = 1e6;

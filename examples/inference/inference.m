@@ -25,27 +25,27 @@ end
 
 %% fetching data
 disp('Fetching required data ...');
-mkdir('data-inference/');
+mkdir('data/');
 
-model.dl_file = ['data-inference/model-' model.name '.tar.gz'];
+model.dl_file = ['data/model-' model.name '.tar.gz'];
 if exist(model.dl_file, 'file') ~= 2
   disp('Downloading model ...');
   websave(model.dl_file, model.dl_url);
 else
   disp('Model already present.');
 end
-if exist('data-inference/model','dir') == 7; rmdir('data-inference/model', 's'); end
+if exist('data/model','dir') == 7; rmdir('data/model', 's'); end
 
 disp('Extracting files ...');
-files = untar(model.dl_file, 'data-inference/model');
+files = untar(model.dl_file, 'data/model');
 for f = files
   if strcmp(f{1}(end-2:end), '.pb'); model.graph_file = f{:};
   elseif contains(f, '.txt'); model.labels_file = f{:}; end
 end
 
 % image
-mkdir('data-inference/images');
-image_file = websave('data-inference/images/grace_hopper.jpg', 'https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg');
+mkdir('data/images');
+image_file = websave('data/images/grace_hopper.jpg', 'https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg');
 
 disp('Data fetching done.');
 

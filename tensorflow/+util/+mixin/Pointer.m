@@ -13,7 +13,7 @@ classdef Pointer < util.mixin.Base
       obj.ref = ref;
 
       if nargin == 2 && owned == false
-        obj.release();
+        obj.is_owned = false;
       end
     end
 
@@ -30,20 +30,6 @@ classdef Pointer < util.mixin.Base
     function delete(obj)
       obj.ref = [];
       delete@util.mixin.Base(obj);
-    end
-  end
-
-  methods (Access=protected)
-    % release ownership of the referenced memory - make sure that another owner
-    % takes care of freeing up the memory once it's no longer needed!
-    function release(obj)
-      obj.is_owned = false;
-    end
-
-    % obtain ownership of the referenced memory - make sure that no other owner
-    % frees this memory to avoid segfaulting.
-    function obtain(obj)
-      obj.is_owned = true;
     end
   end
 end
