@@ -1,13 +1,6 @@
-function build()
+function build(DEBUG)
 %BUILD ...
 % ...
-
-  % check if debug mode is activated
-  if evalin('base', 'exist(''DEBUG'', ''var'')') == 0
-    DEBUG = false;
-  else
-    DEBUG = evalin('base', 'DEBUG');
-  end
 
   % path considerations
   fullpath = mfilename('fullpath');

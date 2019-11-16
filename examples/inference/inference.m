@@ -1,5 +1,4 @@
 clear; clc;
-addpath('../../tensorflow');
 
 % DEBUG = true;
 
