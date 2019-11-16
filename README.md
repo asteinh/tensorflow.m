@@ -14,4 +14,4 @@ Download the [TensorFlow C library](https://www.tensorflow.org/install/lang_c) f
 We're working on that...
 
 ## Examples
-Still to come!
+![](docs/img/coco_id_299649_result.jpg)

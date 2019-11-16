@@ -92,7 +92,7 @@ toc
 [vals, indices] = maxk(res(1).value(), 5);
 
 % result should be 'military uniform'
-% assert(strcmp(labels{indices(1)}, 'military uniform'))
+assert(strcmp(model.labels{indices(1)}, 'military uniform'))
 
 disp('Top labels:');
 for i = indices

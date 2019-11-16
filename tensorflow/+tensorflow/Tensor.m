@@ -93,6 +93,12 @@ classdef Tensor < util.mixin.Pointer
         data = tensorflow_m_('TFM_GetTensorData', obj.ref);
         data = typecast(data, tensorflow.DataType.tf2m(obj.tensorType()));
         data = reshape(data, [obj.getDimensions() 1]);
+        
+        % TODO convert results from row to column-major representation
+        if obj.getDimensions() > 2
+          warning('Retrieving tensors with higher dimensions is currently not supported.');
+        end
+        
         if nargout == 1
           varargout{1} = data;
         else
@@ -101,8 +107,10 @@ classdef Tensor < util.mixin.Pointer
       elseif nargin == 2 && nargout == 0
         % write data
         varargout = {};
-        data = varargin{1};
-        tensorflow_m_('TFM_SetTensorData', obj.ref, data);
+        data_cm = varargin{1};
+        % permute to obtain row-major representation
+        data_rm = reshape(permute(data_cm, [numel(size(data_cm)):-1:1]), size(data_cm));
+        tensorflow_m_('TFM_SetTensorData', obj.ref, data_rm);
       else
         error('Unknown combination of input and output arguments.');
       end

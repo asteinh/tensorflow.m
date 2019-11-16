@@ -3,3 +3,4 @@
 libtensorflow/
 *.mex*
 *.o
+nogit_*

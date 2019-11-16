@@ -33,11 +33,11 @@ end
 % image
 mkdir('data/images');
 image_file = websave('data/images/coco_id_299649.jpg', 'https://farm6.staticflickr.com/5296/5480700684_94ebcdeb43_z.jpg');
-% image_file = websave('data/images/tf-test_images-image2.jpg', 'https://github.com/tensorflow/models/raw/master/research/object_detection/test_images/image2.jpg');
 % image_file = websave('data/images/surfers.jpg', 'https://github.com/tensorflow/tensorflow/raw/master/tensorflow/examples/multibox_detector/data/surfers.jpg');
 
 % labels
-fid = fopen('data/coco-labels-paper.txt');
+label_file = websave('data/coco-labels-paper.txt', 'https://raw.githubusercontent.com/amikelive/coco-labels/master/coco-labels-paper.txt');
+fid = fopen(label_file);
 model.labels = textscan(fid, '%s', 'Delimiter', '\n'); model.labels = model.labels{1};
 fclose(fid);
 
@@ -46,18 +46,10 @@ disp('Data fetching done.');
 %% pre-processing
 disp('Pre-processing ...');
 
-% % image
-% img_raw = imread(image_file);
-% img = (imresize(img_raw, [model.isize model.isize])-model.mean)./model.scale;
-% % img(:,:,[3 2 1]) = img(:,:,[1 2 3]); % RGB/BGR
-% img_t = tensorflow.Tensor(reshape(img, [1, size(img)]));
-
-load('python_results.mat', 'input');
-
-input_rowmajor = cmaj_to_rmaj(squeeze(input));
-input_rowmajor = reshape(input_rowmajor, [1, size(input_rowmajor)]);
-
-img_t = tensorflow.Tensor(input_rowmajor);
+% image
+img_raw = imread(image_file);
+img = (imresize(img_raw, [model.isize model.isize])-model.mean)./model.scale;
+img_t = tensorflow.Tensor(reshape(img, [1, size(img)]));
 
 % read in saved graph into buffer
 buf = tensorflow.Buffer().read_file(model.graph_file);
@@ -92,7 +84,7 @@ detection_threshold = 0.3;
 detection_scores = res(1).value;
 detection_boxes = res(2).value; detection_boxes = reshape(detection_boxes(:), [4, 100]);
 detection_classes = res(3).value;
-num_detections = res(4).value;
+num_detections = min(res(4).value, sum(detection_scores > detection_threshold));
 
 % load('python_results.mat');
 % detection_scores = double(detection_scores);
@@ -100,7 +92,7 @@ num_detections = res(4).value;
 % detection_classes = detection_classes;
 % num_detections = numel(find(detection_scores > detection_threshold));
 
-image(squeeze(input))
+image(img)
 
 for i = 1:1:num_detections
   boxlim = double(detection_boxes(:,i));
