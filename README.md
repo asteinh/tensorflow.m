@@ -8,7 +8,7 @@ Matlab bindings for the [C library of Tensorflow](https://www.tensorflow.org/ins
 ## Install
 
 ### Unix/Mac
-Download the [TensorFlow C library](https://www.tensorflow.org/install/lang_c) for your platform, extract in your download folder and run the `build.sh` script.
+Download the [TensorFlow C library](https://www.tensorflow.org/install/lang_c) for your platform and extract the content in your download folder - the folder name has to contain `libtensorflow` to be found. Open Matlab (with rights to be able to save the path) and run the `setup.m` function in this repository's root folder.
 
 ### Windows
 We're working on that...
