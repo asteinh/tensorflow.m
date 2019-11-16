@@ -152,6 +152,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       fclose(f);
       bytes_to_buffer(data, length, buffer);
       mxFree(data);
+      mxFree(fname);
     }
     else if(STRCMP(cmd, "TFM_BufferToFile")) {
       // MEX implementation of file write for big files
@@ -160,6 +161,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       FILE* f = fopen(fname, "wb");
       fwrite(buffer->data, 1, buffer->length, f);
       fclose(f);
+      mxFree(fname);
     }
     else if(STRCMP(cmd, "TFM_DeleteWhile")) {
       TF_WhileParams* params = (TF_WhileParams*) arr2ptr(prhs[1]);
@@ -198,6 +200,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_Code code = *((TF_Code*) mxGetData(prhs[2]));
       char* msg = mxArrayToString(prhs[3]);
       TF_SetStatus(status, code, msg);
+      mxFree(msg);
     }
     // TF_CAPI_EXPORT extern TF_Code TF_GetCode(const TF_Status* s);
     else if(STRCMP(cmd, "TF_GetCode")) {
@@ -328,6 +331,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_SessionOptions* opts = (TF_SessionOptions*) arr2ptr(prhs[1]);
       char* target = mxArrayToString(prhs[2]);
       TF_SetTarget(opts, target);
+      mxFree(target);
     }
     // TF_CAPI_EXPORT extern void TF_SetConfig(TF_SessionOptions* options, const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetConfig")) {
@@ -392,6 +396,8 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* oper_name = mxArrayToString(prhs[3]);
       TF_OperationDescription* desc = TF_NewOperation(graph, op_type, oper_name);
       plhs[0] = ptr2arr((void*) desc);
+      mxFree(op_type);
+      mxFree(oper_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetDevice(TF_OperationDescription* desc, const char* device);
     else if(STRCMP(cmd, "TF_SetDevice")) {
@@ -400,6 +406,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[1]);
       char* device = mxArrayToString(prhs[2]);
       TF_SetDevice(desc, device);
+      mxFree(device);
     }
     // TF_CAPI_EXPORT extern void TF_AddInput(TF_OperationDescription* desc, TF_Output input);
     else if(STRCMP(cmd, "TF_AddInput")) {
@@ -448,6 +455,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* attr_name = mxArrayToString(prhs[2]);
       int64_t* value = (int64_t*) mxGetData(prhs[3]);
       TF_SetAttrInt(desc, attr_name, *value);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name, const int64_t* values, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrIntList")) {
@@ -458,6 +466,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       int64_t* values = (int64_t*) mxGetData(prhs[3]);
       int* num_values = (int*) mxGetData(prhs[4]);
       TF_SetAttrIntList(desc, attr_name, values, *num_values);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name, float value);
     else if(STRCMP(cmd, "TF_SetAttrFloat")) {
@@ -467,6 +476,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* attr_name = mxArrayToString(prhs[2]);
       float* value = (float*) mxGetData(prhs[3]);
       TF_SetAttrFloat(desc, attr_name, *value);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name, const float* values, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrFloatList")) {
@@ -477,6 +487,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       float* values = (float*) mxGetData(prhs[3]);
       int* num_values = (int*) mxGetData(prhs[4]);
       TF_SetAttrFloatList(desc, attr_name, values, *num_values);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name, unsigned char value);
     else if(STRCMP(cmd, "TF_SetAttrBool")) {
@@ -486,6 +497,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* attr_name = mxArrayToString(prhs[2]);
       unsigned char* value = (unsigned char*) mxGetData(prhs[3]);
       TF_SetAttrBool(desc, attr_name, *value);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name, const unsigned char* values,int num_values);
     else if(STRCMP(cmd, "TF_SetAttrBoolList")) {
@@ -496,6 +508,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       unsigned char* values = (unsigned char*) mxGetData(prhs[3]);
       int* num_values = (int*) mxGetData(prhs[4]);
       TF_SetAttrBoolList(desc, attr_name, values, *num_values);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name, TF_DataType value);
     else if(STRCMP(cmd, "TF_SetAttrType")) {
@@ -503,6 +516,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* attr_name = mxArrayToString(prhs[2]);
       TF_DataType* value = (TF_DataType*) mxGetData(prhs[3]);
       TF_SetAttrType(desc, attr_name, *value);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name, const TF_DataType* values, int num_values);
     else if(STRCMP(cmd, "TF_SetAttrTypeList")) {
@@ -513,6 +527,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_DataType* values = (TF_DataType*) mxGetData(prhs[3]);
       int* num_values = (int*) mxGetData(prhs[4]);
       TF_SetAttrTypeList(desc, attr_name, values, *num_values);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrPlaceholder(TF_OperationDescription* desc, const char* attr_name, const char* placeholder);
     else if(STRCMP(cmd, "TF_SetAttrPlaceholder")) {
@@ -522,6 +537,8 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* attr_name = mxArrayToString(prhs[2]);
       char* placeholder = mxArrayToString(prhs[3]);
       TF_SetAttrPlaceholder(desc, attr_name, placeholder);
+      mxFree(attr_name);
+      mxFree(placeholder);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrFuncName(TF_OperationDescription* desc, const char* attr_name, const char* value, size_t length);
     else if(STRCMP(cmd, "TF_SetAttrFuncName")) {
@@ -534,6 +551,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       int64_t* dims = (int64_t*) mxGetData(prhs[3]);
       int* num_dims = (int*) mxGetData(prhs[4]);
       TF_SetAttrShape(desc, attr_name, dims, *num_dims);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
     else if(STRCMP(cmd, "TF_SetAttrShapeList")) {
@@ -545,6 +563,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       int* num_dims = (int*) mxGetData(prhs[4]);
       int* num_shapes = (int*) mxGetData(prhs[5]);
       TF_SetAttrShapeList(desc, attr_name, dims, num_dims, *num_shapes);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrTensorShapeProto")) {
@@ -561,6 +580,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_Tensor* value = (TF_Tensor*) arr2ptr(prhs[3]);
       TF_Status* status = (TF_Status*) arr2ptr(prhs[4]);
       TF_SetAttrTensor(desc, attr_name, value, status);
+      mxFree(attr_name);
     }
     // TF_CAPI_EXPORT extern void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* const* values, int num_values, TF_Status* status);
     else if(STRCMP(cmd, "TF_SetAttrTensorList")) {
@@ -622,6 +642,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_Status* status = (TF_Status*) arr2ptr(prhs[3]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
       *((int*) mxGetData(plhs[0])) = TF_OperationOutputListLength(oper, arg_name, status);
+      mxFree(arg_name);
     }
     // TF_CAPI_EXPORT extern int TF_OperationNumInputs(TF_Operation* oper);
     else if(STRCMP(cmd, "TF_OperationNumInputs")) {
@@ -649,6 +670,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       TF_Status* status = (TF_Status*) arr2ptr(prhs[3]);
       plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
       *((int*) mxGetData(plhs[0])) = TF_OperationInputListLength(oper, arg_name, status);
+      mxFree(arg_name);
     }
     // TF_CAPI_EXPORT extern TF_Output TF_OperationInput(TF_Input oper_in);
     else if(STRCMP(cmd, "TF_OperationInput")) {
@@ -785,6 +807,7 @@ void mexFunction(int nlhs, mxArray* plhs [], int nrhs, const mxArray* prhs []) {
       char* oper_name = mxArrayToString(prhs[2]);
       TF_Operation* oper = TF_GraphOperationByName(graph, oper_name);
       plhs[0] = ptr2arr((void*) oper);
+      mxFree(oper_name);
     }
     // TF_CAPI_EXPORT extern TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos);
     else if(STRCMP(cmd, "TF_GraphNextOperation")) {
