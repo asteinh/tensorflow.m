@@ -10,7 +10,7 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_OperationDescription* TF_NewOperation(TF_Graph* graph, const char* op_type, const char* oper_name);
     function obj = OperationDescription(graph, op_type, op_name)
       assert(isa(graph, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
-      assert(ischar(op_type), 'Provided operation tupe must be a string.');
+      assert(ischar(op_type), 'Provided operation type must be a string.');
       assert(ischar(op_name), 'Provided operation name must be a string.');
 
       % create operation description
@@ -38,8 +38,11 @@ classdef OperationDescription < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name, const void* value, size_t length);
-    % TODO
-
+    function setAttrString(obj, str)
+      assert(ischar(str), 'Provided string must be a char array.');
+      tensorflow_m_('TF_SetAttrString', obj.ref, 'string', str(:)');
+    end
+    
     % TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,  const void* const* values,  const size_t* lengths,  int num_values);
     % TODO
 
@@ -77,7 +80,11 @@ classdef OperationDescription < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFuncName(TF_OperationDescription* desc, const char* attr_name, const char* value, size_t length);
-    % TODO
+    function setAttrFuncName(obj, func, name)
+      assert(ischar(func), 'Provided function identifier must be a char array.');
+      assert(ischar(name), 'Provided function name must be a char array.');
+      tensorflow_m_('TF_SetAttrFuncName', obj.ref, func(:)', name(:)');
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);
     function setAttrShape(obj, dims)

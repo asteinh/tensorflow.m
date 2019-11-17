@@ -28,6 +28,8 @@ function setup()
     if DEBUG; disp('Root folder already in path.'); end
   end
   
+  clear mex tensorflow_m_
+  
   % build mex interface
   tensorflow.build(DEBUG);
   

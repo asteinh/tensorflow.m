@@ -1,3 +1,3 @@
 function info()
-  tensorflow_m_('INFO');
+  tensorflow_m_('TFM_Info');
 end

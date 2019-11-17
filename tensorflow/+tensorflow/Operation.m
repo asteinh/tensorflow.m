@@ -2,6 +2,10 @@ classdef Operation < util.mixin.Pointer
   %OPERATION Summary of this class goes here
   %   Detailed explanation goes here
 
+  properties
+    status = [];
+  end
+
   methods
     function obj = Operation(ref)
       assert(isa(ref, 'uint64'));
@@ -29,7 +33,11 @@ classdef Operation < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
-    % TODO
+    function res = outputListLength(obj, name)
+      assert(ischar(func), 'Provided output list identifier must be a char array.');
+      res = tensorflow_m_('TF_OperationOutputListLength', obj.ref, name, obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern int TF_OperationNumInputs(TF_Operation* oper);
     function res = numInputs(obj)
@@ -37,7 +45,11 @@ classdef Operation < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
-    % TODO
+    function res = inputListLength(obj, name)
+      assert(ischar(func), 'Provided input list identifier must be a char array.');
+      res = tensorflow_m_('TF_OperationInputListLength', obj.ref, name, obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern int TF_OperationNumControlInputs(TF_Operation* oper);
     function res = numControlInputs(obj)
@@ -45,7 +57,16 @@ classdef Operation < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlInputs(TF_Operation* oper, TF_Operation** control_inputs, int max_control_inputs);
-    % TODO
+    function res = getControlInputs(obj)
+      n = obj.numControlInputs();
+      if n > 0
+        res = tensorflow.Operation.empty(n, 0);
+        n_ = tensorflow_m_('TF_OperationGetControlInputs', obj.ref, [res.ref], n);
+        assert(n == n_, ['Number of fetched control inputs (' n_ ') does not match number of existing control inputs (' n ').']);
+      else
+        res = [];
+      end
+    end
 
     % TF_CAPI_EXPORT extern int TF_OperationNumControlOutputs(TF_Operation* oper);
     function res = numControlOutputs(obj)
@@ -53,13 +74,25 @@ classdef Operation < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlOutputs(TF_Operation* oper, TF_Operation** control_outputs, int max_control_outputs);
-    % TODO
+    function res = getControlOutputs(obj)
+      n = obj.numControlOutputs();
+      if n > 0
+        res = tensorflow.Operation.empty(n, 0);
+        n_ = tensorflow_m_('TF_OperationGetControlOutputs', obj.ref, [res.ref], n);
+        assert(n == n_, ['Number of fetched control outputs (' n_ ') does not match number of existing control outputs (' n ').']);
+      else
+        res = [];
+      end
+    end
 
     % TF_CAPI_EXPORT extern TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper, const char* attr_name, TF_Status* status);
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name, void* value, size_t max_length, TF_Status* status);
-    % TODO
+    function str = getAttrString(obj)
+      str = tensorflow_m_('TF_OperationGetAttrString', obj.ref, 'string', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrStringList(TF_Operation* oper, const char* attr_name, void** values, size_t* lengths, int max_values, void* storage, size_t storage_size, TF_Status* status);
     % TODO

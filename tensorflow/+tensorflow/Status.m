@@ -8,27 +8,35 @@ classdef Status < util.mixin.Pointer
       obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewStatus'));
     end
 
-    % TF_CAPI_EXPORT extern TF_Code TF_GetCode(const TF_Status* s);
-    function code = GetCode(obj)
-      code = tensorflow.Code(tensorflow_m_('TF_GetCode', obj.ref));
-    end
-
-    % TF_CAPI_EXPORT extern const char* TF_Message(const TF_Status* s);
-    function msg = Message(obj)
-      msg = tensorflow_m_('TF_Message', obj.ref);
-    end
-
     % TF_CAPI_EXPORT extern void TF_DeleteStatus(TF_Status*);
     function deleteStatus(obj)
       obj.delete();
     end
 
+    % TF_CAPI_EXPORT extern void TF_SetStatus(TF_Status* s, TF_Code code, const char* msg);
+    function setStatus(obj, code, msg)
+      assert(ismember(code, enumeration('tensorflow.Code')), 'Provided code must be of class tensorflow.Code.');
+      code_num = uint32(tensorflow.Code(code));
+      assert(ischar(msg), 'Provided message must be a string.');
+      tensorflow_m_('TF_SetStatus', obj.ref, code_num, msg);
+    end
+
+    % TF_CAPI_EXPORT extern TF_Code TF_GetCode(const TF_Status* s);
+    function code = getCode(obj)
+      code = tensorflow.Code(tensorflow_m_('TF_GetCode', obj.ref));
+    end
+
+    % TF_CAPI_EXPORT extern const char* TF_Message(const TF_Status* s);
+    function msg = message(obj)
+      msg = tensorflow_m_('TF_Message', obj.ref);
+    end
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function maybe_raise(obj)
-      c = obj.GetCode();
+      c = obj.getCode();
       if c ~= tensorflow.Code('TF_OK')
-        e = MException(['tensorflow:Status:' char(c)], obj.Message());
+        e = MException(['tensorflow:Status:' char(c)], obj.message());
         throw(e);
       end
     end

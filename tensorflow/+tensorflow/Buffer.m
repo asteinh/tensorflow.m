@@ -14,22 +14,25 @@ classdef Buffer < util.mixin.Pointer
 
   methods
     % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
+    % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
     function obj = Buffer(varargin)
       if nargin == 1 && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
         owned = false;
+      elseif nargin == 1 && ischar(varargin{1})
+        data = uint8(varargin{1}(:)');
+        ref = tensorflow_m_('TF_NewBufferFromString', data);
+        owned = true;
       elseif nargin == 0
         ref = tensorflow_m_('TF_NewBuffer');
         owned = true;
       else
-        error(['Cannot create tensorflow.Buffer with given arguments.']);
+        error('Cannot create tensorflow.Buffer with given arguments.');
       end
 
       obj = obj@util.mixin.Pointer(ref, owned);
 
-      if ~owned
-        obj.length_ = tensorflow_m_('TFM_BufferLength', obj.ref);
-      end
+      obj.length_ = tensorflow_m_('TFM_BufferLength', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);

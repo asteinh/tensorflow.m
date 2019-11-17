@@ -37,7 +37,7 @@ classdef Session < util.mixin.Pointer
       if nargin < 4 || nargin > 8
         error('Wrong number of input arguments.');
       end
-      if ~isempty(inputs)
+      if numel(inputs) > 0
         assert(isa(inputs, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
         assert(isa(input_values, 'tensorflow.Tensor'), 'Provided input values must be of class tensorflow.Tensor.');
       end
