@@ -618,7 +618,7 @@ static void TF_OperationOutputListLength_(MEX_ARGS) {
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* arg_name = mxArrayToString(prhs[1]);
-  if(!attr_name)
+  if(!arg_name)
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
@@ -652,7 +652,7 @@ static void TF_OperationInputListLength_(MEX_ARGS) {
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* arg_name = mxArrayToString(prhs[1]);
-  if(!attr_name)
+  if(!arg_name)
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
