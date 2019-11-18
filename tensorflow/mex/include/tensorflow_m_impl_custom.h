@@ -127,9 +127,14 @@ static void TFM_BufferToFile(MEX_ARGS) {
   TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[0]);
   char* fname = mxArrayToString(prhs[1]);
   FILE* f = fopen(fname, "wb");
-  fwrite(buffer->data, 1, buffer->length, f);
-  fclose(f);
   mxFree(fname);
+  if(!f)
+    mexErrMsgTxt("Failed to open file.\n");
+
+  size_t n_write = fwrite(buffer->data, 1, buffer->length, f);
+  fclose(f);
+  if(n_write != buffer->length)
+    mexErrMsgTxt("Failed to write the required number of bytes to file.\n");
 }
 static void TFM_DeleteWhile(MEX_ARGS) {
   TF_WhileParams* params = (TF_WhileParams*) arr2ptr(prhs[0]);
