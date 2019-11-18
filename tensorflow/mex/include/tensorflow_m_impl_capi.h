@@ -33,6 +33,9 @@ static void TF_SetStatus_(MEX_ARGS) {
   TF_Status* status = (TF_Status*) arr2ptr(prhs[0]);
   TF_Code code = *((TF_Code*) mxGetData(prhs[1]));
   char* msg = mxArrayToString(prhs[2]);
+  if(!msg)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_SetStatus(status, code, msg);
   mxFree(msg);
 }
@@ -197,6 +200,9 @@ static void TF_SetTarget_(MEX_ARGS) {
 
   TF_SessionOptions* opts = (TF_SessionOptions*) arr2ptr(prhs[0]);
   char* target = mxArrayToString(prhs[1]);
+  if(!target)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_SetTarget(opts, target);
   mxFree(target);
 }
@@ -254,6 +260,9 @@ static void TF_GraphGetTensorShape_(MEX_ARGS) {
   int64_t num_dims = TF_GraphGetTensorNumDims(graph, output, status);
 
   int64_t* dims = (int64_t*) mxCalloc(num_dims, sizeof(int64_t));
+  if(!dims)
+    mexErrMsgTxt("Allocation of memory for dimension array failed.\n");
+
   TF_GraphGetTensorShape(graph, output, dims, num_dims, status);
 
   plhs[0] = mxCreateNumericMatrix(1, num_dims, mxDOUBLE_CLASS, mxREAL);
@@ -269,6 +278,9 @@ static void TF_NewOperation_(MEX_ARGS) {
   TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[0]);
   char* op_type = mxArrayToString(prhs[1]);
   char* oper_name = mxArrayToString(prhs[2]);
+  if(!op_type || !oper_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_OperationDescription* desc = TF_NewOperation(graph, op_type, oper_name);
   plhs[0] = ptr2arr((void*) desc);
   mxFree(op_type);
@@ -281,6 +293,9 @@ static void TF_SetDevice_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* device = mxArrayToString(prhs[1]);
+  if(!device)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_SetDevice(desc, device);
   mxFree(device);
 }
@@ -326,6 +341,9 @@ static void TF_SetAttrString_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   void* value = (void*) mxGetData(prhs[2]);
   size_t length = (size_t) mxGetN(prhs[2]);
   TF_SetAttrString(desc, attr_name, value, length*sizeof(char));
@@ -343,6 +361,9 @@ static void TF_SetAttrInt_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   int64_t value = *((int64_t*) mxGetData(prhs[2]));
   TF_SetAttrInt(desc, attr_name, value);
   mxFree(attr_name);
@@ -354,6 +375,9 @@ static void TF_SetAttrIntList_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   int64_t* values = (int64_t*) mxGetData(prhs[2]);
   int num_values = *((int*) mxGetData(prhs[3]));
   TF_SetAttrIntList(desc, attr_name, values, num_values);
@@ -366,6 +390,9 @@ static void TF_SetAttrFloat_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   float value = *((float*) mxGetData(prhs[2]));
   TF_SetAttrFloat(desc, attr_name, value);
   mxFree(attr_name);
@@ -377,6 +404,9 @@ static void TF_SetAttrFloatList_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   float* values = (float*) mxGetData(prhs[2]);
   int num_values = *((int*) mxGetData(prhs[3]));
   TF_SetAttrFloatList(desc, attr_name, values, num_values);
@@ -389,6 +419,9 @@ static void TF_SetAttrBool_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   unsigned char value = *((unsigned char*) mxGetData(prhs[2]));
   TF_SetAttrBool(desc, attr_name, value);
   mxFree(attr_name);
@@ -400,6 +433,9 @@ static void TF_SetAttrBoolList_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   unsigned char* values = (unsigned char*) mxGetData(prhs[2]);
   int num_values = *((int*) mxGetData(prhs[3]));
   TF_SetAttrBoolList(desc, attr_name, values, num_values);
@@ -410,6 +446,9 @@ static void TF_SetAttrBoolList_(MEX_ARGS) {
 static void TF_SetAttrType_(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_DataType value = *((TF_DataType*) mxGetData(prhs[2]));
   TF_SetAttrType(desc, attr_name, value);
   mxFree(attr_name);
@@ -421,6 +460,9 @@ static void TF_SetAttrTypeList_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_DataType* values = (TF_DataType*) mxGetData(prhs[2]);
   int num_values = *((int*) mxGetData(prhs[3]));
   TF_SetAttrTypeList(desc, attr_name, values, num_values);
@@ -434,6 +476,9 @@ static void TF_SetAttrPlaceholder_(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   char* placeholder = mxArrayToString(prhs[2]);
+  if(!attr_name || !placeholder)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_SetAttrPlaceholder(desc, attr_name, placeholder);
   mxFree(attr_name);
   mxFree(placeholder);
@@ -447,6 +492,9 @@ static void TF_SetAttrFuncName_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   void* value = (void*) mxGetData(prhs[2]);
   size_t length = (size_t) mxGetN(prhs[2]);
   TF_SetAttrFuncName(desc, attr_name, value, length*sizeof(char));
@@ -457,6 +505,9 @@ static void TF_SetAttrFuncName_(MEX_ARGS) {
 static void TF_SetAttrShape_(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   int64_t* dims = (int64_t*) mxGetData(prhs[2]);
   int num_dims = *((int*) mxGetData(prhs[3]));
   TF_SetAttrShape(desc, attr_name, dims, num_dims);
@@ -469,6 +520,9 @@ static void TF_SetAttrShapeList_(MEX_ARGS) {
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   const int64_t* const* dims = (const int64_t* const*) mxGetData(prhs[2]);
   int* num_dims = (int*) mxGetData(prhs[3]);
   int num_shapes = *((int*) mxGetData(prhs[4]));
@@ -490,6 +544,9 @@ static void TF_SetAttrTensorShapeProtoList_(MEX_ARGS) {
 static void TF_SetAttrTensor_(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_Tensor* value = (TF_Tensor*) arr2ptr(prhs[2]);
   TF_Status* status = (TF_Status*) arr2ptr(prhs[3]);
   TF_SetAttrTensor(desc, attr_name, value, status);
@@ -561,6 +618,9 @@ static void TF_OperationOutputListLength_(MEX_ARGS) {
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* arg_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_OperationOutputListLength(oper, arg_name, status);
@@ -592,6 +652,9 @@ static void TF_OperationInputListLength_(MEX_ARGS) {
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* arg_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_OperationInputListLength(oper, arg_name, status);
@@ -679,6 +742,9 @@ static void TF_OperationGetAttrString_(MEX_ARGS) {
   if(TF_GetCode(status) == TF_OK) {
     size_t max_length = meta.total_size;
     void* value = mxCalloc(max_length, sizeof(char));
+    if(!value)
+      mexErrMsgTxt("Allocation of memory for string failed.\n");
+
     TF_OperationGetAttrString(oper, attr_name, value, max_length, status);
 
     plhs[0] = mxCreateString(value);
@@ -770,6 +836,9 @@ static void TF_OperationGetAttrValueProto_(MEX_ARGS) {
 static void TF_GraphOperationByName_(MEX_ARGS) {
   TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[0]);
   char* oper_name = mxArrayToString(prhs[1]);
+  if(!oper_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
   TF_Operation* oper = TF_GraphOperationByName(graph, oper_name);
   plhs[0] = ptr2arr((void*) oper);
   mxFree(oper_name);
@@ -1049,7 +1118,13 @@ static void TF_SessionRun_(MEX_ARGS) {
   uint64_t* input_values_ref = (uint64_t*) mxGetData(prhs[3]);
   int ninputs = *(int*) mxGetData(prhs[4]);
   TF_Output* inputs = (TF_Output*) mxCalloc(ninputs, sizeof(TF_Output));
+  if(!inputs)
+    mexErrMsgTxt("Allocation of memory for inputs failed.\n");
+
   TF_Tensor** input_values = (TF_Tensor**) mxCalloc(ninputs, sizeof(TF_Tensor*));
+  if(!input_values)
+    mexErrMsgTxt("Allocation of memory for input values failed.\n");
+
   for(int i = 0; i < ninputs; i++) {
     inputs[i] = *((TF_Output*) inputs_ref[i]);
     input_values[i] = (TF_Tensor*) input_values_ref[i];
@@ -1059,7 +1134,13 @@ static void TF_SessionRun_(MEX_ARGS) {
   uint64_t* outputs_ref = (uint64_t*) mxGetData(prhs[5]);
   int noutputs = *(int*) mxGetData(prhs[6]);
   TF_Output* outputs = (TF_Output*) mxCalloc(noutputs, sizeof(TF_Output));
+  if(!outputs)
+    mexErrMsgTxt("Allocation of memory for outputs failed.\n");
+
   TF_Tensor** output_values = (TF_Tensor**) mxCalloc(noutputs, sizeof(TF_Tensor*));
+  if(!output_values)
+    mexErrMsgTxt("Allocation of memory for output values failed.\n");
+
   for(int i = 0; i < noutputs; i++) {
     outputs[i] = *((TF_Output*) outputs_ref[i]);
     output_values[i] = NULL;
