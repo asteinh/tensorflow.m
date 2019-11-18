@@ -35,7 +35,7 @@ classdef Session < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_SessionRun(TF_Session* session, const TF_Buffer* run_options, const TF_Output* inputs, TF_Tensor* const* input_values, int ninputs, const TF_Output* outputs, TF_Tensor** output_values, int noutputs, const TF_Operation* const* target_opers, int ntargets, TF_Buffer* run_metadata, TF_Status*);
     function res = run(obj, inputs, input_values, outputs, target_opers, run_options, run_metadata)
       if nargin < 4 || nargin > 8
-        error('Wrong number of input arguments.');
+        error('tensorflow:Session:run:InputArguments', 'Wrong number of input arguments provided.');
       end
       if numel(inputs) > 0
         assert(isa(inputs, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
@@ -65,13 +65,13 @@ classdef Session < util.mixin.Pointer
         inputs_ref = [inputs.ref];
         input_values_ref = [input_values.ref];
       end
-      
+
       noutputs = numel(outputs);
       outputs_ref = [];
       if noutputs > 0
         outputs_ref = [outputs.ref];
       end
-      
+
       ntargets = numel(target_opers);
       target_opers_ref = [];
       if ntargets > 0
@@ -104,7 +104,7 @@ classdef Session < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteSession', obj.ref, obj.status.ref);
         obj.status.maybe_raise();
       end

@@ -48,11 +48,12 @@ classdef DataType < uint32
           case 'bool'
             m = 'logical';
           otherwise
-            error('No implemented indirect mapping found - please inform the developers.');
+            error('tensorflow:DataType:tf2m:Internal', 'No implemented indirect mapping found - please inform the developers.');
         end
       else
-        e = MException('tensorflow:DataType:tf2m', ['No known Matlab equivalent for ' char(tftype) '.']);
-        throw(e);
+        % e = MException('tensorflow:DataType:tf2m', ['No known Matlab equivalent for ' char(tftype) '.']);
+        % throw(e);
+        error('tensorflow:DataType:tf2m:NoEquivalent', ['No known Matlab equivalent for ' char(tftype) '.']);
       end
     end
 
@@ -70,11 +71,12 @@ classdef DataType < uint32
           case 'logical'
             tf = tensorflow.DataType.TF_DOUBLE;
           otherwise
-            error('No implemented indirect mapping found - please inform the developers.');
+            error('tensorflow:DataType:m2tf:Internal', 'No implemented indirect mapping found - please inform the developers.');
         end
       else
-        e = MException('tensorflow:DataType:m2tf', ['No known Matlab equivalent for ' matclass '.']);
-        throw(e);
+        % e = MException('tensorflow:DataType:m2tf', ['No known Matlab equivalent for ' matclass '.']);
+        % throw(e);
+        error('tensorflow:DataType:m2tf:NoEquivalent', ['No known Matlab equivalent for ' matclass '.']);
       end
     end
 

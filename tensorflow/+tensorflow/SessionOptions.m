@@ -21,11 +21,11 @@ classdef SessionOptions < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern TF_Session* TF_LoadSessionFromSavedModel(const TF_SessionOptions* session_options, const TF_Buffer* run_options, const char* export_dir, const char* const* tags, int tags_len, TF_Graph* graph, TF_Buffer* meta_graph_def, TF_Status* status);
     % TODO
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteSessionOptions', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

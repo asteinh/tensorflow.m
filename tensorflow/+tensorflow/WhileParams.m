@@ -19,7 +19,7 @@ classdef WhileParams < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         obj.abortWhile();
         tensorflow_m_('TFM_DeleteWhile', obj.ref);
       end

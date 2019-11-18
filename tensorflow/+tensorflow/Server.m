@@ -40,7 +40,7 @@ classdef Server < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteServer', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

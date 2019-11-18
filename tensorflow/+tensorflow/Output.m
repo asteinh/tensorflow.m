@@ -15,7 +15,7 @@ classdef Output < util.mixin.Pointer
           oper = varargin{1};
           index = varargin{2};
         else
-          error(['Cannot create tensorflow.Output with given arguments.']);
+          error('tensorflow:Output:InputArguments', 'Cannot create tensorflow.Output with given arguments.');
         end
         assert(isa(oper, 'tensorflow.Operation'));
         assert(isnumeric(index));
@@ -38,7 +38,7 @@ classdef Output < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers, int max_consumers);
     function consumers = operationOutputConsumers(obj)
-      error('Not implemented.'); % TODO
+      error('tensorflow:Output:operationOutputConsumers:NotImplemented', 'Not implemented.'); % TODO
 
       max_consumers = obj.TF_OperationOutputNumConsumers();
       consumers = [];
@@ -51,7 +51,7 @@ classdef Output < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty() && obj.isowned()
+      if obj.isdeletable()
         tensorflow_m_('TFM_DeleteOutput', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

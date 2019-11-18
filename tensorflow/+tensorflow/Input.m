@@ -12,21 +12,21 @@ classdef Input < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern TF_DataType TF_OperationInputType(TF_Input oper_in);
-    function type = OperationInputType(obj)
-      error('Not implemented.'); % TODO
+    function type = operationInputType(obj)
+      error('tensorflow:Input:operationInputType:NotImplemented', 'Not implemented.'); % TODO
       type = tensorflow.DataType(tensorflow_m_('TF_OperationInputType', obj.ref));
     end
 
     % TF_CAPI_EXPORT extern TF_Output TF_OperationInput(TF_Input oper_in);
-    function output = OperationInput(obj)
-      error('Not implemented.'); % TODO
+    function output = operationInput(obj)
+      error('tensorflow:Input:operationInput:NotImplemented', 'Not implemented.'); % TODO
       output = tensorflow.Output();
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TFM_DeleteInput', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

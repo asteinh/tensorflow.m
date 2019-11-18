@@ -2,8 +2,11 @@ classdef Pointer < util.mixin.Base
   %POINTER Summary of this class goes here
   %   Detailed explanation goes here
 
-  properties (SetAccess=private, GetAccess=protected)
+  properties (SetAccess=private, GetAccess=public)
     ref = uint64([]);
+  end
+
+  properties (Access=private)
     is_owned = true;
   end
 
@@ -25,6 +28,11 @@ classdef Pointer < util.mixin.Base
     % check if the referenced memory is owned by tensorflow.m
     function res = isowned(obj)
       res = obj.is_owned();
+    end
+
+    % check if Pointer object holds a valid reference and is owned
+    function res = isdeletable(obj)
+      res = ~obj.isempty() && obj.is_owned();
     end
 
     function delete(obj)

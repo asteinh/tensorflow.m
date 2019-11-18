@@ -5,7 +5,7 @@ classdef Buffer < util.mixin.Pointer
   properties (Constant, Access=private)
     % maximum size of Buffer (in bytes) to be handled by Matlab; if exceeded,
     % file I/O will be handled by MEX interface
-    MAXSIZE = 1e6;
+    MAXSIZE = 1e5; % 100kB
   end
 
   properties (SetAccess=private)
@@ -28,7 +28,7 @@ classdef Buffer < util.mixin.Pointer
         ref = tensorflow_m_('TF_NewBuffer');
         owned = true;
       else
-        error('Cannot create tensorflow.Buffer with given arguments.');
+        error('tensorflow:Buffer:InputArguments', 'Cannot create tensorflow.Buffer with given arguments.');
       end
 
       obj = obj@util.mixin.Pointer(ref, owned);
@@ -100,7 +100,7 @@ classdef Buffer < util.mixin.Pointer
     end
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteBuffer', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

@@ -192,7 +192,7 @@ classdef Graph < util.mixin.Pointer
     end
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteGraph', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

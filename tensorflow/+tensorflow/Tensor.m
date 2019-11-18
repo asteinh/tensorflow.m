@@ -19,7 +19,7 @@ classdef Tensor < util.mixin.Pointer
           dims = varargin{2};  % ...
           data = [];
         else
-          error(['Cannot create tensorflow.Tensor with given arguments.']);
+          error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
         end
         assert(ismember(dtype, enumeration('tensorflow.DataType')));
         dtype = tensorflow.DataType(dtype);
@@ -92,11 +92,11 @@ classdef Tensor < util.mixin.Pointer
         % read data
         data = tensorflow_m_('TFM_GetTensorData', obj.ref);
         data = typecast(data, tensorflow.DataType.tf2m(obj.tensorType()));
-        
+
         % permute to obtain column-major representation
         dims = obj.getDimensions();
         data = permute(reshape(data, fliplr(dims)), [numel(dims):-1:1]);
-        
+
         if nargout == 1
           varargout{1} = data;
         else
@@ -111,12 +111,12 @@ classdef Tensor < util.mixin.Pointer
         data_rm = reshape(permute(data_cm, [numel(dims):-1:1]), dims);
         tensorflow_m_('TFM_SetTensorData', obj.ref, data_rm);
       else
-        error('Unknown combination of input and output arguments.');
+        error('tensorflow:Tensor:value:InputArguments', 'Unknown combination of input and output arguments.');
       end
     end
 
     function delete(obj)
-      if ~obj.isempty() && obj.isowned()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteTensor', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

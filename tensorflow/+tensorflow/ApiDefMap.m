@@ -32,7 +32,7 @@ classdef ApiDefMap < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteApiDefMap', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

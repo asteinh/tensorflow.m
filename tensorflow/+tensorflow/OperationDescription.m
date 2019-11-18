@@ -42,7 +42,7 @@ classdef OperationDescription < util.mixin.Pointer
       assert(ischar(str), 'Provided string must be a char array.');
       tensorflow_m_('TF_SetAttrString', obj.ref, 'string', str(:)');
     end
-    
+
     % TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,  const void* const* values,  const size_t* lengths,  int num_values);
     % TODO
 
@@ -125,7 +125,7 @@ classdef OperationDescription < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TFM_DeleteOperationDescription', obj.ref);
       end
       delete@util.mixin.Pointer(obj);

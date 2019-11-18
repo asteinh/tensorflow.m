@@ -50,7 +50,7 @@ classdef ImportGraphDefOptions < util.mixin.Pointer
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     function delete(obj)
-      if ~obj.isempty()
+      if obj.isdeletable()
         tensorflow_m_('TF_DeleteImportGraphDefOptions', obj.ref);
       end
       delete@util.mixin.Pointer(obj);
