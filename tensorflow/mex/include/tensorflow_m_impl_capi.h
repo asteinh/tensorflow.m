@@ -1118,11 +1118,11 @@ static void TF_SessionRun_(MEX_ARGS) {
   uint64_t* input_values_ref = (uint64_t*) mxGetData(prhs[3]);
   int ninputs = *(int*) mxGetData(prhs[4]);
   TF_Output* inputs = (TF_Output*) mxCalloc(ninputs, sizeof(TF_Output));
-  if(!inputs)
+  if(ninputs > 0 && !inputs)
     mexErrMsgTxt("Allocation of memory for inputs failed.\n");
 
   TF_Tensor** input_values = (TF_Tensor**) mxCalloc(ninputs, sizeof(TF_Tensor*));
-  if(!input_values)
+  if(ninputs > 0 && !input_values)
     mexErrMsgTxt("Allocation of memory for input values failed.\n");
 
   for(int i = 0; i < ninputs; i++) {
