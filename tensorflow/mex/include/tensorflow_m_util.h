@@ -27,7 +27,9 @@ void* arr2ptr(const mxArray* arr) {
     mexErrMsgTxt("Input to \"arr2ptr\" must be real.");
 
   void* ptr = (void*) *((uint64_t*) mxGetData(arr));
-  if(!ptr) mexErrMsgTxt("Invalid handle.");
+  if(!ptr)
+    mexErrMsgTxt("Invalid handle.");
+
   return ptr;
 }
 
@@ -39,7 +41,11 @@ void destroy(void* ptr) {
 void bytes_to_buffer(const void* data, const size_t num, TF_Buffer* buffer) {
   if(buffer->data != NULL)
     mexErrMsgTxt("Buffer data cannot be overwritten, create a new buffer instead.\n");
+
   void* data_cp = mxCalloc(num, sizeof(uint8_t));
+  if(!data_cp)
+    mexErrMsgTxt("Allocation of memory for buffer failed.\n");
+
   mexMakeMemoryPersistent(data_cp);
   mexLock();
   memcpy(data_cp, data, num*sizeof(uint8_t));

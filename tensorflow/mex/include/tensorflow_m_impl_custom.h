@@ -101,15 +101,26 @@ static void TFM_FileToBuffer(MEX_ARGS) {
   char* fname = mxArrayToString(prhs[1]);
 
   FILE* f = fopen(fname, "rb");
+  mxFree(fname);
+  if(!f)
+    mexErrMsgTxt("Failed to open file.\n");
+
   fseek(f, 0, SEEK_END);
   size_t length = (size_t) ftell(f);
   fseek(f, 0, SEEK_SET);
   void* data = mxCalloc(length, sizeof(uint8_t));
-  fread(data, sizeof(uint8_t), length, f);
+  if(!data)
+    mexErrMsgTxt("Allocation of memory for file reading failed.\n");
+
+  size_t n_read = fread(data, sizeof(uint8_t), length, f);
   fclose(f);
-  bytes_to_buffer(data, length, buffer);
-  mxFree(data);
-  mxFree(fname);
+  if(n_read == sizeof(uint8_t)*length) {
+    bytes_to_buffer(data, length, buffer);
+    mxFree(data);
+  } else {
+    mxFree(data);
+    mexErrMsgTxt("Failed to read the expected number of bytes from file.\n");
+  }
 }
 static void TFM_BufferToFile(MEX_ARGS) {
   // MEX implementation of file write for big files
