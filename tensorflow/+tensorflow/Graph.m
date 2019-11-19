@@ -127,7 +127,7 @@ classdef Graph < util.mixin.Pointer
 
       t = tensorflow.Tensor(data);
       desc.setAttrTensor(t);
-      desc.setAttrType(t.tensorType);
+      desc.setAttrType(t.type);
 
       oper = desc.finishOperation();
       output = tensorflow.Output(oper);
@@ -188,7 +188,7 @@ classdef Graph < util.mixin.Pointer
       %   desc.AddControlInput (control);
 
       oper = desc.finishOperation();
-      output = tensorflow.Output(oper, 1);
+      output = tensorflow.Output(oper);
     end
 
     function delete(obj)

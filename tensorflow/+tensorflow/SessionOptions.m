@@ -9,10 +9,18 @@ classdef SessionOptions < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SetTarget(TF_SessionOptions* options, const char* target);
-    % TODO
+    function setTarget(obj, target)
+      assert(ischar(target), 'Target must be provided as a string.');
+      tensorflow_m_('TF_SetTarget', obj.ref, target);
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetConfig(TF_SessionOptions* options, const void* proto, size_t proto_len, TF_Status* status);
-    % TODO
+    function setConfig(obj, buf)
+      assert(isa(buf, 'tensorflow.Buffer'), 'Configuration must be serialized and provided as a tensorflow.Buffer object.');
+      status = tensorflow.Status();
+      tensorflow_m_('TF_SetConfig', obj.ref, buf.ref, status.ref);
+      status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_DeleteSessionOptions(TF_SessionOptions*);
     function deleteSessionOptions(obj)

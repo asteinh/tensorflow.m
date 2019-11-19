@@ -10,9 +10,9 @@ static void TF_Version_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
 static void TF_DataTypeSize_(MEX_ARGS) {
-  TF_DataType dt = *((TF_DataType*) arr2ptr(prhs[0]));
+  TF_DataType dt = *((TF_DataType*) mxGetData(prhs[0]));
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
-  *((int*) mxGetData(plhs[0])) = (int) TF_DataTypeSize(dt);
+  *((size_t*) mxGetData(plhs[0])) = TF_DataTypeSize(dt);
 }
 
 // TF_CAPI_EXPORT extern TF_Status* TF_NewStatus(void);
@@ -55,16 +55,8 @@ static void TF_Message_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
 static void TF_NewBufferFromString_(MEX_ARGS) {
-  void* proto = (void*) mxGetData(prhs[0]);
-  if(mxGetM(prhs[0]) > 1)
-    mexErrMsgTxt("String must be supplied as a single-row, char array.");
-  size_t proto_len = (size_t) mxGetN(prhs[0]);
-  TF_Buffer* buffer = TF_NewBuffer();
-  buffer->data = NULL;
-  buffer->length = 0;
-  buffer->data_deallocator = free_buffer;
-  bytes_to_buffer(proto, proto_len, buffer);
-  plhs[0] = ptr2arr((void*) buffer);
+  NOT_SUPPORTED
+  // replaced by TF_NewBuffer + TFM_SetBufferData
 }
 
 // TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
@@ -86,11 +78,13 @@ static void TF_DeleteBuffer_(MEX_ARGS) {
 // TF_CAPI_EXPORT extern TF_Buffer TF_GetBuffer(TF_Buffer* buffer);
 static void TF_GetBuffer_(MEX_ARGS) {
   NOT_SUPPORTED
+  // no representation of TF_Buffer in Matlab, other than for its data (see TFM_GetBufferData)
 }
 
 // TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor( TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
 static void TF_NewTensor_(MEX_ARGS) {
   NOT_SUPPORTED
+  // replaced by TF_AllocateTensor + TFM_SetTensorData
 }
 
 // TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
@@ -109,6 +103,7 @@ static void TF_AllocateTensor_(MEX_ARGS) {
 // TF_CAPI_EXPORT extern TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor);
 static void TF_TensorMaybeMove_(MEX_ARGS) {
   NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern void TF_DeleteTensor(TF_Tensor*);
@@ -168,24 +163,29 @@ static void TF_TensorElementCount_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_TensorBitcastFrom(const TF_Tensor* from, TF_DataType type, TF_Tensor* to, const int64_t* new_dims, int num_new_dims, TF_Status* status);
 static void TF_TensorBitcastFrom_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // questionable feasibility due to shared data buffer
 }
 
 // TF_CAPI_EXPORT extern size_t TF_StringEncode(const char* src, size_t src_len, char* dst, size_t dst_len, TF_Status* status);
 static void TF_StringEncode_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern size_t TF_StringDecode(const char* src, size_t src_len, const char** dst, size_t* dst_len, TF_Status* status);
 static void TF_StringDecode_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern size_t TF_StringEncodedSize(size_t len);
 static void TF_StringEncodedSize_(MEX_ARGS) {
-  size_t len = *((size_t*) mxGetData(prhs[0]));
-  plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
-  *((int*) mxGetData(plhs[0])) = TF_StringEncodedSize(len);
+  // size_t len = *((size_t*) mxGetData(prhs[0]));
+  // plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+  // *((int*) mxGetData(plhs[0])) = TF_StringEncodedSize(len);
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern TF_SessionOptions* TF_NewSessionOptions(void);
@@ -196,8 +196,6 @@ static void TF_NewSessionOptions_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetTarget(TF_SessionOptions* options, const char* target);
 static void TF_SetTarget_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_SessionOptions* opts = (TF_SessionOptions*) arr2ptr(prhs[0]);
   char* target = mxArrayToString(prhs[1]);
   if(!target)
@@ -209,7 +207,12 @@ static void TF_SetTarget_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetConfig(TF_SessionOptions* options, const void* proto, size_t proto_len, TF_Status* status);
 static void TF_SetConfig_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_SessionOptions* options = (TF_SessionOptions*) arr2ptr(prhs[0]);
+  TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[1]);
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+  TF_SetConfig(options, buffer->data, buffer->length, status);
 }
 
 // TF_CAPI_EXPORT extern void TF_DeleteSessionOptions(TF_SessionOptions*);
@@ -309,12 +312,17 @@ static void TF_AddInput_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs, int num_inputs);
 static void TF_AddInputList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
-  TF_Output* inputs = (TF_Output*) arr2ptr(prhs[1]);
-  int num_inputs = *((int*) mxGetData(prhs[2]));
+  uint64_t* inputs_ref = (uint64_t*) mxGetData(prhs[1]);
+  int num_inputs = *(int*) mxGetData(prhs[2]);
+  TF_Output* inputs = (TF_Output*) mxCalloc(num_inputs, sizeof(TF_Output));
+  if(!inputs)
+    mexErrMsgTxt("Allocation of memory for inputs failed.\n");
+  for(int i = 0; i < num_inputs; i++)
+    inputs[i] = *((TF_Output*) inputs_ref[i]);
+
   TF_AddInputList(desc, inputs, num_inputs);
+  mxFree(inputs);
 }
 
 // TF_CAPI_EXPORT extern void TF_AddControlInput(TF_OperationDescription* desc, TF_Operation* input);
@@ -352,7 +360,32 @@ static void TF_SetAttrString_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name, const void* const* values, const size_t* lengths, int num_values);
 static void TF_SetAttrStringList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+
+  // TODO test case missing; postponed
+  // TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
+  // char* attr_name = mxArrayToString(prhs[1]);
+  // if(!attr_name)
+  //   mexErrMsgTxt("Could not transform given argument to string.\n");
+  //
+  // size_t nelements = mxGetNumberOfElements(prhs[2]);
+  //
+  // // TODO
+  // void** values = (void**) mxCalloc(nelements, sizeof(void*));
+  // size_t* lengths = (size_t*) mxCalloc(nelements, sizeof(size_t));
+  // for(int i = 0; i < nelements; i++) {
+  //   values[i] = mxArrayToString(mxGetCell(prhs[2], i));
+  //   if(!values[i])
+  //     mexErrMsgTxt("Could not transform cell content to string.\n");
+  //   lengths[i] = sizeof(values[i]);
+  // }
+  //
+  // TF_SetAttrStringList(desc, attr_name, values[0], lengths, (int) nelements);
+  //
+  // for(int i = 0; i < nelements; i++)
+  //   mxFree(values[i]);
+  // mxFree(values);
+  // mxFree(lengths);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
@@ -379,7 +412,7 @@ static void TF_SetAttrIntList_(MEX_ARGS) {
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   int64_t* values = (int64_t*) mxGetData(prhs[2]);
-  int num_values = *((int*) mxGetData(prhs[3]));
+  int num_values = (int) mxGetN(prhs[2]);
   TF_SetAttrIntList(desc, attr_name, values, num_values);
   mxFree(attr_name);
 }
@@ -408,7 +441,7 @@ static void TF_SetAttrFloatList_(MEX_ARGS) {
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   float* values = (float*) mxGetData(prhs[2]);
-  int num_values = *((int*) mxGetData(prhs[3]));
+  int num_values = (int) mxGetN(prhs[2]);
   TF_SetAttrFloatList(desc, attr_name, values, num_values);
   mxFree(attr_name);
 }
@@ -437,7 +470,7 @@ static void TF_SetAttrBoolList_(MEX_ARGS) {
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   unsigned char* values = (unsigned char*) mxGetData(prhs[2]);
-  int num_values = *((int*) mxGetData(prhs[3]));
+  int num_values = (int) mxGetN(prhs[2]);
   TF_SetAttrBoolList(desc, attr_name, values, num_values);
   mxFree(attr_name);
 }
@@ -464,7 +497,7 @@ static void TF_SetAttrTypeList_(MEX_ARGS) {
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   TF_DataType* values = (TF_DataType*) mxGetData(prhs[2]);
-  int num_values = *((int*) mxGetData(prhs[3]));
+  int num_values = (int) mxGetN(prhs[2]);
   TF_SetAttrTypeList(desc, attr_name, values, num_values);
   mxFree(attr_name);
 }
@@ -486,19 +519,17 @@ static void TF_SetAttrPlaceholder_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrFuncName(TF_OperationDescription* desc, const char* attr_name, const char* value, size_t length);
 static void TF_SetAttrFuncName_(MEX_ARGS) {
-  // identical to TF_SetAttrString
-
   NOT_TESTED
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
-  if(!attr_name)
+  char* value = mxArrayToString(prhs[2]);
+  if(!attr_name || !value)
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
-  void* value = (void*) mxGetData(prhs[2]);
-  size_t length = (size_t) mxGetN(prhs[2]);
-  TF_SetAttrFuncName(desc, attr_name, value, length*sizeof(char));
+  TF_SetAttrFuncName(desc, attr_name, value, strlen(value)*sizeof(char));
   mxFree(attr_name);
+  mxFree(value);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);

@@ -103,6 +103,8 @@ static void TFM_BufferLength(MEX_ARGS) {
 static void TFM_SetBufferData(MEX_ARGS) {
   TF_Buffer* buffer = (TF_Buffer*) arr2ptr(prhs[0]);
   void* data = (void*) mxGetData(prhs[1]);
+  if(mxGetM(prhs[1]) > 1)
+    mexErrMsgTxt("Data must be supplied as a single-row, char/uint8 array.");
   size_t length = (size_t) mxGetN(prhs[1]);
   bytes_to_buffer(data, length, buffer);
 }

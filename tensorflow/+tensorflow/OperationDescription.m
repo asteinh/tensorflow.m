@@ -20,7 +20,10 @@ classdef OperationDescription < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SetDevice(TF_OperationDescription* desc, const char* device);
-    % TODO
+    function setDevice(obj, device)
+      assert(ischar(device), 'Device must be provided as a string.');
+      tensorflow_m_('TF_SetDevice', obj.ref, device);
+    end
 
     % TF_CAPI_EXPORT extern void TF_AddInput(TF_OperationDescription* desc, TF_Output input);
     function addInput(obj, inp)
@@ -29,13 +32,22 @@ classdef OperationDescription < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs, int num_inputs);
-    % TODO
+    function addInputList(obj, inps)
+      assert(isa(inps, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
+      tensorflow_m_('TF_AddInputList', obj.ref, [inps.ref], int32(numel(inps)));
+    end
 
     % TF_CAPI_EXPORT extern void TF_AddControlInput(TF_OperationDescription* desc, TF_Operation* input);
-    % TODO
+    function addControlInput(obj, inp)
+      assert(isa(inp, 'tensorflow.Operation'), 'Provided input must be of class tensorflow.Operation.');
+      tensorflow_m_('TF_AddControlInput', obj.ref, inp.ref);
+    end
 
     % TF_CAPI_EXPORT extern void TF_ColocateWith(TF_OperationDescription* desc, TF_Operation* op);
-    % TODO
+    function colocateWith(obj, op)
+      assert(isa(op, 'tensorflow.Operation'), 'Provided operation must be of class tensorflow.Operation.');
+      tensorflow_m_('TF_ColocateWith', obj.ref, op.ref);
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name, const void* value, size_t length);
     function setAttrString(obj, str)
@@ -44,46 +56,80 @@ classdef OperationDescription < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,  const void* const* values,  const size_t* lengths,  int num_values);
-    % TODO
+    function setAttrStringList(obj, strs)
+      assert(iscell(strs) && all(cellfun(@(x) ischar(x), strs)), 'Provided strings must be supplied as a cell of char arrays.');
+      tensorflow_m_('TF_SetAttrStringList', obj.ref, 'string', strs(:)');
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
-    % TODO
+    function setAttrInt(obj, value)
+      assert(isinteger(value), 'Provided value must be an integer.');
+      tensorflow_m_('TF_SetAttrInt', obj.ref, 'int', int64(value));
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name, const int64_t* values, int num_values);
-    % TODO
+    function setAttrIntList(obj, values)
+      assert(isinteger(values), 'Provided values must be integers.');
+      tensorflow_m_('TF_SetAttrIntList', obj.ref, 'int', int64(values(:)'));
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name, float value);
-    % TODO
+    function setAttrFloat(obj, value)
+      assert(isa(value, 'single'), 'Provided value must be of class single.');
+      tensorflow_m_('TF_SetAttrFloat', obj.ref, 'float', value);
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name, const float* values, int num_values);
-    % TODO
+    function setAttrFloatList(obj, values)
+      assert(isa(values, 'single'), 'Provided values must be of class single.');
+      tensorflow_m_('TF_SetAttrFloatList', obj.ref, 'float', values(:)');
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name, unsigned char value);
-    % TODO
+    function setAttrBool(obj, value)
+      assert(isa(value, 'logical'), 'Provided value must be of class logical.');
+      tensorflow_m_('TF_SetAttrBool', obj.ref, 'bool', value);
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name, const unsigned char* values, int num_values);
-    % TODO
+    function setAttrBoolList(obj, values)
+      assert(isa(values, 'logical'), 'Provided values must be of class logical.');
+      tensorflow_m_('TF_SetAttrBoolList', obj.ref, 'bool', uint8(values(:))');
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name, TF_DataType value);
-    function setAttrType(obj, type)
-      if ~isa(type, 'tensorflow.DataType')
-        assert(ismember(type, enumeration('tensorflow.DataType')), 'Provided data type cannot be interpreted.');
-        type = tensorflow.DataType(type);
+    function setAttrType(obj, dtype)
+      if ~isa(dtype, 'tensorflow.DataType')
+        assert(ismember(dtype, enumeration('tensorflow.DataType')), 'Provided data type cannot be interpreted.');
+        dtype = tensorflow.DataType(dtype);
       end
-      tensorflow_m_('TF_SetAttrType', obj.ref, 'dtype', uint32(type));
+      tensorflow_m_('TF_SetAttrType', obj.ref, 'dtype', uint32(dtype));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name, const TF_DataType* values, int num_values);
-    % TODO
+    function setAttrTypeList(obj, dtypes)
+      if ~isa(dtypes, 'tensorflow.DataType')
+        dtypes_ = dtypes;
+        dtypes = [];
+        for i = 1:1:numel(dtypes_)
+          assert(ismember(dtypes_(i), enumeration('tensorflow.DataType')), 'Provided data types cannot be interpreted.');
+          dtypes = [dtypes; tensorflow.DataType(dtypes_(i))];
+        end
+      end
+      tensorflow_m_('TF_SetAttrTypeList', obj.ref, 'dtype', uint32(dtypes(:))');
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrPlaceholder(TF_OperationDescription* desc, const char* attr_name, const char* placeholder);
-    % TODO
+    function setAttrPlaceholder(obj, ph)
+      assert(ischar(ph), 'Provided placeholder identifier must be a char array.');
+      tensorflow_m_('TF_SetAttrPlaceholder', obj.ref, 'placeholder', ph);
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFuncName(TF_OperationDescription* desc, const char* attr_name, const char* value, size_t length);
     function setAttrFuncName(obj, func, name)
       assert(ischar(func), 'Provided function identifier must be a char array.');
       assert(ischar(name), 'Provided function name must be a char array.');
-      tensorflow_m_('TF_SetAttrFuncName', obj.ref, func(:)', name(:)');
+      tensorflow_m_('TF_SetAttrFuncName', obj.ref, func, name);
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);

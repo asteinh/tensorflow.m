@@ -20,32 +20,35 @@ classdef Buffer < util.mixin.Pointer
       if nargin == 1 && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
         owned = false;
-      elseif nargin == 1 && ischar(varargin{1})
-        data = uint8(varargin{1}(:)');
-        ref = tensorflow_m_('TF_NewBufferFromString', data);
-        owned = true;
-      elseif nargin == 0
+      else
+        if nargin == 1 && ischar(varargin{1})
+          data = uint8(varargin{1}(:)');
+          owned = true;
+        elseif nargin == 0
+          data = [];
+        else
+          error('tensorflow:Buffer:InputArguments', 'Cannot create tensorflow.Buffer with given arguments.');
+        end
         ref = tensorflow_m_('TF_NewBuffer');
         owned = true;
-      else
-        error('tensorflow:Buffer:InputArguments', 'Cannot create tensorflow.Buffer with given arguments.');
       end
 
       obj = obj@util.mixin.Pointer(ref, owned);
       obj.length_ = tensorflow_m_('TFM_BufferLength', obj.ref);
       obj.status = tensorflow.Status();
+
+      if owned && ~isempty(data)
+        obj.data(data); % set data, if given
+      end
     end
-
-    % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
-    % TODO
-
-    % TF_CAPI_EXPORT extern TF_Buffer TF_GetBuffer(TF_Buffer* buffer);
-    % TODO
 
     % TF_CAPI_EXPORT extern void TF_DeleteBuffer(TF_Buffer*);
     function deleteBuffer(obj)
       obj.delete();
     end
+
+    % TF_CAPI_EXPORT extern TF_Buffer TF_GetBuffer(TF_Buffer* buffer);
+    % not supported
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

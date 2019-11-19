@@ -1,9 +1,14 @@
 clear;
-addpath('../../tensorflow');
+% addpath('../../tensorflow');
 tensorflow.info % pre status
 
 graph = tensorflow.Graph();
-session = tensorflow.Session(graph);
+
+opts = tensorflow.SessionOptions();
+opts.setTarget('');
+
+session = tensorflow.Session(graph, opts);
+
 a = graph.placeholder('TF_DOUBLE');
 b = graph.placeholder('TF_DOUBLE');
 y = graph.mul(a, b);

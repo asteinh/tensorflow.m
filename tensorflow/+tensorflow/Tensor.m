@@ -36,7 +36,7 @@ classdef Tensor < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor);
-    % TODO
+    % not supported
 
     % TF_CAPI_EXPORT extern void TF_DeleteTensor(TF_Tensor*);
     function deleteTensor(obj)
@@ -44,7 +44,7 @@ classdef Tensor < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern TF_DataType TF_TensorType(const TF_Tensor*);
-    function t = tensorType(obj)
+    function t = type(obj)
       t = tensorflow.DataType(tensorflow_m_('TF_TensorType', obj.ref));
     end
 
@@ -76,7 +76,12 @@ classdef Tensor < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_TensorBitcastFrom(const TF_Tensor* from, TF_DataType type, TF_Tensor* to, const int64_t* new_dims, int num_new_dims, TF_Status* status);
-    % TODO
+    function bitcastFrom(obj, varargin)
+      % Questionable feasibility due to the following property:
+      %   "On success, *status is set to TF_OK and the two tensors share the same data buffer."
+      % For the time being - not supported.
+      error('tensorflow:Tensor:bitcastFrom:NotImplemented', 'Not supported.');
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -91,7 +96,7 @@ classdef Tensor < util.mixin.Pointer
       if nargin == 1
         % read data
         data = tensorflow_m_('TFM_GetTensorData', obj.ref);
-        data = typecast(data, tensorflow.DataType.tf2m(obj.tensorType()));
+        data = typecast(data, tensorflow.DataType.tf2m(obj.type()));
 
         % permute to obtain column-major representation
         dims = obj.getDimensions();

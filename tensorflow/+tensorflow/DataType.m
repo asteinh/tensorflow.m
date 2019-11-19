@@ -27,10 +27,10 @@ classdef DataType < uint32
   end
 
   methods
-
     % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
-    % TODO
-
+    function s = DataTypeSize(obj)
+      s = double(tensorflow_m_('TF_DataTypeSize', uint32(obj)));
+    end
   end
 
   methods (Static)

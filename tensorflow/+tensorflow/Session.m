@@ -3,25 +3,37 @@ classdef Session < util.mixin.Pointer
   %   Detailed explanation goes here
 
   properties (SetAccess=protected)
-    % graph = [];
-    opts = [];
     status = [];
   end
 
   methods
-    function obj = Session(graph)
-      assert(isa(graph, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
+    function obj = Session(varargin)
+      if nargin == 1 && isa(varargin{1}, 'uint64')
+        ref = varargin{1}; % create pointer from given reference
+        owned = false;
+      else
+        if nargin == 1
+          graph = varargin{1};
+          opts = tensorflow.SessionOptions();
+        elseif nargin == 2
+          graph = varargin{1};
+          opts = varargin{2};
+        else
+          error('tensorflow:Session:InputArguments', 'Cannot create tensorflow.Session with given arguments.');
+        end
+        assert(isa(graph, 'tensorflow.Graph'), 'Provided graph must be of class tensorflow.Graph.');
+        assert(isa(opts, 'tensorflow.SessionOptions'), 'Provided options must be of class tensorflow.SessionOptions.');
 
-      % create SessionOptions and Status
-      opts = tensorflow.SessionOptions();
-      status = tensorflow.Status();
+        status = tensorflow.Status();
+        ref = tensorflow_m_('TF_NewSession', graph.ref, opts.ref, status.ref);
+        status.maybe_raise();
+        owned = true;
+      end
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewSession', graph.ref, opts.ref, status.ref));
+      obj = obj@util.mixin.Pointer(ref, owned);
 
-      obj.opts = opts;
       obj.status = status;
-      % obj.graph = graph;
     end
 
     % TF_CAPI_EXPORT extern void TF_CloseSession(TF_Session*, TF_Status* status);
