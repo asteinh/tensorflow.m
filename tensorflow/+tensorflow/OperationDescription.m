@@ -152,13 +152,17 @@ classdef OperationDescription < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
-    % TODO
+    function setAttrShapeList(obj, attr, dimlist)
+      obj.assert_attr(attr);
+      assert(iscell(dimlist) && cellfun(@(x) isnumeric(x), dimlist), 'List of shapes must be provided as cell of numeric arrays.');
+      tensorflow_m_('TF_SetAttrShapeList', obj.ref, attr(:)', dimlist(:)');
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc, const char* attr_name, const void* const* protos, const size_t* proto_lens, int num_shapes, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* value, TF_Status* status);
     function setAttrTensor(obj, attr, tensor)
@@ -169,10 +173,15 @@ classdef OperationDescription < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* const* values, int num_values, TF_Status* status);
-    % TODO
+    function setAttrTensorList(obj, attr, tensors)
+      obj.assert_attr(attr);
+      assert(isa(tensors, 'tensorflow.Tensor'), 'Provided tensors must be of class tensorflow.Tensor.');
+      tensorflow_m_('TF_SetAttrTensorList', obj.ref, attr(:)', [tensors.ref], obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern TF_Operation* TF_FinishOperation(TF_OperationDescription* desc, TF_Status* status);
     function oper = finishOperation(obj)

@@ -1026,7 +1026,21 @@ static void TF_OperationGetAttrTensorShapeProtoList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name, TF_Tensor** value, TF_Status* status);
 static void TF_OperationGetAttrTensor_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+  TF_Tensor** value = (TF_Tensor**) mxCalloc(1, sizeof(TF_Tensor*));
+  if(!value)
+    mexErrMsgTxt("Allocation of memory for value failed.\n");
+
+  TF_OperationGetAttrTensor(oper, attr_name, value, status);
+
+  plhs[0] = ptr2arr((void*) *value);
+  mxFree(value);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name, TF_Tensor** values, int max_values, TF_Status* status);
