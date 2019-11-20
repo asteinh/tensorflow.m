@@ -8,5 +8,6 @@ classdef Ops < matlab.unittest.TestCase
     add(test)
     mul(test)
     bucketize(test)
+    matrixsolve(test)
   end
 end
