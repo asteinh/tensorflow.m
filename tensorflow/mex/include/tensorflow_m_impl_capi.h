@@ -181,9 +181,6 @@ static void TF_StringDecode_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern size_t TF_StringEncodedSize(size_t len);
 static void TF_StringEncodedSize_(MEX_ARGS) {
-  // size_t len = *((size_t*) mxGetData(prhs[0]));
-  // plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
-  // *((int*) mxGetData(plhs[0])) = TF_StringEncodedSize(len);
   NOT_SUPPORTED
   // not exposed, only internal use
 }
@@ -360,7 +357,7 @@ static void TF_SetAttrString_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name, const void* const* values, const size_t* lengths, int num_values);
 static void TF_SetAttrStringList_(MEX_ARGS) {
-  NOT_SUPPORTED
+  NOT_IMPLEMENTED
 
   // TODO test case missing; postponed
   // TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
@@ -433,8 +430,6 @@ static void TF_SetAttrFloat_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name, const float* values, int num_values);
 static void TF_SetAttrFloatList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -547,7 +542,7 @@ static void TF_SetAttrShape_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
 static void TF_SetAttrShapeList_(MEX_ARGS) {
-  NOT_TESTED
+  NOT_IMPLEMENTED
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
@@ -563,12 +558,14 @@ static void TF_SetAttrShapeList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
 static void TF_SetAttrTensorShapeProto_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc, const char* attr_name, const void* const* protos, const size_t* proto_lens, int num_shapes, TF_Status* status);
 static void TF_SetAttrTensorShapeProtoList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* value, TF_Status* status);
@@ -587,11 +584,23 @@ static void TF_SetAttrTensor_(MEX_ARGS) {
 // TF_CAPI_EXPORT extern void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* const* values, int num_values, TF_Status* status);
 static void TF_SetAttrTensorList_(MEX_ARGS) {
   NOT_IMPLEMENTED
+
+  TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+
+  TF_Tensor* const* values = (TF_Tensor* const*) mxGetData(prhs[2]);
+  int num_values = *((int*) mxGetData(prhs[3]));
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[4]);
+  TF_SetAttrTensorList(desc, attr_name, values, num_values, status);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
 static void TF_SetAttrValueProto_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern TF_Operation* TF_FinishOperation(TF_OperationDescription* desc, TF_Status* status);
@@ -694,7 +703,11 @@ static void TF_OperationInputListLength_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern TF_Output TF_OperationInput(TF_Input oper_in);
 static void TF_OperationInput_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Input oper_in = *((TF_Input*) arr2ptr(prhs[0]));
+  TF_Output oper_out = TF_OperationInput(oper_in);
+  plhs[0] = ptr2arr((void*) &oper_out);
 }
 
 // TF_CAPI_EXPORT extern int TF_OperationOutputNumConsumers(TF_Output oper_out);
@@ -757,16 +770,18 @@ static void TF_OperationGetControlOutputs_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper, const char* attr_name, TF_Status* status);
 static void TF_OperationGetAttrMetadata_(MEX_ARGS) {
-  NOT_IMPLEMENTED
-  // requires TF_AttrMetadata object in Matlab
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name, void* value, size_t max_length, TF_Status* status);
 static void TF_OperationGetAttrString_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
   TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
 
   TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
@@ -777,7 +792,6 @@ static void TF_OperationGetAttrString_(MEX_ARGS) {
       mexErrMsgTxt("Allocation of memory for string failed.\n");
 
     TF_OperationGetAttrString(oper, attr_name, value, max_length, status);
-
     plhs[0] = mxCreateString(value);
     mxFree(value);
   }
@@ -790,47 +804,207 @@ static void TF_OperationGetAttrStringList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrInt(TF_Operation* oper, const char* attr_name, int64_t* value, TF_Status* status);
 static void TF_OperationGetAttrInt_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+  int64_t* value = (int64_t*) mxCalloc(1, sizeof(int64_t));
+  if(!value)
+    mexErrMsgTxt("Allocation of memory for value failed.\n");
+
+  TF_OperationGetAttrInt(oper, attr_name, value, status);
+
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+  memcpy(mxGetData(plhs[0]), value, sizeof(int64_t));
+  mxFree(value);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrIntList(TF_Operation* oper, const char* attr_name, int64_t* values, int max_values, TF_Status* status);
 static void TF_OperationGetAttrIntList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+
+  TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
+  if(TF_GetCode(status) == TF_OK) {
+    size_t max_values = meta.list_size;
+    int64_t* values = (int64_t*) mxCalloc(max_values, sizeof(int64_t));
+    if(!values)
+      mexErrMsgTxt("Allocation of memory for values failed.\n");
+
+    TF_OperationGetAttrIntList(oper, attr_name, values, max_values, status);
+
+    plhs[0] = mxCreateNumericMatrix(1, max_values, mxINT64_CLASS, mxREAL);
+    memcpy(mxGetData(plhs[0]), values, max_values*sizeof(int64_t));
+    mxFree(values);
+  }
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloat(TF_Operation* oper, const char* attr_name, float* value, TF_Status* status);
 static void TF_OperationGetAttrFloat_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+  float* value = (float*) mxCalloc(1, sizeof(float));
+  if(!value)
+    mexErrMsgTxt("Allocation of memory for value failed.\n");
+
+  TF_OperationGetAttrFloat(oper, attr_name, value, status);
+
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
+  memcpy(mxGetData(plhs[0]), value, sizeof(float));
+  mxFree(value);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloatList(TF_Operation* oper, const char* attr_name, float* values, int max_values, TF_Status* status);
 static void TF_OperationGetAttrFloatList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+
+  TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
+  if(TF_GetCode(status) == TF_OK) {
+    size_t max_values = meta.list_size;
+    float* values = (float*) mxCalloc(max_values, sizeof(float));
+    if(!values)
+      mexErrMsgTxt("Allocation of memory for values failed.\n");
+
+    TF_OperationGetAttrFloatList(oper, attr_name, values, max_values, status);
+
+    plhs[0] = mxCreateNumericMatrix(1, max_values, mxSINGLE_CLASS, mxREAL);
+    memcpy(mxGetData(plhs[0]), values, max_values*sizeof(float));
+    mxFree(values);
+  }
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrBool(TF_Operation* oper, const char* attr_name, unsigned char* value, TF_Status* status);
 static void TF_OperationGetAttrBool_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+  unsigned char* value = (unsigned char*) mxCalloc(1, sizeof(unsigned char));
+  if(!value)
+    mexErrMsgTxt("Allocation of memory for value failed.\n");
+
+  TF_OperationGetAttrBool(oper, attr_name, value, status);
+
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxLOGICAL_CLASS, mxREAL);
+  memcpy(mxGetData(plhs[0]), value, sizeof(unsigned char));
+  mxFree(value);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrBoolList(TF_Operation* oper, const char* attr_name, unsigned char* values, int max_values, TF_Status* status);
 static void TF_OperationGetAttrBoolList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+
+  TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
+  if(TF_GetCode(status) == TF_OK) {
+    size_t max_values = meta.list_size;
+    unsigned char* values = (unsigned char*) mxCalloc(max_values, sizeof(unsigned char));
+    if(!values)
+      mexErrMsgTxt("Allocation of memory for values failed.\n");
+
+    TF_OperationGetAttrBoolList(oper, attr_name, values, max_values, status);
+
+    plhs[0] = mxCreateNumericMatrix(1, max_values, mxLOGICAL_CLASS, mxREAL);
+    memcpy(mxGetData(plhs[0]), values, max_values*sizeof(unsigned char));
+    mxFree(values);
+  }
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrType(TF_Operation* oper, const char* attr_name, TF_DataType* value, TF_Status* status);
 static void TF_OperationGetAttrType_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+  TF_DataType* value = (TF_DataType*) mxCalloc(1, sizeof(TF_DataType));
+  if(!value)
+    mexErrMsgTxt("Allocation of memory for value failed.\n");
+
+  TF_OperationGetAttrType(oper, attr_name, value, status);
+
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT32_CLASS, mxREAL);
+  memcpy(mxGetData(plhs[0]), value, sizeof(TF_DataType));
+  mxFree(value);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTypeList(TF_Operation* oper, const char* attr_name, TF_DataType* values, int max_values, TF_Status* status);
 static void TF_OperationGetAttrTypeList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+
+  TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
+  if(TF_GetCode(status) == TF_OK) {
+    size_t max_values = meta.list_size;
+    TF_DataType* values = (TF_DataType*) mxCalloc(max_values, sizeof(TF_DataType));
+    if(!values)
+      mexErrMsgTxt("Allocation of memory for values failed.\n");
+
+    TF_OperationGetAttrTypeList(oper, attr_name, values, max_values, status);
+
+    plhs[0] = mxCreateNumericMatrix(1, max_values, mxUINT32_CLASS, mxREAL);
+    memcpy(mxGetData(plhs[0]), values, max_values*sizeof(TF_DataType));
+    mxFree(values);
+  }
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name, int64_t* value, int num_dims, TF_Status* status);
 static void TF_OperationGetAttrShape_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_TESTED
+
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+
+  TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
+  if(TF_GetCode(status) == TF_OK) {
+    int num_dims = meta.size;
+    int64_t* values = (int64_t*) mxCalloc(num_dims, sizeof(int64_t));
+    if(!values)
+      mexErrMsgTxt("Allocation of memory for values failed.\n");
+
+    TF_OperationGetAttrShape(oper, attr_name, values, num_dims, status);
+
+    plhs[0] = mxCreateNumericMatrix(1, num_dims, mxINT64_CLASS, mxREAL);
+    memcpy(mxGetData(plhs[0]), values, num_dims*sizeof(int64_t));
+    mxFree(values);
+  }
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name, int64_t** dims, int* num_dims, int num_shapes, int64_t* storage, int storage_size, TF_Status* status);
@@ -840,12 +1014,14 @@ static void TF_OperationGetAttrShapeList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorShapeProto(TF_Operation* oper, const char* attr_name, TF_Buffer* value, TF_Status* status);
 static void TF_OperationGetAttrTensorShapeProto_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper, const char* attr_name, TF_Buffer** values, int max_values, TF_Status* status);
 static void TF_OperationGetAttrTensorShapeProtoList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name, TF_Tensor** value, TF_Status* status);
@@ -860,7 +1036,8 @@ static void TF_OperationGetAttrTensorList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name, TF_Buffer* output_attr_value, TF_Status* status);
 static void TF_OperationGetAttrValueProto_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  NOT_SUPPORTED
+  // not exposed, only internal use
 }
 
 // TF_CAPI_EXPORT extern TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name);

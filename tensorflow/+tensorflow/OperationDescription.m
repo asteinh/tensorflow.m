@@ -50,64 +50,74 @@ classdef OperationDescription < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name, const void* value, size_t length);
-    function setAttrString(obj, str)
+    function setAttrString(obj, attr, str)
+      obj.assert_attr(attr);
       assert(ischar(str), 'Provided string must be a char array.');
-      tensorflow_m_('TF_SetAttrString', obj.ref, 'string', str(:)');
+      tensorflow_m_('TF_SetAttrString', obj.ref, attr(:)', str(:)');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,  const void* const* values,  const size_t* lengths,  int num_values);
-    function setAttrStringList(obj, strs)
+    function setAttrStringList(obj, attr, strs)
+      obj.assert_attr(attr);
       assert(iscell(strs) && all(cellfun(@(x) ischar(x), strs)), 'Provided strings must be supplied as a cell of char arrays.');
-      tensorflow_m_('TF_SetAttrStringList', obj.ref, 'string', strs(:)');
+      tensorflow_m_('TF_SetAttrStringList', obj.ref, attr(:)', strs(:)');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
-    function setAttrInt(obj, value)
+    function setAttrInt(obj, attr, value)
+      obj.assert_attr(attr);
       assert(isinteger(value), 'Provided value must be an integer.');
-      tensorflow_m_('TF_SetAttrInt', obj.ref, 'int', int64(value));
+      tensorflow_m_('TF_SetAttrInt', obj.ref, attr(:)', int64(value));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name, const int64_t* values, int num_values);
-    function setAttrIntList(obj, values)
+    function setAttrIntList(obj, attr, values)
+      obj.assert_attr(attr);
       assert(isinteger(values), 'Provided values must be integers.');
-      tensorflow_m_('TF_SetAttrIntList', obj.ref, 'int', int64(values(:)'));
+      tensorflow_m_('TF_SetAttrIntList', obj.ref, attr(:)', int64(values(:)'));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name, float value);
-    function setAttrFloat(obj, value)
+    function setAttrFloat(obj, attr, value)
+      obj.assert_attr(attr);
       assert(isa(value, 'single'), 'Provided value must be of class single.');
-      tensorflow_m_('TF_SetAttrFloat', obj.ref, 'float', value);
+      tensorflow_m_('TF_SetAttrFloat', obj.ref, attr(:)', value);
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name, const float* values, int num_values);
-    function setAttrFloatList(obj, values)
+    function setAttrFloatList(obj, attr, values)
+      obj.assert_attr(attr);
       assert(isa(values, 'single'), 'Provided values must be of class single.');
-      tensorflow_m_('TF_SetAttrFloatList', obj.ref, 'float', values(:)');
+      tensorflow_m_('TF_SetAttrFloatList', obj.ref, attr(:)', values(:)');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name, unsigned char value);
-    function setAttrBool(obj, value)
+    function setAttrBool(obj, attr, value)
+      obj.assert_attr(attr);
       assert(isa(value, 'logical'), 'Provided value must be of class logical.');
-      tensorflow_m_('TF_SetAttrBool', obj.ref, 'bool', value);
+      tensorflow_m_('TF_SetAttrBool', obj.ref, attr(:)', value);
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name, const unsigned char* values, int num_values);
-    function setAttrBoolList(obj, values)
+    function setAttrBoolList(obj, attr, values)
+      obj.assert_attr(attr);
       assert(isa(values, 'logical'), 'Provided values must be of class logical.');
-      tensorflow_m_('TF_SetAttrBoolList', obj.ref, 'bool', uint8(values(:))');
+      tensorflow_m_('TF_SetAttrBoolList', obj.ref, attr(:)', uint8(values(:))');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name, TF_DataType value);
-    function setAttrType(obj, dtype)
+    function setAttrType(obj, attr, dtype)
+      obj.assert_attr(attr);
       if ~isa(dtype, 'tensorflow.DataType')
         assert(ismember(dtype, enumeration('tensorflow.DataType')), 'Provided data type cannot be interpreted.');
         dtype = tensorflow.DataType(dtype);
       end
-      tensorflow_m_('TF_SetAttrType', obj.ref, 'dtype', uint32(dtype));
+      tensorflow_m_('TF_SetAttrType', obj.ref, attr(:)', uint32(dtype));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name, const TF_DataType* values, int num_values);
-    function setAttrTypeList(obj, dtypes)
+    function setAttrTypeList(obj, attr, dtypes)
+      obj.assert_attr(attr);
       if ~isa(dtypes, 'tensorflow.DataType')
         dtypes_ = dtypes;
         dtypes = [];
@@ -116,27 +126,29 @@ classdef OperationDescription < util.mixin.Pointer
           dtypes = [dtypes; tensorflow.DataType(dtypes_(i))];
         end
       end
-      tensorflow_m_('TF_SetAttrTypeList', obj.ref, 'dtype', uint32(dtypes(:))');
+      tensorflow_m_('TF_SetAttrTypeList', obj.ref, attr(:)', uint32(dtypes(:))');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrPlaceholder(TF_OperationDescription* desc, const char* attr_name, const char* placeholder);
-    function setAttrPlaceholder(obj, ph)
+    function setAttrPlaceholder(obj, attr, ph)
+      obj.assert_attr(attr);
       assert(ischar(ph), 'Provided placeholder identifier must be a char array.');
-      tensorflow_m_('TF_SetAttrPlaceholder', obj.ref, 'placeholder', ph);
+      tensorflow_m_('TF_SetAttrPlaceholder', obj.ref, attr(:)', ph(:)');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrFuncName(TF_OperationDescription* desc, const char* attr_name, const char* value, size_t length);
-    function setAttrFuncName(obj, func, name)
-      assert(ischar(func), 'Provided function identifier must be a char array.');
-      assert(ischar(name), 'Provided function name must be a char array.');
-      tensorflow_m_('TF_SetAttrFuncName', obj.ref, func, name);
+    function setAttrFuncName(obj, attr, funcname)
+      obj.assert_attr(attr);
+      assert(ischar(funcname), 'Provided function name must be a char array.');
+      tensorflow_m_('TF_SetAttrFuncName', obj.ref, attr(:)', funcname(:)');
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name, const int64_t* dims, int num_dims);
-    function setAttrShape(obj, dims)
+    function setAttrShape(obj, attr, dims)
+      obj.assert_attr(attr);
       assert(numel(dims) > 0, 'Number of dimension must be greater than zero.');
       num_dims = numel(dims);
-      tensorflow_m_('TF_SetAttrShape', obj.ref, 'shape', int64(dims), int32(num_dims));
+      tensorflow_m_('TF_SetAttrShape', obj.ref, attr(:)', int64(dims), int32(num_dims));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
@@ -149,9 +161,10 @@ classdef OperationDescription < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name, TF_Tensor* value, TF_Status* status);
-    function setAttrTensor(obj, tensor)
+    function setAttrTensor(obj, attr, tensor)
+      obj.assert_attr(attr);
       assert(isa(tensor, 'tensorflow.Tensor'), 'Provided tensor must be of class tensorflow.Tensor.');
-      tensorflow_m_('TF_SetAttrTensor', obj.ref, 'value', tensor.ref, obj.status.ref);
+      tensorflow_m_('TF_SetAttrTensor', obj.ref, attr(:)', tensor.ref, obj.status.ref);
       obj.status.maybe_raise();
     end
 
@@ -177,5 +190,13 @@ classdef OperationDescription < util.mixin.Pointer
       delete@util.mixin.Pointer(obj);
     end
 
+  end
+
+  methods (Access=private)
+    function assert_attr(obj, attr)
+      % Validate if given argument is a valid attribute
+      assert(ischar(attr) && isvector(attr), 'Provided attribute must be a one-dimensional char array.');
+      % TODO cross-check with defined attributes of this op description
+    end
   end
 end

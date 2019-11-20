@@ -126,8 +126,8 @@ classdef Graph < util.mixin.Pointer
       desc = obj.newOperation('Const', ['Constant_' op_name]);
 
       t = tensorflow.Tensor(data);
-      desc.setAttrTensor(t);
-      desc.setAttrType(t.type);
+      desc.setAttrTensor('value', t);
+      desc.setAttrType('dtype', t.type);
 
       oper = desc.finishOperation();
       output = tensorflow.Output(oper);
@@ -148,9 +148,9 @@ classdef Graph < util.mixin.Pointer
       % foreach ( TFOperation control in CurrentDependencies )
       %   desc.AddControlInput (control);
 
-      desc.setAttrType(dtype);
+      desc.setAttrType('dtype', dtype);
       if ~isempty(shape)
-        desc.setAttrShape(shape);
+        desc.setAttrShape('shape', shape);
       end
 
       oper = desc.finishOperation();
