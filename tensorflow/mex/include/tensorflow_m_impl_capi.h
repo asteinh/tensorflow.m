@@ -311,7 +311,7 @@ static void TF_AddInput_(MEX_ARGS) {
 static void TF_AddInputList_(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   uint64_t* inputs_ref = (uint64_t*) mxGetData(prhs[1]);
-  int num_inputs = *(int*) mxGetData(prhs[2]);
+  int num_inputs = (int) mxGetN(prhs[1]);
   TF_Output* inputs = (TF_Output*) mxCalloc(num_inputs, sizeof(TF_Output));
   if(!inputs)
     mexErrMsgTxt("Allocation of memory for inputs failed.\n");
@@ -359,7 +359,6 @@ static void TF_SetAttrString_(MEX_ARGS) {
 static void TF_SetAttrStringList_(MEX_ARGS) {
   NOT_IMPLEMENTED
 
-  // TODO test case missing; postponed
   // TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   // char* attr_name = mxArrayToString(prhs[1]);
   // if(!attr_name)
@@ -484,8 +483,6 @@ static void TF_SetAttrType_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name, const TF_DataType* values, int num_values);
 static void TF_SetAttrTypeList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -542,16 +539,21 @@ static void TF_SetAttrShape_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
 static void TF_SetAttrShapeList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
-  const int64_t* const* dims = (const int64_t* const*) mxGetData(prhs[2]);
-  int* num_dims = (int*) mxGetData(prhs[3]);
-  int num_shapes = *((int*) mxGetData(prhs[4]));
+  int num_shapes = mxGetNumberOfElements(prhs[2]);
+  const int64_t** dims = (const int64_t**) mxCalloc(num_shapes, sizeof(int64_t*));
+  int* num_dims = (int*) mxCalloc(num_shapes, sizeof(int));
+  mxArray* shape;
+  for(int i = 0; i < num_shapes; i++) {
+    shape = mxGetCell(prhs[2], i);
+    dims[i] = (int64_t*) mxGetData(shape);
+    num_dims[i] = mxGetNumberOfElements(shape);
+  }
+
   TF_SetAttrShapeList(desc, attr_name, dims, num_dims, num_shapes);
   mxFree(attr_name);
 }
@@ -994,7 +996,7 @@ static void TF_OperationGetAttrShape_(MEX_ARGS) {
 
   TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
   if(TF_GetCode(status) == TF_OK) {
-    int num_dims = meta.size;
+    int num_dims = meta.total_size;
     int64_t* values = (int64_t*) mxCalloc(num_dims, sizeof(int64_t));
     if(!values)
       mexErrMsgTxt("Allocation of memory for values failed.\n");

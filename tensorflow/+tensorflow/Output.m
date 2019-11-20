@@ -27,23 +27,23 @@ classdef Output < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern TF_DataType TF_OperationOutputType(TF_Output oper_out);
-    function type = operationOutputType(obj)
+    function type = type(obj)
       type = tensorflow.DataType(tensorflow_m_('TF_OperationOutputType', obj.ref));
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputNumConsumers(TF_Output oper_out);
-    function num = operationOutputNumConsumers(obj)
+    function num = numConsumers(obj)
       num = tensorflow_m_('TF_OperationOutputNumConsumers', obj.ref);
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers, int max_consumers);
-    function consumers = operationOutputConsumers(obj)
+    function c = consumers(obj)
       error('tensorflow:Output:operationOutputConsumers:NotImplemented', 'Not implemented.'); % TODO
 
-      max_consumers = obj.TF_OperationOutputNumConsumers();
-      consumers = [];
+      max_consumers = obj.numConsumers();
+      c = [];
       for i = 1:1:max_consumers
-        consumers = [consumers; tensorflow.Input()];
+        c = [c; tensorflow.Input()];
       end
       tensorflow_m_('TF_OperationOutputConsumers', obj.ref);
     end

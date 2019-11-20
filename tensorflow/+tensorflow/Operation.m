@@ -10,6 +10,7 @@ classdef Operation < util.mixin.Pointer
     function obj = Operation(ref)
       assert(isa(ref, 'uint64'));
       obj = obj@util.mixin.Pointer(ref);
+      obj.status = tensorflow.Status();
     end
 
     % TF_CAPI_EXPORT extern const char* TF_OperationName(TF_Operation* oper);
@@ -34,7 +35,7 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
     function res = outputListLength(obj, name)
-      assert(ischar(func), 'Provided output list identifier must be a char array.');
+      assert(ischar(name), 'Provided output list identifier must be a char array.');
       res = tensorflow_m_('TF_OperationOutputListLength', obj.ref, name, obj.status.ref);
       obj.status.maybe_raise();
     end
@@ -86,11 +87,12 @@ classdef Operation < util.mixin.Pointer
     end
 
     % TF_CAPI_EXPORT extern TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper, const char* attr_name, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name, void* value, size_t max_length, TF_Status* status);
-    function str = getAttrString(obj)
-      str = tensorflow_m_('TF_OperationGetAttrString', obj.ref, 'string', obj.status.ref);
+    function str = getAttrString(obj, attr)
+      obj.assert_attr(attr);
+      str = tensorflow_m_('TF_OperationGetAttrString', obj.ref, attr(:)', obj.status.ref);
       obj.status.maybe_raise();
     end
 
@@ -98,49 +100,95 @@ classdef Operation < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrInt(TF_Operation* oper, const char* attr_name, int64_t* value, TF_Status* status);
-    % TODO
+    function value = getAttrInt(obj, attr)
+      obj.assert_attr(attr);
+      value = tensorflow_m_('TF_OperationGetAttrInt', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrIntList(TF_Operation* oper, const char* attr_name, int64_t* values, int max_values, TF_Status* status);
-    % TODO
+    function values = getAttrIntList(obj, attr)
+      obj.assert_attr(attr);
+      values = tensorflow_m_('TF_OperationGetAttrIntList', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrFloat(TF_Operation* oper, const char* attr_name, float* value, TF_Status* status);
-    % TODO
+    function value = getAttrFloat(obj, attr)
+      obj.assert_attr(attr);
+      value = tensorflow_m_('TF_OperationGetAttrFloat', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrFloatList(TF_Operation* oper, const char* attr_name, float* values, int max_values, TF_Status* status);
-    % TODO
+    function values = getAttrFloatList(obj, attr)
+      obj.assert_attr(attr);
+      values = tensorflow_m_('TF_OperationGetAttrFloatList', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrBool(TF_Operation* oper, const char* attr_name, unsigned char* value, TF_Status* status);
-    % TODO
+    function value = getAttrBool(obj, attr)
+      obj.assert_attr(attr);
+      value = tensorflow_m_('TF_OperationGetAttrBool', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrBoolList(TF_Operation* oper, const char* attr_name, unsigned char* values, int max_values, TF_Status* status);
-    % TODO
+    function values = getAttrBoolList(obj, attr)
+      obj.assert_attr(attr);
+      values = tensorflow_m_('TF_OperationGetAttrBoolList', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrType(TF_Operation* oper, const char* attr_name, TF_DataType* value, TF_Status* status);
-    % TODO
+    function dtype = getAttrType(obj, attr)
+      obj.assert_attr(attr);
+      value = tensorflow_m_('TF_OperationGetAttrType', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+      dtype = tensorflow.DataType(value);
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrTypeList(TF_Operation* oper, const char* attr_name, TF_DataType* values, int max_values, TF_Status* status);
-    % TODO
+    function dtypes = getAttrTypeList(obj, attr)
+      obj.assert_attr(attr);
+      values = tensorflow_m_('TF_OperationGetAttrTypeList', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+      dtypes = tensorflow.DataType.empty(numel(values),0);
+      for i=1:numel(values)
+        dtypes(i) = tensorflow.DataType(values(i));
+      end
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name, int64_t* value, int num_dims, TF_Status* status);
-    % TODO
+    function shape = getAttrShape(obj, attr)
+      obj.assert_attr(attr);
+      shape = tensorflow_m_('TF_OperationGetAttrShape', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name, int64_t** dims, int* num_dims, int num_shapes, int64_t* storage, int storage_size, TF_Status* status);
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorShapeProto(TF_Operation* oper, const char* attr_name, TF_Buffer* value, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper, const char* attr_name, TF_Buffer** values, int max_values, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name, TF_Tensor** value, TF_Status* status);
-    % TODO
+    function tensor = getAttrTensor(obj, attr)
+      obj.assert_attr(attr);
+      ref = tensorflow_m_('TF_OperationGetAttrTensor', obj.ref, attr(:)', obj.status.ref);
+      obj.status.maybe_raise();
+      tensor = tensorflow.Tensor(ref, true);
+    end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name, TF_Tensor** values, int max_values, TF_Status* status);
     % TODO
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name, TF_Buffer* output_attr_value, TF_Status* status);
-    % TODO
+    % NOT_SUPPORTED
 
     % TF_CAPI_EXPORT extern void TF_OperationToNodeDef(TF_Operation* oper, TF_Buffer* output_node_def, TF_Status* status);
     % TODO
@@ -154,5 +202,13 @@ classdef Operation < util.mixin.Pointer
       delete@util.mixin.Pointer(obj);
     end
 
+  end
+
+  methods (Access=private)
+    function assert_attr(obj, attr)
+      % Validate if given argument is a valid attribute
+      assert(ischar(attr) && isvector(attr), 'Provided attribute must be a one-dimensional char array.');
+      % TODO cross-check with defined attributes of this operation
+    end
   end
 end

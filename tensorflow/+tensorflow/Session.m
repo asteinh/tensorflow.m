@@ -97,7 +97,7 @@ classdef Session < util.mixin.Pointer
 
       obj.status.maybe_raise();
 
-      res = tensorflow.Tensor.empty(noutputs,0);
+      res = tensorflow.Tensor.empty(noutputs, 0);
       for i = 1:1:noutputs
         res(i) = tensorflow.Tensor(refs(i));
       end

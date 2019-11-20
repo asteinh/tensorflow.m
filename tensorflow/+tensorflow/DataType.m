@@ -69,7 +69,7 @@ classdef DataType < uint32
           case 'single'
             tf = tensorflow.DataType.TF_FLOAT;
           case 'logical'
-            tf = tensorflow.DataType.TF_DOUBLE;
+            tf = tensorflow.DataType.TF_BOOL;
           otherwise
             error('tensorflow:DataType:m2tf:Internal', 'No implemented indirect mapping found - please inform the developers.');
         end
@@ -82,8 +82,8 @@ classdef DataType < uint32
 
     function map = direct()
       % Matlab classes with direct equivalent in TensorFlow
-      map = { 'double', 'int32', 'uint8', 'int16', 'int8', 'complex', ...
-              'int64', 'uint32', 'uint64' };
+      map = { 'double', 'complex', 'uint8', 'int8', ...
+              'uint16', 'int16', 'uint32', 'int32', 'uint64', 'int64' };
     end
 
     function map = indirect_m2tf()

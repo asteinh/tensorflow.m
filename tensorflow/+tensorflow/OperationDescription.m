@@ -34,7 +34,7 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs, int num_inputs);
     function addInputList(obj, inps)
       assert(isa(inps, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
-      tensorflow_m_('TF_AddInputList', obj.ref, [inps.ref], int32(numel(inps)));
+      tensorflow_m_('TF_AddInputList', obj.ref, [inps.ref]);
     end
 
     % TF_CAPI_EXPORT extern void TF_AddControlInput(TF_OperationDescription* desc, TF_Operation* input);
@@ -154,7 +154,8 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name, const int64_t* const* dims, const int* num_dims, int num_shapes);
     function setAttrShapeList(obj, attr, dimlist)
       obj.assert_attr(attr);
-      assert(iscell(dimlist) && cellfun(@(x) isnumeric(x), dimlist), 'List of shapes must be provided as cell of numeric arrays.');
+      assert(iscell(dimlist) && all(cellfun(@(x) isnumeric(x), dimlist)), 'List of shapes must be provided as cell of numeric arrays.');
+      dimlist = cellfun(@(x) int64(x), dimlist, 'UniformOutput', false);
       tensorflow_m_('TF_SetAttrShapeList', obj.ref, attr(:)', dimlist(:)');
     end
 

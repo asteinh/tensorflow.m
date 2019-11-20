@@ -6,9 +6,15 @@ classdef Tensor < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor(TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
     % TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     function obj = Tensor(varargin)
-      if nargin == 1 && isa(varargin{1}, 'uint64')
+      if (nargin == 1 || nargin == 2) && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
-        owned = false;
+        if nargin == 1
+          owned = false;
+        elseif nargin == 2 && islogical(varargin{2})
+          owned = varargin{2};
+        else
+          error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
+        end
       else
         if nargin == 1
           data = varargin{1}; % create Tensor from data
