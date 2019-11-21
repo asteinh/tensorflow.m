@@ -22,7 +22,7 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_SetDevice(TF_OperationDescription* desc, const char* device);
     function setDevice(obj, device)
       assert(ischar(device), 'Device must be provided as a string.');
-      tensorflow_m_('TF_SetDevice', obj.ref, device);
+      tensorflow_m_('TF_SetDevice', obj.ref, device(:)');
     end
 
     % TF_CAPI_EXPORT extern void TF_AddInput(TF_OperationDescription* desc, TF_Output input);
@@ -53,7 +53,7 @@ classdef OperationDescription < util.mixin.Pointer
     function setAttrString(obj, attr, str)
       obj.assert_attr(attr);
       assert(ischar(str), 'Provided string must be a char array.');
-      tensorflow_m_('TF_SetAttrString', obj.ref, attr(:)', str(:)');
+      tensorflow_m_('TF_SetAttrString', obj.ref, attr(:)', uint8(str(:)'));
     end
 
     % TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,  const void* const* values,  const size_t* lengths,  int num_values);

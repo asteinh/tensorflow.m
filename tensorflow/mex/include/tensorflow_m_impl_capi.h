@@ -289,7 +289,8 @@ static void TF_NewOperation_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetDevice(TF_OperationDescription* desc, const char* device);
 static void TF_SetDevice_(MEX_ARGS) {
-  NOT_TESTED
+  NOT_IMPLEMENTED
+  // segfaulting for unkown reason; deactivating for the time being
 
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* device = mxArrayToString(prhs[1]);
@@ -342,8 +343,6 @@ static void TF_ColocateWith_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name, const void* value, size_t length);
 static void TF_SetAttrString_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -351,37 +350,34 @@ static void TF_SetAttrString_(MEX_ARGS) {
 
   void* value = (void*) mxGetData(prhs[2]);
   size_t length = (size_t) mxGetN(prhs[2]);
-  TF_SetAttrString(desc, attr_name, value, length*sizeof(char));
+  TF_SetAttrString(desc, attr_name, value, length*sizeof(uint8_t));
   mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name, const void* const* values, const size_t* lengths, int num_values);
 static void TF_SetAttrStringList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
 
-  // TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
-  // char* attr_name = mxArrayToString(prhs[1]);
-  // if(!attr_name)
-  //   mexErrMsgTxt("Could not transform given argument to string.\n");
-  //
-  // size_t nelements = mxGetNumberOfElements(prhs[2]);
-  //
-  // // TODO
-  // void** values = (void**) mxCalloc(nelements, sizeof(void*));
-  // size_t* lengths = (size_t*) mxCalloc(nelements, sizeof(size_t));
-  // for(int i = 0; i < nelements; i++) {
-  //   values[i] = mxArrayToString(mxGetCell(prhs[2], i));
-  //   if(!values[i])
-  //     mexErrMsgTxt("Could not transform cell content to string.\n");
-  //   lengths[i] = sizeof(values[i]);
-  // }
-  //
-  // TF_SetAttrStringList(desc, attr_name, values[0], lengths, (int) nelements);
-  //
-  // for(int i = 0; i < nelements; i++)
-  //   mxFree(values[i]);
-  // mxFree(values);
-  // mxFree(lengths);
+  int num_values = mxGetNumberOfElements(prhs[2]);
+  void** values = (void**) mxCalloc(num_values, sizeof(void*));
+  size_t* lengths = (size_t*) mxCalloc(num_values, sizeof(size_t));
+  for(int i = 0; i < num_values; i++) {
+    mxArray* strarr = mxGetCell(prhs[2], i);
+    values[i] = mxArrayToString(strarr);
+    if(!values[i])
+      mexErrMsgTxt("Could not transform cell content to string.\n");
+    lengths[i] = mxGetNumberOfElements(strarr);
+  }
+
+  TF_SetAttrStringList(desc, attr_name, (const void**) values, lengths, num_values);
+
+  for(int i = 0; i < num_values; i++)
+    mxFree(values[i]);
+  mxFree(values);
+  mxFree(lengths);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
@@ -442,8 +438,6 @@ static void TF_SetAttrFloatList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name, unsigned char value);
 static void TF_SetAttrBool_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -556,6 +550,8 @@ static void TF_SetAttrShapeList_(MEX_ARGS) {
 
   TF_SetAttrShapeList(desc, attr_name, dims, num_dims, num_shapes);
   mxFree(attr_name);
+  mxFree(dims);
+  mxFree(num_dims);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc, const char* attr_name, const void* proto, size_t proto_len, TF_Status* status);
@@ -615,32 +611,24 @@ static void TF_FinishOperation_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern const char* TF_OperationName(TF_Operation* oper);
 static void TF_OperationName_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateString(TF_OperationName(oper));
 }
 
 // TF_CAPI_EXPORT extern const char* TF_OperationOpType(TF_Operation* oper);
 static void TF_OperationOpType_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateString(TF_OperationOpType(oper));
 }
 
 // TF_CAPI_EXPORT extern const char* TF_OperationDevice(TF_Operation* oper);
 static void TF_OperationDevice_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateString(TF_OperationDevice(oper));
 }
 
 // TF_CAPI_EXPORT extern int TF_OperationNumOutputs(TF_Operation* oper);
 static void TF_OperationNumOutputs_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_OperationNumOutputs(oper);
@@ -671,8 +659,6 @@ static void TF_OperationOutputListLength_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_OperationNumInputs(TF_Operation* oper);
 static void TF_OperationNumInputs_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_OperationNumInputs(oper);
@@ -752,8 +738,6 @@ static void TF_OperationGetControlInputs_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_OperationNumControlOutputs(TF_Operation* oper);
 static void TF_OperationNumControlOutputs_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_OperationNumControlOutputs(oper);
@@ -778,8 +762,6 @@ static void TF_OperationGetAttrMetadata_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name, void* value, size_t max_length, TF_Status* status);
 static void TF_OperationGetAttrString_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -789,7 +771,7 @@ static void TF_OperationGetAttrString_(MEX_ARGS) {
   TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
   if(TF_GetCode(status) == TF_OK) {
     size_t max_length = meta.total_size;
-    void* value = mxCalloc(max_length, sizeof(char));
+    void* value = mxCalloc(max_length, sizeof(uint8_t));
     if(!value)
       mexErrMsgTxt("Allocation of memory for string failed.\n");
 
@@ -801,7 +783,36 @@ static void TF_OperationGetAttrString_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrStringList(TF_Operation* oper, const char* attr_name, void** values, size_t* lengths, int max_values, void* storage, size_t storage_size, TF_Status* status);
 static void TF_OperationGetAttrStringList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  char* attr_name = mxArrayToString(prhs[1]);
+  if(!attr_name)
+    mexErrMsgTxt("Could not transform given argument to string.\n");
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[2]);
+
+  TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
+  if(TF_GetCode(status) == TF_OK) {
+    int max_values = meta.list_size;
+    void** values = (void**) mxCalloc(max_values, sizeof(void*));
+    size_t* lengths = (size_t*) mxCalloc(max_values, sizeof(size_t));
+    size_t storage_size = meta.total_size;
+    void* storage = (void*) mxCalloc(storage_size, sizeof(char));
+
+    TF_OperationGetAttrStringList(oper, attr_name, values, lengths, max_values, storage, storage_size, status);
+
+    mxArray* str_cell = mxCreateCellMatrix(max_values, 1);
+    void* str;
+    for(int i = 0; i < max_values; i++) {
+      str = mxCalloc(lengths[i], sizeof(char));
+      memcpy(str, values[i], lengths[i]*sizeof(char));
+      mxSetCell(str_cell, i, mxCreateString(str));
+      mxFree(str);
+    }
+    plhs[0] = str_cell;
+
+    mxFree(values);
+    mxFree(lengths);
+    mxFree(storage);
+  }
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrInt(TF_Operation* oper, const char* attr_name, int64_t* value, TF_Status* status);
@@ -961,8 +972,6 @@ static void TF_OperationGetAttrType_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTypeList(TF_Operation* oper, const char* attr_name, TF_DataType* values, int max_values, TF_Status* status);
 static void TF_OperationGetAttrTypeList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
