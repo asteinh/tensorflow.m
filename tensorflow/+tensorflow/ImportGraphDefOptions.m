@@ -39,13 +39,17 @@ classdef ImportGraphDefOptions < util.mixin.Pointer
     % TODO
 
     % TF_CAPI_EXPORT extern int TF_ImportGraphDefOptionsNumReturnOutputs(const TF_ImportGraphDefOptions* opts);
-    % TODO
+    function nout = numReturnOutputs(obj)
+      nout = double(tensorflow_m_('TF_ImportGraphDefOptionsNumReturnOutputs', obj.ref));
+    end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefOptionsAddReturnOperation(TF_ImportGraphDefOptions* opts, const char* oper_name);
     % TODO
 
     % TF_CAPI_EXPORT extern int TF_ImportGraphDefOptionsNumReturnOperations(const TF_ImportGraphDefOptions* opts);
-    % TODO
+    function nops = numReturnOperations(obj)
+      nops = double(tensorflow_m_('TF_ImportGraphDefOptionsNumReturnOperations', obj.ref));
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

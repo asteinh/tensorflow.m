@@ -1155,6 +1155,8 @@ static void TF_ImportGraphDefOptionsAddReturnOutput_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_ImportGraphDefOptionsNumReturnOutputs(const TF_ImportGraphDefOptions* opts);
 static void TF_ImportGraphDefOptionsNumReturnOutputs_(MEX_ARGS) {
+  NOT_TESTED
+
   TF_ImportGraphDefOptions* opts = (TF_ImportGraphDefOptions*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_ImportGraphDefOptionsNumReturnOutputs(opts);
@@ -1167,6 +1169,8 @@ static void TF_ImportGraphDefOptionsAddReturnOperation_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_ImportGraphDefOptionsNumReturnOperations(const TF_ImportGraphDefOptions* opts);
 static void TF_ImportGraphDefOptionsNumReturnOperations_(MEX_ARGS) {
+  NOT_TESTED
+
   TF_ImportGraphDefOptions* opts = (TF_ImportGraphDefOptions*) arr2ptr(prhs[0]);
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_ImportGraphDefOptionsNumReturnOperations(opts);

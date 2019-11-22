@@ -7,8 +7,20 @@ classdef Operation < util.mixin.Pointer
   end
 
   methods
-    function obj = Operation(ref)
-      assert(isa(ref, 'uint64'));
+    function obj = Operation(varargin)
+      if (nargin == 1 || nargin == 2) && isa(varargin{1}, 'uint64')
+        ref = varargin{1}; % create pointer from given reference
+        if nargin == 1
+          owned = false;
+        elseif nargin == 2 && islogical(varargin{2})
+          owned = varargin{2};
+        else
+          error('tensorflow:Operation:InputArguments', 'Cannot create tensorflow.Operation with given arguments.');
+        end
+      else
+        error('tensorflow:Operation:InputArguments', 'Cannot create tensorflow.Operation with given arguments.');
+      end
+
       obj = obj@util.mixin.Pointer(ref);
       obj.status = tensorflow.Status();
     end

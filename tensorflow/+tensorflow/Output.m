@@ -4,9 +4,15 @@ classdef Output < util.mixin.Pointer
 
   methods
     function obj = Output(varargin)
-      if nargin == 1 && isa(varargin{1}, 'uint64')
+      if (nargin == 1 || nargin == 2) && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
-        owned = false;
+        if nargin == 1
+          owned = false;
+        elseif nargin == 2 && islogical(varargin{2})
+          owned = varargin{2};
+        else
+          error('tensorflow:Output:InputArguments', 'Cannot create tensorflow.Output with given arguments.');
+        end
       else
         if nargin == 1
           oper = varargin{1};

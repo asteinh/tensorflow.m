@@ -12,9 +12,13 @@ classdef Base < handle
 
   methods
     function obj = Base()
-      obj.debug = obj.isdebug();
+      obj.debug = obj.set_debug_mode();
       obj.hash = util.KeyGen.sha1();
       obj.debugMsg('%s: created new object with hash %s\n', class(obj), obj.hash);
+    end
+    
+    function d = isdebug(obj)
+      d = obj.debug;
     end
 
     function delete(obj)
@@ -22,7 +26,7 @@ classdef Base < handle
     end
   end
 
-  methods (Access=public)
+  methods (Access=protected)
     function debugMsg(obj, varargin)
       if obj.debug
         fprintf(varargin{:});
@@ -30,8 +34,8 @@ classdef Base < handle
     end
   end
 
-  methods (Static)
-    function deb = isdebug()
+  methods (Static, Access=private)
+    function deb = set_debug_mode()
       % check if debug mode is activated
       if evalin('base', 'exist(''DEBUG'', ''var'')') == 0
         deb = false;

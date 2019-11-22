@@ -11,18 +11,18 @@ classdef ImportGraphDefResults < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOutputs(TF_ImportGraphDefResults* results, int* num_outputs, TF_Output** outputs);
     function outputs = returnOutputs(obj)
       refs = tensorflow_m_('TF_ImportGraphDefResultsReturnOutputs', obj.ref);
-      outputs = [];
+      outputs = tensorflow.Output.empty(numel(refs), 0);
       for i = 1:1:numel(refs)
-        outputs = [outputs, tensorflow.Output(refs(i))];
+        outputs(i) = tensorflow.Output(refs(i), false); % no ownership, according to comment in header file
       end
     end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOperations(TF_ImportGraphDefResults* results, int* num_opers, TF_Operation*** opers);
     function operations = returnOperations(obj)
       refs = tensorflow_m_('TF_ImportGraphDefResultsReturnOperations', obj.ref);
-      operations = [];
+      operations = tensorflow.Operation.empty(numel(refs), 0);
       for i = 1:1:numel(refs)
-        operations = [operations, tensorflow.Operation(refs(i))];
+        operations(i) = tensorflow.Operation(refs(i), false); % no ownership, according to comment in header file
       end
     end
 
