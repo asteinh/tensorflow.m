@@ -12,11 +12,15 @@ classdef BuildEnvironment < util.mixin.Base
 
   methods
     function obj = BuildEnvironment(pkg_dir, libhint)
-      obj.pkg = pkg_dir;      
+      obj.pkg = pkg_dir;
       obj.prepare();
       obj.lib = util.bob.LibHandler(obj, libhint);
+      obj.build();
+      obj.postprocessing();
     end
-    
+  end
+  
+  methods (Access=private)
     function prepare(obj)
       obj.dir.mex = fullfile(obj.pkg, 'mex');
       obj.dir.out = fullfile(obj.dir.mex, 'build');
@@ -78,6 +82,15 @@ classdef BuildEnvironment < util.mixin.Base
         mex('-v', '-g',  'CFLAGS=$CFLAGS -std=c99 -DDEBUG -g -ggdb3', mexargs{:});
       else
         mex('CFLAGS=$CFLAGS -std=c99', mexargs{:});
+      end
+    end
+    
+    function postprocessing(obj)
+      % TODO - find a nicer workaround for this:
+      %   on Windows the MEX file won't find the DLL (unless it's on the
+      %   system path...)
+      if ispc
+        copyfile(fullfile(obj.lib.path, 'lib', obj.lib.libfile), fullfile(obj.dir.out, obj.lib.libfile));
       end
     end
   end

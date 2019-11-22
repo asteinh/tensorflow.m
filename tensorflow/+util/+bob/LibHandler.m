@@ -51,18 +51,18 @@ classdef LibHandler < util.mixin.Base
         fext = 'zip';
       end
       
-      dl_link = ['https://storage.googleapis.com/tensorflow/libtensorflow/' fname '.' fext];
-      dl_file = fullfile(tempdir, [fname '.' fext]);
-      if exist(dl_file, 'file') ~= 2
-        obj.debugMsg('Downloading TensorFlow C library ...\n');
-        websave(dl_file, dl_link);
-      else
-        obj.debugMsg('Using TensorFlow C library archive already present in temp directory.\n');
-      end
-      
       location = fullfile(benv.dir.mex, 'third_party', fname);
       
       if exist(location, 'dir') == 0
+        dl_link = ['https://storage.googleapis.com/tensorflow/libtensorflow/' fname '.' fext];
+        dl_file = fullfile(tempdir, [fname '.' fext]);
+        if exist(dl_file, 'file') ~= 2
+          obj.debugMsg('Downloading TensorFlow C library ...\n');
+          websave(dl_file, dl_link);
+        else
+          obj.debugMsg('Using TensorFlow C library archive already present in temp directory.\n');
+        end
+      
         obj.debugMsg('Extracting TensorFlow C library ...\n');
         if strcmp(fext, 'zip')
           unzip(dl_file, location);

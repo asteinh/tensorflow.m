@@ -39,12 +39,7 @@ function setup()
   
   % build it
   disp('Building MEX interface ...');
-  benv = util.bob.BuildEnvironment(pkg_dir, LIBTENSORFLOW);
-  benv.build();
-
+  util.bob.BuildEnvironment(pkg_dir, LIBTENSORFLOW);
   
-  
-
   disp('Setup of tensorflow.m successful.');
-
 end
