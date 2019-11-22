@@ -17,9 +17,16 @@ classdef Buffer < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBuffer(void);
     % TF_CAPI_EXPORT extern TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len);
     function obj = Buffer(varargin)
-      if nargin == 1 && isa(varargin{1}, 'uint64')
+      if (nargin == 1 || nargin == 2) && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
-        owned = false;
+        if nargin == 1
+          owned = false;
+        elseif nargin == 2 && islogical(varargin{2})
+          owned = varargin{2};
+        else
+          error('tensorflow:Buffer:InputArguments', 'Cannot create tensorflow.Buffer with given arguments.');
+        end
+        data = [];
       else
         if nargin == 1 && ischar(varargin{1})
           data = uint8(varargin{1}(:)');

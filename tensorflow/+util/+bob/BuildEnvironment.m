@@ -11,21 +11,30 @@ classdef BuildEnvironment < util.mixin.Base
   end
 
   methods
-    function obj = BuildEnvironment(pkg_dir, libhint)
-      obj.pkg = pkg_dir;
+    function obj = BuildEnvironment(env_root, libhint)
+      % root directory of build environment (i.e. package location)
+      obj.pkg = env_root;
+
+      % prepare build: setting properties and cleaning up
       obj.prepare();
+
+      % find or download TensorFlow C library
       obj.lib = util.bob.LibHandler(obj, libhint);
-      obj.build();
-      obj.postprocessing();
+
+      % build the MEX interface
+      obj.build_mex_interface();
+
+      % generate ops
+      obj.generate_ops();
     end
   end
-  
+
   methods (Access=private)
     function prepare(obj)
       obj.dir.mex = fullfile(obj.pkg, 'mex');
       obj.dir.out = fullfile(obj.dir.mex, 'build');
       obj.mexfile = fullfile(obj.dir.out, [obj.filename '.' mexext]);
-      
+
       % clear possibly loaded MEXs
       [~, loaded] = inmem();
       for f = 1:1:numel(loaded)
@@ -33,14 +42,14 @@ classdef BuildEnvironment < util.mixin.Base
           clear(loaded{f});
         end
       end
-      
+
       % delete existing file with identical name
       if exist(obj.mexfile, 'file') == 3
         delete(obj.mexfile);
       end
     end
 
-    function build(obj)
+    function build_mex_interface(obj)
       % include directories for building
       includedirs = { ...
         ['-I' fullfile(obj.dir.mex, 'include')], ...
@@ -83,15 +92,20 @@ classdef BuildEnvironment < util.mixin.Base
       else
         mex('CFLAGS=$CFLAGS -std=c99', mexargs{:});
       end
-    end
-    
-    function postprocessing(obj)
+
       % TODO - find a nicer workaround for this:
       %   on Windows the MEX file won't find the DLL (unless it's on the
       %   system path...)
       if ispc
         copyfile(fullfile(obj.lib.path, 'lib', obj.lib.libfile), fullfile(obj.dir.out, obj.lib.libfile));
       end
+    end
+
+    function generate_ops(obj)
+      proto = tensorflow.Buffer(tensorflow_m_('TF_GetAllOpList'), true);
+      % TODO protobuf > generate all ops found
+      % - ? dump to tensorflow/+tensorflow/@Graph
+      % - ? overloading
     end
   end
 end

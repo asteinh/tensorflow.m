@@ -1527,7 +1527,8 @@ static void TF_DeleteLibraryHandle_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern TF_Buffer* TF_GetAllOpList(void);
 static void TF_GetAllOpList_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  TF_Buffer* buffer = TF_GetAllOpList();
+  plhs[0] = ptr2arr((void*) buffer);
 }
 
 // TF_CAPI_EXPORT extern TF_ApiDefMap* TF_NewApiDefMap(TF_Buffer* op_list_buffer, TF_Status* status);

@@ -15,6 +15,7 @@ classdef Tensor < util.mixin.Pointer
         else
           error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
         end
+        data = [];
       else
         if nargin == 1
           data = varargin{1}; % create Tensor from data
