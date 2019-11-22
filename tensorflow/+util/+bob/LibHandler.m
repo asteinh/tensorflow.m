@@ -17,6 +17,7 @@ classdef LibHandler < util.mixin.Base
         % manually supplied hint
         obj.debugMsg('Checking manually supplied search paths for TensorFlow C library ...\n');
         [obj.path, obj.version] = obj.search_for_library(hints);
+        assert(~isempty(obj.path), 'TensorFlow C library could not be found in manually supplied path - aborting.');
       else
         % check default paths
         obj.debugMsg('Checking default search paths for TensorFlow C library ...\n');
@@ -61,15 +62,13 @@ classdef LibHandler < util.mixin.Base
       
       location = fullfile(benv.dir.mex, 'third_party', fname);
       
-      if exist(location, 'dir') == 7
-        rmdir(location, 's');
-      end
-
-      obj.debugMsg('Extracting TensorFlow C library ...\n');
-      if strcmp(fext, 'zip')
-        unzip(dl_file, location);
-      else
-        untar(dl_file, location);
+      if exist(location, 'dir') == 0
+        obj.debugMsg('Extracting TensorFlow C library ...\n');
+        if strcmp(fext, 'zip')
+          unzip(dl_file, location);
+        else
+          untar(dl_file, location);
+        end
       end
     end
     
