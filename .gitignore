@@ -1,6 +1,9 @@
 *.*~
 .DS_Store
-libtensorflow/
 *.mex*
 *.o
 nogit_*
+
+tensorflow/mex/build/*
+tensorflow/mex/third_party/*
+!.*
