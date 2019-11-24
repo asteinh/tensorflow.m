@@ -2,6 +2,7 @@
 *.mex*
 *.o
 nogit_*
+ops.pbtxt
 
 tensorflow/mex/build/*
 tensorflow/mex/third_party/*

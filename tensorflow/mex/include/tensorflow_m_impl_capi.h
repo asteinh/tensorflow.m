@@ -91,13 +91,24 @@ static void TF_NewTensor_(MEX_ARGS) {
 static void TF_AllocateTensor_(MEX_ARGS) {
   TF_DataType type = *(TF_DataType*) mxGetData(prhs[0]);
   int64_t* dims = (int64_t*) mxGetData(prhs[1]);
-  int num_dims = *(int*) mxGetData(prhs[2]);
-  size_t len = 1;
-  for(int d = 0; d < num_dims; d++)
-    len *= dims[d];
-  len *= TF_DataTypeSize(type);
-  TF_Tensor* tensor = TF_AllocateTensor(type, dims, num_dims, len);
-  plhs[0] = ptr2arr((void*) tensor);
+  int num_dims = *((int*) mxGetData(prhs[2]));
+
+  if(type == TF_STRING) {
+    size_t len = TF_StringEncodedSize((size_t) dims[1]) + sizeof(uint64_t);
+    int64_t* dims_ = mxCalloc(1, sizeof(int64_t));
+    *dims_ = 0;
+    num_dims = 1;
+    TF_Tensor* tensor = TF_AllocateTensor(type, dims_, num_dims, len);
+    plhs[0] = ptr2arr((void*) tensor);
+    mxFree(dims_);
+  } else {
+    size_t len = 1;
+    for(int d = 0; d < num_dims; d++)
+      len *= dims[d];
+    len *= TF_DataTypeSize(type);
+    TF_Tensor* tensor = TF_AllocateTensor(type, dims, num_dims, len);
+    plhs[0] = ptr2arr((void*) tensor);
+  }
 }
 
 // TF_CAPI_EXPORT extern TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor);

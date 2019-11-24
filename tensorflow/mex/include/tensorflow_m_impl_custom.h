@@ -60,40 +60,49 @@ static void TFM_DeleteOperationDescription(MEX_ARGS) {
 
 static void TFM_SetTensorData(MEX_ARGS) {
   TF_Tensor* tensor = (TF_Tensor*) arr2ptr(prhs[0]);
-  void* input = (void*) mxGetData(prhs[1]);
-  size_t len = 1;
-  for(int i = 0; i < TF_NumDims(tensor); i++)
-    len *= TF_Dim(tensor, i);
-  len *= TF_DataTypeSize(TF_TensorType(tensor));
-  if(len <= TF_TensorByteSize(tensor)) {
-    memcpy(TF_TensorData(tensor), input, len);
+  void* src = (void*) mxGetData(prhs[1]);
+
+  TF_DataType dtype = TF_TensorType(tensor);
+  if(dtype == TF_STRING) {
+    size_t len = (size_t) mxGetN(prhs[1]);
+    void* dst = TF_TensorData(tensor) + sizeof(uint64_t);
+    size_t dst_len = TF_StringEncodedSize(len);
+    TF_Status* status = TF_NewStatus();
+    size_t consumed = TF_StringEncode(src, len, dst, dst_len, status);
+    if(TF_GetCode(status) != TF_OK)
+      mexErrMsgTxt("Error encoding string to Tensor data.");
   } else {
-    mexErrMsgTxt("Memory allocated for TF_Tensor cannot hold amount of given data.");
+    size_t len = 1;
+    for(int i = 0; i < TF_NumDims(tensor); i++)
+      len *= TF_Dim(tensor, i);
+    len *= TF_DataTypeSize(TF_TensorType(tensor));
+    if(len <= TF_TensorByteSize(tensor))
+      memcpy(TF_TensorData(tensor), src, len);
+    else
+      mexErrMsgTxt("Memory allocated for TF_Tensor cannot hold amount of given data.");
   }
 }
 
 static void TFM_GetTensorData(MEX_ARGS) {
   TF_Tensor* tensor = (TF_Tensor*) arr2ptr(prhs[0]);
-  size_t len = 1;
-  for(int i = 0; i < TF_NumDims(tensor); i++)
-    len *= TF_Dim(tensor, i);
-
   TF_DataType dtype = TF_TensorType(tensor);
-
   if(dtype == TF_STRING) {
+    size_t len = TF_TensorByteSize(tensor) - sizeof(uint64_t);
     char** dst = (char**) mxCalloc(1, sizeof(char*));
     size_t* dst_len = (size_t*) mxCalloc(1, sizeof(size_t));
     TF_Status* status = TF_NewStatus();
-    size_t cnsmed = TF_StringDecode((char*) TF_TensorData(tensor), len, dst, dst_len, status);
+    size_t consumed = TF_StringDecode((char*) (TF_TensorData(tensor) + sizeof(uint64_t)), len, dst, dst_len, status);
     if(TF_GetCode(status) != TF_OK)
       mexErrMsgTxt("Error decoding string from Tensor data.");
 
     plhs[0] = mxCreateNumericMatrix(1, len, mxUINT8_CLASS, mxREAL);
     memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), len);
-
     mxFree(dst);
     mxFree(dst_len);
   } else {
+    size_t len = 1;
+    for(int i = 0; i < TF_NumDims(tensor); i++)
+      len *= TF_Dim(tensor, i);
     // mxArray depending on data type; cast to correct type in Matlab
     size_t bytes = TF_DataTypeSize(dtype);
     if(bytes == 1)

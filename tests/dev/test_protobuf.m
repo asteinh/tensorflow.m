@@ -11,14 +11,15 @@ in = g.constant(str);
 % set up decode_proto OP
 desc = g.newOperation('DecodeProtoV2', 'DecodeProtoV2_test');
 desc.addInput(in);
+desc.setAttrString('message_type', 'OpDef');
+desc.setAttrStringList('field_names', {});
+desc.setAttrTypeList('output_types', []);
+desc.setAttrString('descriptor_source', 'local://');
 
 %
 oper = desc.finishOperation();
 output = tensorflow.Output(oper);
 
+%
 % apidef = tensorflow.ApiDefMap(proto);
-
-
-
-
-% proto.deleteBuffer();
+res = s.run([],[],output);
