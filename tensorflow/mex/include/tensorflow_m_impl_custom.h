@@ -78,20 +78,37 @@ static void TFM_GetTensorData(MEX_ARGS) {
   for(int i = 0; i < TF_NumDims(tensor); i++)
     len *= TF_Dim(tensor, i);
 
-  // mxArray depending on data type; cast to correct type in Matlab
-  size_t bytes = TF_DataTypeSize(TF_TensorType(tensor));
-  if(bytes == 1)
-    plhs[0] = mxCreateNumericMatrix(1, len, mxUINT8_CLASS, mxREAL);
-  else if(bytes == 2)
-    plhs[0] = mxCreateNumericMatrix(1, len, mxUINT16_CLASS, mxREAL);
-  else if(bytes == 4)
-    plhs[0] = mxCreateNumericMatrix(1, len, mxUINT32_CLASS, mxREAL);
-  else if(bytes == 8)
-    plhs[0] = mxCreateNumericMatrix(1, len, mxUINT64_CLASS, mxREAL);
-  else
-    mexErrMsgTxt("Could not figure out the bitsize of tensor's data type.");
+  TF_DataType dtype = TF_TensorType(tensor);
 
-  memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), TF_TensorByteSize(tensor));
+  if(dtype == TF_STRING) {
+    char** dst = (char**) mxCalloc(1, sizeof(char*));
+    size_t* dst_len = (size_t*) mxCalloc(1, sizeof(size_t));
+    TF_Status* status = TF_NewStatus();
+    size_t cnsmed = TF_StringDecode((char*) TF_TensorData(tensor), len, dst, dst_len, status);
+    if(TF_GetCode(status) != TF_OK)
+      mexErrMsgTxt("Error decoding string from Tensor data.");
+
+    plhs[0] = mxCreateNumericMatrix(1, len, mxUINT8_CLASS, mxREAL);
+    memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), len);
+
+    mxFree(dst);
+    mxFree(dst_len);
+  } else {
+    // mxArray depending on data type; cast to correct type in Matlab
+    size_t bytes = TF_DataTypeSize(dtype);
+    if(bytes == 1)
+      plhs[0] = mxCreateNumericMatrix(1, len, mxUINT8_CLASS, mxREAL);
+    else if(bytes == 2)
+      plhs[0] = mxCreateNumericMatrix(1, len, mxUINT16_CLASS, mxREAL);
+    else if(bytes == 4)
+      plhs[0] = mxCreateNumericMatrix(1, len, mxUINT32_CLASS, mxREAL);
+    else if(bytes == 8)
+      plhs[0] = mxCreateNumericMatrix(1, len, mxUINT64_CLASS, mxREAL);
+    else
+      mexErrMsgTxt("Could not figure out the bitsize of tensor's data type.");
+
+    memcpy(mxGetData(plhs[0]), TF_TensorData(tensor), TF_TensorByteSize(tensor));
+  }
 }
 
 static void TFM_BufferLength(MEX_ARGS) {

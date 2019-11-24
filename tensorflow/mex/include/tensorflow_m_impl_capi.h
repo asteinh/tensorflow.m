@@ -1533,7 +1533,9 @@ static void TF_GetAllOpList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern TF_ApiDefMap* TF_NewApiDefMap(TF_Buffer* op_list_buffer, TF_Status* status);
 static void TF_NewApiDefMap_(MEX_ARGS) {
-  NOT_IMPLEMENTED
+  TF_Buffer* op_list_buffer = (TF_Buffer*) arr2ptr(prhs[0]);
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[1]);
+  plhs[0] = ptr2arr((void*) TF_NewApiDefMap(op_list_buffer, status));
 }
 
 // TF_CAPI_EXPORT extern void TF_DeleteApiDefMap(TF_ApiDefMap* apimap);

@@ -106,6 +106,10 @@ classdef BuildEnvironment < util.mixin.Base
       % TODO protobuf > generate all ops found
       % - ? dump to tensorflow/+tensorflow/@Graph
       % - ? overloading
+      
+      apidef = tensorflow.ApiDefMap(proto);
+      
+      proto.deleteBuffer();
     end
   end
 end

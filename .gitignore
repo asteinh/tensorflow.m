@@ -1,5 +1,4 @@
 *.*~
-.DS_Store
 *.mex*
 *.o
 nogit_*
@@ -7,3 +6,4 @@ nogit_*
 tensorflow/mex/build/*
 tensorflow/mex/third_party/*
 !.*
+.DS_Store

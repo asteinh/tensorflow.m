@@ -17,12 +17,27 @@ classdef Tensor < util.mixin.Pointer
         end
         data = [];
       else
+%         if nargin == 1 && isa(varargin{1}, 'char')
+%           % create string Tensor from char array
+%           str = uint8(varargin{1});
+%           dtype = tensorflow.DataType('TF_STRING');
+%           status = tensorflow.Status();
+%           data = tensorflow_m_('TF_StringEncode', str, status.ref);
+%           status.maybe_raise();
+%           dims = size(data);
+%         else
         if nargin == 1
-          data = varargin{1}; % create Tensor from data
+          % create Tensor from data
+          data = varargin{1};
           dtype = tensorflow.DataType.m2tf(class(data)); % retrieve datatype from data
-          dims = size(data); % data dimensions
+          if strcmp(dtype, 'TF_STRING')
+            dims = double(tensorflow_m_('TF_StringEncodedSize', uint64(numel(data))));
+          else
+            dims = size(data); % data dimensions
+          end
         elseif nargin == 2
-          dtype = varargin{1}; % create Tensor from dtype and dims
+          % create Tensor from dtype and dims
+          dtype = varargin{1};
           dims = varargin{2};  % ...
           data = [];
         else
@@ -103,11 +118,14 @@ classdef Tensor < util.mixin.Pointer
       if nargin == 1
         % read data
         data = tensorflow_m_('TFM_GetTensorData', obj.ref);
-        data = typecast(data, tensorflow.DataType.tf2m(obj.type()));
-
-        % permute to obtain column-major representation
-        dims = obj.getDimensions();
-        data = permute(reshape(data, fliplr(dims)), [numel(dims):-1:1]);
+        if strcmp(obj.type, 'TF_STRING')
+          data = char(data);
+        else
+          data = typecast(data, tensorflow.DataType.tf2m(obj.type()));
+          % permute to obtain column-major representation
+          dims = obj.getDimensions();
+          data = permute(reshape(data, fliplr(dims)), [numel(dims):-1:1]);
+        end
 
         if nargout == 1
           varargout{1} = data;
@@ -117,11 +135,15 @@ classdef Tensor < util.mixin.Pointer
       elseif nargin == 2 && nargout == 0
         % write data
         varargout = {};
-        data_cm = varargin{1};
-        % permute to obtain row-major representation
-        dims = size(data_cm);
-        data_rm = reshape(permute(data_cm, [numel(dims):-1:1]), dims);
-        tensorflow_m_('TFM_SetTensorData', obj.ref, data_rm);
+        if strcmp(obj.type, 'TF_STRING')
+          data = uint8(varargin{1});
+        else
+          data_cm = varargin{1};
+          % permute to obtain row-major representation
+          dims = size(data_cm);
+          data = reshape(permute(data_cm, [numel(dims):-1:1]), dims);
+        end
+        tensorflow_m_('TFM_SetTensorData', obj.ref, data);
       else
         error('tensorflow:Tensor:value:InputArguments', 'Unknown combination of input and output arguments.');
       end

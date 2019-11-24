@@ -13,9 +13,10 @@ classdef ApiDefMap < util.mixin.Pointer
       status = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewApiDefMap', op_list_buffer.ref, status.ref));
+      ref = tensorflow_m_('TF_NewApiDefMap', op_list_buffer.ref, status.ref);
+      status.maybe_raise();
+      obj = obj@util.mixin.Pointer(ref);
       obj.status = status;
-
     end
 
     % TF_CAPI_EXPORT extern void TF_DeleteApiDefMap(TF_ApiDefMap* apimap);

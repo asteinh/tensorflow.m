@@ -47,6 +47,8 @@ classdef DataType < uint32
             m = 'single';
           case 'bool'
             m = 'logical';
+          case 'string'
+            m = 'char';
           otherwise
             error('tensorflow:DataType:tf2m:Internal', 'No implemented indirect mapping found - please inform the developers.');
         end
@@ -70,6 +72,8 @@ classdef DataType < uint32
             tf = tensorflow.DataType.TF_FLOAT;
           case 'logical'
             tf = tensorflow.DataType.TF_BOOL;
+          case 'char'
+            tf = tensorflow.DataType.TF_STRING;
           otherwise
             error('tensorflow:DataType:m2tf:Internal', 'No implemented indirect mapping found - please inform the developers.');
         end
@@ -88,12 +92,12 @@ classdef DataType < uint32
 
     function map = indirect_m2tf()
       % indirect mapping from Matlab classes to TensorFlow types
-      map = { 'single', 'logical' };
+      map = { 'single', 'logical', 'char' };
     end
 
     function map = indirect_tf2m()
       % indirect mapping from TensorFlow types to Matlab classes
-      map = { 'float', 'bool' };
+      map = { 'float', 'bool', 'string' };
     end
   end
 end
