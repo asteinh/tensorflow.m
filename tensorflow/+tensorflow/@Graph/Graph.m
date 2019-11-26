@@ -161,6 +161,45 @@ classdef Graph < util.mixin.Pointer
       output = tensorflow.Output(oper);
     end
 
+    function output = add(obj, x, y, varargin)
+      assert(isa(x, 'tensorflow.Output'));
+      assert(isa(y, 'tensorflow.Output'));
+      assert(nargin >= 3 && nargin <= 4);
+      if nargin == 4
+        assert(ischar(varargin{1}));
+        op_name = varargin{1};
+      else
+        [~, op_name] = util.KeyGen.sha1();
+      end
+
+      desc = obj.newOperation('Add', ['Add_' op_name]);
+
+      desc.addInput(x);
+      desc.addInput(y);
+
+      oper = desc.finishOperation();
+      output = tensorflow.Output(oper);
+    end
+    
+    function output = overload_mul(obj, x, y, op_name)
+      assert(nargin >= 3 && nargin <= 4, 'Wrong number of input arguments.');
+      assert(isa(x, 'tensorflow.Output') && isa(y, 'tensorflow.Output'), 'Provided arguments must be of class tensorflow.Output.');
+      if nargin < 4
+        [~, op_name] = util.KeyGen.sha1();
+      end
+
+      desc = obj.newOperation('Mul', ['Mul_' op_name]);
+      desc.addInput(x);
+      desc.addInput(y);
+
+      % TODO handle control inputs
+      % foreach ( TFOperation control in CurrentDependencies )
+      %   desc.AddControlInput (control);
+
+      oper = desc.finishOperation();
+      output = tensorflow.Output(oper);
+    end
+    
     function delete(obj)
       if obj.isdeletable()
         tensorflow_m_('TF_DeleteGraph', obj.ref);
