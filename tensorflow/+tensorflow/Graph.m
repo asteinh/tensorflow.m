@@ -1,4 +1,4 @@
-classdef Graph < util.mixin.Pointer
+classdef Graph < util.mixin.Pointer & tensorflow.Ops
   %GRAPH Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -122,84 +122,11 @@ classdef Graph < util.mixin.Pointer
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function output = constant(obj, data, op_name)
-      assert(nargin >= 2 && nargin <= 3, 'Wrong number of input arguments.');
-      if nargin < 3
-        [~, op_name] = util.KeyGen.sha1();
-      end
-      desc = obj.newOperation('Const', ['Constant_' op_name]);
-
+    function output = constant(obj, data, varargin)
       t = tensorflow.Tensor(data);
-      desc.setAttrTensor('value', t);
-      desc.setAttrType('dtype', t.type);
-
-      oper = desc.finishOperation();
-      output = tensorflow.Output(oper);
+      output = obj.const(t, t.type, varargin{:});
     end
 
-    function output = placeholder(obj, dtype, shape, op_name)
-      assert(nargin >= 2 && nargin <= 4, 'Wrong number of input arguments.');
-      if nargin < 4
-        [~, op_name] = util.KeyGen.sha1();
-      end
-      if nargin < 3
-        shape = [];
-      end
-
-      desc = obj.newOperation('Placeholder', ['Placeholder_' op_name]);
-
-      % TODO handle control inputs
-      % foreach ( TFOperation control in CurrentDependencies )
-      %   desc.AddControlInput (control);
-
-      desc.setAttrType('dtype', dtype);
-      if ~isempty(shape)
-        desc.setAttrShape('shape', shape);
-      end
-
-      oper = desc.finishOperation();
-      output = tensorflow.Output(oper);
-    end
-
-    function output = add(obj, x, y, varargin)
-      assert(isa(x, 'tensorflow.Output'));
-      assert(isa(y, 'tensorflow.Output'));
-      assert(nargin >= 3 && nargin <= 4);
-      if nargin == 4
-        assert(ischar(varargin{1}));
-        op_name = varargin{1};
-      else
-        [~, op_name] = util.KeyGen.sha1();
-      end
-
-      desc = obj.newOperation('Add', ['Add_' op_name]);
-
-      desc.addInput(x);
-      desc.addInput(y);
-
-      oper = desc.finishOperation();
-      output = tensorflow.Output(oper);
-    end
-    
-    function output = overload_mul(obj, x, y, op_name)
-      assert(nargin >= 3 && nargin <= 4, 'Wrong number of input arguments.');
-      assert(isa(x, 'tensorflow.Output') && isa(y, 'tensorflow.Output'), 'Provided arguments must be of class tensorflow.Output.');
-      if nargin < 4
-        [~, op_name] = util.KeyGen.sha1();
-      end
-
-      desc = obj.newOperation('Mul', ['Mul_' op_name]);
-      desc.addInput(x);
-      desc.addInput(y);
-
-      % TODO handle control inputs
-      % foreach ( TFOperation control in CurrentDependencies )
-      %   desc.AddControlInput (control);
-
-      oper = desc.finishOperation();
-      output = tensorflow.Output(oper);
-    end
-    
     function delete(obj)
       if obj.isdeletable()
         tensorflow_m_('TF_DeleteGraph', obj.ref);

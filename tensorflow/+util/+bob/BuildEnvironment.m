@@ -5,7 +5,7 @@ classdef BuildEnvironment < util.mixin.Base
   properties (SetAccess=private, GetAccess=public)
     lib = [];
     pkg = [];
-    dir = struct();
+    dirs = struct();
     filename = 'tensorflow_m_'; % the name of the resulting MEX interface
     mexfile = [];
   end
@@ -23,17 +23,14 @@ classdef BuildEnvironment < util.mixin.Base
 
       % build the MEX interface
       obj.build_mex_interface();
-
-      % generate ops
-      obj.generate_ops();
     end
   end
 
   methods (Access=private)
     function prepare(obj)
-      obj.dir.mex = fullfile(obj.pkg, 'mex');
-      obj.dir.out = fullfile(obj.dir.mex, 'build');
-      obj.mexfile = fullfile(obj.dir.out, [obj.filename '.' mexext]);
+      obj.dirs.mex = fullfile(obj.pkg, 'mex');
+      obj.dirs.out = fullfile(obj.dirs.mex, 'build');
+      obj.mexfile = fullfile(obj.dirs.out, [obj.filename '.' mexext]);
 
       % clear possibly loaded MEXs
       [~, loaded] = inmem();
@@ -47,17 +44,25 @@ classdef BuildEnvironment < util.mixin.Base
       if exist(obj.mexfile, 'file') == 3
         delete(obj.mexfile);
       end
+
+      % cleanup build directory
+      files = dir(obj.dirs.out);
+      for f = files'
+        if ~f.isdir && ~strcmpi(f.name, '.gitkeep')
+          delete(fullfile(f.folder, f.name));
+        end
+      end
     end
 
     function build_mex_interface(obj)
       % include directories for building
       includedirs = { ...
-        ['-I' fullfile(obj.dir.mex, 'include')], ...
+        ['-I' fullfile(obj.dirs.mex, 'include')], ...
         ['-I' fullfile(obj.lib.path, 'include')] ...
       };
 
       % the source to be MEXed
-      file = fullfile(obj.dir.mex, 'src', [obj.filename '.c']);
+      file = fullfile(obj.dirs.mex, 'src', [obj.filename '.c']);
 
       % additional sources
       sources = {};
@@ -82,7 +87,7 @@ classdef BuildEnvironment < util.mixin.Base
                   sources(:)', ...
                   libdirs(:)', ...
                   libs(:)', ...
-                  {'-outdir'}, { obj.dir.out }, ...
+                  {'-outdir'}, { obj.dirs.out }, ...
                   {'-largeArrayDims'} ...
                 ];
 
@@ -97,19 +102,8 @@ classdef BuildEnvironment < util.mixin.Base
       %   on Windows the MEX file won't find the DLL (unless it's on the
       %   system path...)
       if ispc
-        copyfile(fullfile(obj.lib.path, 'lib', obj.lib.libfile), fullfile(obj.dir.out, obj.lib.libfile));
+        copyfile(fullfile(obj.lib.path, 'lib', obj.lib.libfile), fullfile(obj.dirs.out, obj.lib.libfile));
       end
-    end
-
-    function generate_ops(obj)
-      proto = tensorflow.Buffer(tensorflow_m_('TF_GetAllOpList'), true);
-      % TODO protobuf > generate all ops found
-      % - ? dump to tensorflow/+tensorflow/@Graph
-      % - ? overloading
-      
-      apidef = tensorflow.ApiDefMap(proto);
-      
-      proto.deleteBuffer();
     end
   end
 end

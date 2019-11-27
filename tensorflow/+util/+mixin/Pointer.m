@@ -22,7 +22,14 @@ classdef Pointer < util.mixin.Base
 
     % check if the Pointer object holds a valid reference
     function res = isempty(obj)
-      res = isempty(obj.ref);
+      if numel(obj) == 1
+        res = isempty(obj.ref);
+      else
+        res = false(1,numel(obj));
+        for i = 1:1:numel(obj)
+          res(i) = obj(i).isempty();
+        end
+      end
     end
 
     % check if the referenced memory is owned by tensorflow.m

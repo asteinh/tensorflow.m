@@ -3,6 +3,7 @@ function setup()
 %  Builds the MEX interface, adds respective paths, etc.
 
   disp('Setting up tensorflow.m');
+  tstart = tic;
 
   % 1) check if debug mode is activated
   if evalin('base', 'exist(''DEBUG'', ''var'')') == 0
@@ -21,7 +22,7 @@ function setup()
   end
 
   % 3) adjust paths
-  disp('Checking paths ...');
+  disp('Adding required paths ...');
   % add path, if not already added
   pkg_dir = fullfile(pwd, 'tensorflow');
   if DEBUG; disp(['Root folder of tensorflow.m: ' pkg_dir]); end
@@ -37,18 +38,15 @@ function setup()
   else
     if DEBUG; disp('Root folder already in path.'); end
   end
-  
+
   % 4) build MEX
   disp('Building MEX interface ...');
   util.bob.BuildEnvironment(pkg_dir, LIBTENSORFLOW);
-  
+
   % 5) generate OPs
-  % due to lack of protobuf support in Matlab, download file and parse
-  opdef_file = websave('tensorflow/+tensorflow/@Graph/ops.pbtxt', ...
-    'https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt');
-  %TODO
-  ops = util.OpDef.parseFromFile(opdef_file);
-  fcns = ops.generateFunction('./');
-  
-  disp('Setup of tensorflow.m successful.');
+  op_dir = fullfile(pkg_dir, '+tensorflow', '@Ops');
+  util.bob.OpGenerator(op_dir);
+
+  tspent = toc(tstart);
+  disp(['Setup of tensorflow.m successful. Took ' num2str(tspent) ' seconds.']);
 end

@@ -6,30 +6,25 @@ status = tensorflow.Status();
 proto = tensorflow.Buffer(tensorflow_m_('TF_GetAllOpList'), true);
 
 str = char(proto.data());
-% in = g.constant(str);
-% 
+bytes = g.constant(str);
+
 % % set up decode_proto OP
 % desc = g.newOperation('DecodeProtoV2', 'DecodeProtoV2_test');
-% desc.addInput(in);
+% desc.addInput(bytes);
 % desc.setAttrString('message_type', 'tensorflow.OpDef');
 % desc.setAttrStringList('field_names', { 'name', 'summary', 'description' });
 % desc.setAttrTypeList('output_types', [ tensorflow.DataType('TF_STRING'), tensorflow.DataType('TF_STRING'), tensorflow.DataType('TF_STRING') ]);
 % desc.setAttrString('descriptor_source', './tensorflow/protobuf/descriptor_set_out');
 % 
-% %
 % oper = desc.finishOperation();
 % output = tensorflow.Output(oper);
-% res = s.run([], [], output);
+output = g.decodeprotov2(...
+  bytes, ...
+  'tensorflow.OpDef', ...
+  { 'name', 'summary', 'description' }, ...
+  [ tensorflow.DataType('TF_STRING'), tensorflow.DataType('TF_STRING'), tensorflow.DataType('TF_STRING') ], ...
+  'descriptor_source', './tensorflow/protobuf/descriptor_set_out' ...
+ );
 
-op_list = util.protobuf.parser.pb_read_tensorflow__OpList(proto.data());
-
-%%
-rmdir ops s
-mkdir ops
-% for op = op_list.op(851) % Add
-for op = op_list.op
-  gen = util.bob.OpGenerator(op);
-  gen.generateFunction('ops');
-end
-
+res = s.run([], [], output);
 
