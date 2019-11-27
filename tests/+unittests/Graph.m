@@ -7,12 +7,12 @@ classdef Graph < matlab.unittest.TestCase
 
       % constants
       c1 = graph.constant(rand(5));
-      c2 = graph.constant(single(rand(3)), 'test');
+      c2 = graph.constant(single(rand(3)), 'name', 'test_c2');
 
       % placeholders
       p1 = graph.placeholder('TF_UINT64');
-      p2 = graph.placeholder('TF_DOUBLE', dims);
-      p3 = graph.placeholder('TF_DOUBLE', [2 3], 'test');
+      p2 = graph.placeholder('TF_DOUBLE', 'shape', dims);
+      p3 = graph.placeholder('TF_DOUBLE', 'shape', [2 3], 'name', 'test_p3');
 
       % get tensor shape
       dims_check = graph.getTensorShape(p2);
@@ -29,8 +29,8 @@ classdef Graph < matlab.unittest.TestCase
       testCase.verifyEqual(numdims_check, numel(dims));
 
       % retrieve operation
-      c2_op = graph.operationByName('Constant_test');
-      p3_op = graph.operationByName('Placeholder_test');
+      c2_op = graph.operationByName('test_c2');
+      p3_op = graph.operationByName('test_p3');
 
       % manual deletion
       graph.deleteGraph();

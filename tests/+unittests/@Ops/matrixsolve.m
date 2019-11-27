@@ -10,16 +10,8 @@ function matrixsolve(test)
   session = tensorflow.Session(graph);
 
   A = rand(10,10);
-  b = graph.placeholder('TF_DOUBLE', [10 1]);
-
-  desc = graph.newOperation('MatrixSolve', 'MatrixSolve_test');
-  desc.addInput(graph.constant(A));
-  desc.addInput(b);
-  desc.setAttrBool('adjoint', true);
-  desc.setAttrType('T', tensorflow.DataType('TF_DOUBLE'));
-
-  oper = desc.finishOperation();
-  y = tensorflow.Output(oper);
+  b = graph.placeholder('TF_DOUBLE', 'shape', [10 1]);
+  y = graph.matrixsolve(graph.constant(A), b, 'adjoint', true);
 
   bval = rand(10,1);
   res = session.run([b], [tensorflow.Tensor(bval)], [y]);
