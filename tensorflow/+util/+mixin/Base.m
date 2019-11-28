@@ -9,6 +9,9 @@ classdef Base < handle
   properties (Access=protected)
     debug = false;
     isMatlab = (exist('OCTAVE_VERSION', 'builtin') == 0);
+  end
+
+  properties (Constant)
     hash_generator = util.HashGen();
   end
 
