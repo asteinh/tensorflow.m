@@ -32,7 +32,7 @@ classdef Buffer < matlab.unittest.TestCase
     % testing file IO
     function fileIO(testCase)
       % generate random file name for temporary storage
-      [~, fname] = util.KeyGen.sha1(rand_char_arr(1));
+      [~, fname] = util.HashGen.sha1(rand_char_arr(1));
       fname = ['tensorflow_m_unittest_' fname '.bin'];
       floc = fullfile(tempdir, fname);
       

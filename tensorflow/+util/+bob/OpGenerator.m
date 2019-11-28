@@ -199,7 +199,7 @@ classdef OpGenerator < util.mixin.Base
 
       % op name either supplied or randomized
       tw <   '  if isempty(op_name)';
-      tw <   '    [~, randkey] = util.KeyGen.sha1();';
+      tw <   '    [~, randkey] = util.HashGen.sha1();';
       tw < [ '    op_name = [ ''' op.name '_''' ' randkey ];' ];
       tw <=  '  end';
 

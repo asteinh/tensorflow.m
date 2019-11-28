@@ -51,7 +51,7 @@ classdef LibHandler < util.mixin.Base
         fext = 'zip';
       end
       
-      location = fullfile(benv.dir.mex, 'third_party', fname);
+      location = fullfile(benv.dirs.mex, 'third_party', fname);
       
       if exist(location, 'dir') == 0
         dl_link = ['https://storage.googleapis.com/tensorflow/libtensorflow/' fname '.' fext];

@@ -5,18 +5,19 @@ classdef Base < handle
   properties (SetAccess=private)
     hash = [];
   end
-  
+
   properties (Access=private)
     debug = false;
+    hash_generator = util.HashGen();
   end
 
   methods
     function obj = Base()
       obj.debug = obj.set_debug_mode();
-      obj.hash = util.KeyGen.sha1();
+      obj.hash = obj.hash_generator.sha1();
       obj.debugMsg('%s: created new object with hash %s\n', class(obj), obj.hash);
     end
-    
+
     function d = isdebug(obj)
       d = obj.debug;
     end
