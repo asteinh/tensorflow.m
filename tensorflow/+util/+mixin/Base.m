@@ -6,7 +6,7 @@ classdef Base < handle
     hash = [];
   end
 
-  properties (Access=private)
+  properties (Access=protected)
     debug = false;
     hash_generator = util.HashGen();
   end

@@ -4,7 +4,7 @@ classdef Buffer < matlab.unittest.TestCase
     function constructors(testCase)
       % case: buffer from char array
       bufA = tensorflow.Buffer(rand_char_arr(1000)); % elseif nargin == 1 && ischar(varargin{1})
-      
+
       % case: buffer from ref
       bufB = tensorflow.Buffer(bufA.ref); % if nargin == 1 && isa(varargin{1}, 'uint64')
       testCase.assertEqual(bufA.ref, bufB.ref);
@@ -17,7 +17,7 @@ classdef Buffer < matlab.unittest.TestCase
       % otherwise
       testCase.verifyError(@() tensorflow.Buffer(double(0)), 'tensorflow:Buffer:InputArguments');
     end
-    
+
     % testing utility functions
     function utilities(testCase)
       buf = tensorflow.Buffer();
@@ -28,14 +28,13 @@ classdef Buffer < matlab.unittest.TestCase
       testCase.assertEqual(uint8(data_tx), data_rx);
       testCase.assertEqual(sz, buf.length());
     end
-    
+
     % testing file IO
     function fileIO(testCase)
       % generate random file name for temporary storage
-      [~, fname] = util.HashGen.sha1(rand_char_arr(1));
-      fname = ['tensorflow_m_unittest_' fname '.bin'];
+      fname = ['tensorflow_m_unittest_' rand_char_arr(10) '.bin'];
       floc = fullfile(tempdir, fname);
-      
+
       % two buffer sizes: 100 byte & 1 Mb
       for sz = [100 1e6]
         rbuf = tensorflow.Buffer();
