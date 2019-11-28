@@ -10,27 +10,28 @@ classdef HashGen < handle
 
   methods
     function obj = HashGen()
-      if isOctave
+      if (exist('OCTAVE_VERSION', 'builtin') ~= 0)
+        % we're on Octave
         obj.sha256_fcn = @(str) hash('SHA256', str);
         obj.sha1_fcn   = @(str) hash('SHA1', str);
       else
         % caching generators in Matlab
         obj.generators.sha256 = java.security.MessageDigest.getInstance('SHA-256');
         obj.generators.sha1 = java.security.MessageDigest.getInstance('SHA-1');
-        obj.sha256_fcn = @(str) obj.generators.sha256.digest(str);
-        obj.sha1_fcn   = @(str) obj.generators.sha1.digest(str);
+        obj.sha256_fcn = @(str) sprintf('%2.2x', typecast(obj.generators.sha256.digest(uint8(str)), 'uint8'));
+        obj.sha1_fcn   = @(str) sprintf('%2.2x', typecast(obj.generators.sha1.digest(uint8(str)), 'uint8'));
       end
     end
 
     function [h, hs] = sha256(obj, str)
       if nargin ~= 2 || isempty(str); str = obj.gen_string(); end
-      h = sprintf('%2.2x', typecast(obj.sha256_fcn(uint8(str)), 'uint8')');
+      h = sprintf('%s', obj.sha256_fcn(str));
       hs = h(1:8);
     end
 
     function [h, hs] = sha1(obj, str)
       if nargin ~= 2 || isempty(str); str = obj.gen_string(); end
-      h = sprintf('%2.2x', typecast(obj.sha1_fcn(uint8(str)), 'uint8')');
+      h = sprintf('%s', obj.sha1_fcn(str));
       hs = h(1:8);
     end
   end
