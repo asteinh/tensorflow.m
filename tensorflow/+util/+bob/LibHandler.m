@@ -12,7 +12,7 @@ classdef LibHandler < util.mixin.Base
   methods
     function obj = LibHandler(benv, hints)
       obj.prepare();
-      
+
       if ~isempty(hints)
         % manually supplied hint
         obj.debugMsg('Checking manually supplied search paths for TensorFlow C library ...\n');
@@ -28,7 +28,7 @@ classdef LibHandler < util.mixin.Base
           [obj.path, obj.version] = obj.download_library(benv);
         end
       end
-      
+
       assert(~isempty(obj.path), 'Something went wrong while setting up things for the TensorFlow C library.');
     end
   end
@@ -50,9 +50,9 @@ classdef LibHandler < util.mixin.Base
         fname = ['libtensorflow-cpu-windows-x86_64-' version];
         fext = 'zip';
       end
-      
+
       location = fullfile(benv.dirs.mex, 'third_party', fname);
-      
+
       if exist(location, 'dir') == 0
         dl_link = ['https://storage.googleapis.com/tensorflow/libtensorflow/' fname '.' fext];
         dl_file = fullfile(tempdir, [fname '.' fext]);
@@ -62,7 +62,7 @@ classdef LibHandler < util.mixin.Base
         else
           obj.debugMsg('Using TensorFlow C library archive already present in temp directory.\n');
         end
-      
+
         obj.debugMsg('Extracting TensorFlow C library ...\n');
         if strcmp(fext, 'zip')
           unzip(dl_file, location);
@@ -71,7 +71,7 @@ classdef LibHandler < util.mixin.Base
         end
       end
     end
-    
+
     function prepare(obj)
       % platform specific
       if ispc
@@ -94,14 +94,14 @@ classdef LibHandler < util.mixin.Base
       obj.searchpaths = [obj.searchpaths, { userdir }];
       obj.searchpaths = [obj.searchpaths, { fullfile(userdir, 'Downloads') }];
     end
-    
+
     function [location, version] = search_for_library(obj, searchpaths)
       % check input arguments
       assert(nargin == 2, 'Wrong number of input arguments.');
       if ischar(searchpaths)
         searchpaths = { searchpaths };
       end
-      
+
       for i = 1:length(searchpaths)
         p = searchpaths{i};
 
