@@ -31,7 +31,7 @@ classdef DataType < util.mixin.Enumeration & util.mixin.MultiConstructor
 
   methods
     function obj = DataType(varargin)
-      obj = obj@util.mixin.MultiConstructor(varargin{:});
+      obj@util.mixin.MultiConstructor(varargin{:});
     end
 
     % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
@@ -41,9 +41,9 @@ classdef DataType < util.mixin.Enumeration & util.mixin.MultiConstructor
   end
 
   methods (Access=protected)
-    function obj = element_constructor(obj, id)
+    function element_constructor(obj, id)
       if isa(id, 'tensorflow.DataType')
-        obj = obj.set_value(id.value_);
+        obj.set_value(id.value_);
       else
         if ischar(id)
           % create from string
@@ -62,7 +62,7 @@ classdef DataType < util.mixin.Enumeration & util.mixin.MultiConstructor
           error('tensorflow:DataType:InputArguments', 'Cannot create tensorflow.DataType from given argument.');
         end
         assert(size(val,1) <= 1, 'tensorflow:DataType:InputArguments', 'Given data type identifier maps to more than one variant.');
-        obj = obj.set_value(val);
+        obj.set_value(val);
       end
     end
   end

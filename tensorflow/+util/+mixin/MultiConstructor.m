@@ -1,4 +1,4 @@
-classdef MultiConstructor
+classdef MultiConstructor < handle & matlab.mixin.Copyable
 % MULTICONSTRUCTOR Adds capability to vectorize constructors.
 %   Vectorization is based on the first input argument. The remaining arguments
 %   are copied to the element-wise constructor.
@@ -15,15 +15,15 @@ classdef MultiConstructor
 
         if ischar(inp)
           % catch character arrays
-          obj = element_constructor(obj, varargin{:});
+          element_constructor(obj, varargin{:});
         else
           % create matrix of elements
           m = size(inp, 1);
           n = size(inp, 2);
-          obj(m,n) = obj; % automatic allocation
+          obj(m,n) = copy(obj); % automatic allocation
           for i = 1:1:m
             for j = 1:1:n
-              obj(i,j) = element_constructor(obj(i,j), inp(i,j), add_arg{:});
+              element_constructor(obj(i,j), inp(i,j), add_arg{:});
             end
           end
         end
@@ -32,6 +32,6 @@ classdef MultiConstructor
   end
 
   methods (Abstract, Access=protected)
-    obj = element_constructor(obj, el, varargin)
+    element_constructor(obj, el, varargin)
   end
 end

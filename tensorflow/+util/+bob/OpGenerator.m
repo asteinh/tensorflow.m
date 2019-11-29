@@ -12,6 +12,12 @@ classdef OpGenerator < util.mixin.Base
 %   unknown_fields
 %   descriptor_function
 
+  properties (Access=private)
+    reserved_keywords = { ...
+      'switch', 'function', 'while', 'if', 'else', 'end', 'case', 'for' ...
+    };
+  end
+
   properties
     op_dir = [];
     id = '';
@@ -35,11 +41,16 @@ classdef OpGenerator < util.mixin.Base
     function generateFunctions(obj, oplist)
       nops = numel(oplist);
       for i = 1:1:nops
-        if ~strcmp(oplist(i).name(1), '_')
+        if strcmp(oplist(i).name(1), '_')
+          % skip functions whose name starts with an underscore
+          obj.debugMsg('Skipping %4d/%4d: ''%s''\n', i, nops, oplist(i).name);
+        else
+          if any(strcmp(oplist(i).name, obj.reserved_keywords))
+            % modify name if blacklisted
+            oplist(i).name = [ oplist(i).name '_' ];
+          end
           obj.debugMsg('Generating %4d/%4d: ''%s''\n', i, nops, oplist(i).name);
           obj.generateFunction(oplist(i));
-        else
-          obj.debugMsg('Skipping %4d/%4d: ''%s''\n', i, nops, oplist(i).name);
         end
       end
     end
@@ -135,6 +146,10 @@ classdef OpGenerator < util.mixin.Base
       for i = 1:1:op.num.attrs
         op.attr(i).is_required = true;
         op.attr(i).is_inferred = false;
+        if any(strcmp(op.attr(i).name, obj.reserved_keywords))
+          % modify name if blacklisted
+          op.attr(i).name = [ op.attr(i).name '_' ];
+        end
         if op.num.inputs > 0 && any(strcmp(input_attrs, op.attr(i).name))
           % inferred
           op.attr(i).is_required = false;

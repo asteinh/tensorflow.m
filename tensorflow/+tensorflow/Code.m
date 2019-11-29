@@ -31,7 +31,7 @@ classdef Code < util.mixin.Enumeration & util.mixin.MultiConstructor
   methods (Access=protected)
     function obj = element_constructor(obj, id)
       if isa(id, 'tensorflow.Code')
-        obj = obj.set_value(tensorflow.Code.lookup_fwd(id.value));
+        obj.set_value(tensorflow.Code.lookup_fwd(id.value));
       else
         if ischar(id)
           % create from string
@@ -44,7 +44,7 @@ classdef Code < util.mixin.Enumeration & util.mixin.MultiConstructor
         else
           error('tensorflow:Code:InputArguments', 'Cannot create tensorflow.Code from given argument.');
         end
-        obj = obj.set_value(val);
+        obj.set_value(val);
       end
     end
   end
