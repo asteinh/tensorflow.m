@@ -67,7 +67,10 @@ classdef BuildEnvironment < util.mixin.Base
       file = fullfile(obj.dirs.mex, 'src', [obj.filename '.c']);
 
       % additional sources
-      sources = {};
+      sources = { ...
+        fullfile(obj.dirs.mex, 'src', [obj.filename 'impl.c']), ...
+        fullfile(obj.dirs.mex, 'src', [obj.filename 'util.c']) ...
+      };
 
       % directories to be considered to resolve library dependencies
       libdirs = { ['-L' fullfile(obj.lib.path, 'lib')] };
