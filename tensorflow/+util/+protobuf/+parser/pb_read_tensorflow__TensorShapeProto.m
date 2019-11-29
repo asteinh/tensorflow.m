@@ -26,5 +26,5 @@ function [tensor_shape_proto] = pb_read_tensorflow__TensorShapeProto(buffer, buf
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__TensorShapeProto();
-  tensor_shape_proto = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  tensor_shape_proto.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__TensorShapeProto;
+  tensor_shape_proto = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  tensor_shape_proto.descriptor_function =@() util.protobuf.parser.pb_descriptor_tensorflow__TensorShapeProto();

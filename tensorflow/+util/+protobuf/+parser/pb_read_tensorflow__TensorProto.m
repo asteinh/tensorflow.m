@@ -41,5 +41,5 @@ function [tensor_proto] = pb_read_tensorflow__TensorProto(buffer, buffer_start, 
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__TensorProto();
-  tensor_proto = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  tensor_proto.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__TensorProto;
+  tensor_proto = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  tensor_proto.descriptor_function =@() util.protobuf.parser.pb_descriptor_tensorflow__TensorProto();

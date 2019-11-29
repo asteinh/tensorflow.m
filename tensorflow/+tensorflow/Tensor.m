@@ -30,7 +30,6 @@ classdef Tensor < util.mixin.Pointer
         else
           error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
         end
-        assert(ismember(dtype, enumeration('tensorflow.DataType')));
         dtype = tensorflow.DataType(dtype);
         assert(isvector(dims));
         ref = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));

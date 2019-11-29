@@ -34,5 +34,5 @@ function [attr_value] = pb_read_tensorflow__AttrValue(buffer, buffer_start, buff
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__AttrValue();
-  attr_value = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  attr_value.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__AttrValue;
+  attr_value = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  attr_value.descriptor_function = @() util.protobuf.parser.pb_descriptor_tensorflow__AttrValue();

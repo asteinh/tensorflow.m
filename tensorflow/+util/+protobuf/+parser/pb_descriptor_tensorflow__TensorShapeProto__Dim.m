@@ -49,7 +49,7 @@ function [descriptor] = pb_descriptor_tensorflow__TensorShapeProto__Dim()
     ] ...
   );
 
-  descriptor.field_indeces_by_number = java.util.HashMap;
-  put(descriptor.field_indeces_by_number, uint32(1), 1);
-  put(descriptor.field_indeces_by_number, uint32(2), 2);
+  descriptor.field_indeces_by_number = javaObject('java.util.HashMap');
+  javaMethod('put', descriptor.field_indeces_by_number, uint32(1), 1);
+  javaMethod('put', descriptor.field_indeces_by_number, uint32(2), 2);
 

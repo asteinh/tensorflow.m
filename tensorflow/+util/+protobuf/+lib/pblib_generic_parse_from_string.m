@@ -12,21 +12,21 @@ function [msg, num_read] = pblib_generic_parse_from_string(...
 %   protobuf-matlab - FarSounder's Protocol Buffer support for Matlab
 %   Copyright (c) 2008, FarSounder Inc.  All rights reserved.
 %   http://code.google.com/p/protobuf-matlab/
-%  
+%
 %   Redistribution and use in source and binary forms, with or without
 %   modification, are permitted provided that the following conditions are met:
-%  
+%
 %       * Redistributions of source code must retain the above copyright
 %   notice, this list of conditions and the following disclaimer.
-%  
+%
 %       * Redistributions in binary form must reproduce the above copyright
 %   notice, this list of conditions and the following disclaimer in the
 %   documentation and/or other materials provided with the distribution.
-%  
+%
 %       * Neither the name of the FarSounder Inc. nor the names of its
 %   contributors may be used to endorse or promote products derived from this
 %   software without specific prior written permission.
-%  
+%
 %   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 %   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -55,18 +55,18 @@ function [msg, num_read] = pblib_generic_parse_from_string(...
   LABEL_REPEATED = 3;
 
   % Create the has_field map and set default values
-  msg.has_field = java.util.HashMap;
+  msg.has_field = javaObject('java.util.HashMap');
   for field=descriptor.fields
-    put(msg.has_field, field.name, 0);
+    javaMethod('put', msg.has_field, field.name, 0);
     msg.(field.name) = field.default_value;
   end
 
   msg.unknown_fields = [];
   num_read = buffer_start - 1;
   while (num_read < buffer_end)
-    [number, wire_type, tag_len] = pblib_read_tag(buffer, num_read + 1);
-    index = get(descriptor.field_indeces_by_number, number);
-    [wire_value, temp_num_read] = pblib_read_wire_type(buffer, num_read + tag_len + 1, wire_type);
+    [number, wire_type, tag_len] = util.protobuf.lib.pblib_read_tag(buffer, num_read + 1);
+    index = javaMethod('get', descriptor.field_indeces_by_number, number);
+    [wire_value, temp_num_read] = util.protobuf.lib.pblib_read_wire_type(buffer, num_read + tag_len + 1, wire_type);
     if (~isempty(index))
       field = descriptor.fields(index);
       if (field.wire_type ~= wire_type && ~field.options.packed)
@@ -82,7 +82,7 @@ function [msg, num_read] = pblib_generic_parse_from_string(...
           % strings and byte arrays must be stored in cell arrays
           % and so need special treatment
           if (field.matlab_type == 7 || field.matlab_type == 8) % 'string' or 'bytes'
-            if (get(msg.has_field, field.name))
+            if (javaMethod('get', msg.has_field, field.name))
               msg.(field.name) = [msg.(field.name) field.read_function(wire_value)];
             else
               msg.(field.name) = {field.read_function(wire_value)};
@@ -94,7 +94,7 @@ function [msg, num_read] = pblib_generic_parse_from_string(...
       else
         msg.(field.name) = field.read_function(wire_value);
       end
-      put(msg.has_field, field.name, 1);
+      javaMethod('put', msg.has_field, field.name, 1);
     else
       msg.unknown_fields = [...
           msg.unknown_fields struct(...
@@ -107,7 +107,7 @@ function [msg, num_read] = pblib_generic_parse_from_string(...
   % Check to make sure required fields have been read in We will only issue a warning if
   % they haven't so that debugging the final message would be easier
   for field=descriptor.fields
-    if field.label == LABEL_REQUIRED && ~get(msg.has_field, field.name)
+    if field.label == LABEL_REQUIRED && ~javaMethod('get', msg.has_field, field.name)
       warning('proto:read:required_enforcement', ...
               'Required field not set while parsing. This is an error.')
     end
@@ -116,15 +116,15 @@ function [msg, num_read] = pblib_generic_parse_from_string(...
 function [values] = read_packed_field(field, wire_value)
   [wire_value, buffer_start, buffer_end] = deal(wire_value{:});
   wire_values_length = buffer_end - buffer_start + 1;
-  matlab_type_str = pblib_matlab_type_to_string(field.matlab_type);
+  matlab_type_str = util.protobuf.lib.pblib_matlab_type_to_string(field.matlab_type);
   values = zeros(...
       [1 ceil(wire_values_length / ...
-              pblib_type_to_estimated_encoded_length(field.type))], ...
+              util.protobuf.lib.pblib_type_to_estimated_encoded_length(field.type))], ...
       matlab_type_str);
   bytes_read_in = buffer_start - 1;
   num_values = 0;
   while bytes_read_in < buffer_end
-    [num, num_read] = pblib_read_wire_type(wire_value, bytes_read_in + 1, field.wire_type);
+    [num, num_read] = util.protobuf.lib.pblib_read_wire_type(wire_value, bytes_read_in + 1, field.wire_type);
     value = field.read_function(num);
     num_values = num_values + 1;
     values(num_values) = value;

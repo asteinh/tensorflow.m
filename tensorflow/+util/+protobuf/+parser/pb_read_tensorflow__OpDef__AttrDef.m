@@ -31,5 +31,5 @@ function [attr_def] = pb_read_tensorflow__OpDef__AttrDef(buffer, buffer_start, b
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__OpDef__AttrDef();
-  attr_def = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  attr_def.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__OpDef__AttrDef;
+  attr_def = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  attr_def.descriptor_function = @() util.protobuf.parser.pb_descriptor_tensorflow__OpDef__AttrDef();

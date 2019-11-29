@@ -15,7 +15,6 @@ classdef Status < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern void TF_SetStatus(TF_Status* s, TF_Code code, const char* msg);
     function setStatus(obj, code, msg)
-      assert(ismember(code, enumeration('tensorflow.Code')), 'Provided code must be of class tensorflow.Code.');
       code_num = uint32(tensorflow.Code(code));
       assert(ischar(msg), 'Provided message must be a string.');
       tensorflow_m_('TF_SetStatus', obj.ref, code_num, msg);

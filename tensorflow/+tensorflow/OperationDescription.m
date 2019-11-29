@@ -108,10 +108,7 @@ classdef OperationDescription < util.mixin.Pointer
     % TF_CAPI_EXPORT extern void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name, TF_DataType value);
     function setAttrType(obj, attr, dtype)
       obj.assert_attr(attr);
-      if ~isa(dtype, 'tensorflow.DataType')
-        assert(ismember(dtype, enumeration('tensorflow.DataType')), 'Provided data type cannot be interpreted.');
-        dtype = tensorflow.DataType(dtype);
-      end
+      dtype = tensorflow.DataType(dtype);
       tensorflow_m_('TF_SetAttrType', obj.ref, attr(:)', uint32(dtype));
     end
 
@@ -122,7 +119,6 @@ classdef OperationDescription < util.mixin.Pointer
         dtypes_ = dtypes;
         dtypes = [];
         for i = 1:1:numel(dtypes_)
-          assert(ismember(dtypes_(i), enumeration('tensorflow.DataType')), 'Provided data types cannot be interpreted.');
           dtypes = [dtypes; tensorflow.DataType(dtypes_(i))];
         end
       end

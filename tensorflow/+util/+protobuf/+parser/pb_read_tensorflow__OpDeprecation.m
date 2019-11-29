@@ -26,5 +26,5 @@ function [op_deprecation] = pb_read_tensorflow__OpDeprecation(buffer, buffer_sta
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__OpDeprecation();
-  op_deprecation = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  op_deprecation.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__OpDeprecation;
+  op_deprecation = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  op_deprecation.descriptor_function = @() util.protobuf.parser.pb_descriptor_tensorflow__OpDeprecation();
