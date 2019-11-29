@@ -1,4 +1,4 @@
-classdef DataType < util.mixin.Enumeration
+classdef DataType < util.mixin.Enumeration & util.mixin.MultiConstructor
   properties (Constant, Access=private)
     % TYPEMAP collects three columns: TF type | enum value | Matlab class
     TYPEMAP = [ ...
@@ -30,9 +30,20 @@ classdef DataType < util.mixin.Enumeration
   end
 
   methods
-    function obj = DataType(id)
+    function obj = DataType(varargin)
+      obj = obj@util.mixin.MultiConstructor(varargin{:});
+    end
+
+    % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
+    function s = DataTypeSize(obj)
+      s = double(tensorflow_m_('TF_DataTypeSize', uint32(obj)));
+    end
+  end
+
+  methods (Access=protected)
+    function obj = element_constructor(obj, id)
       if isa(id, 'tensorflow.DataType')
-        obj.set_value(id.value_);
+        obj = obj.set_value(id.value_);
       else
         if ischar(id)
           % create from string
@@ -51,13 +62,8 @@ classdef DataType < util.mixin.Enumeration
           error('tensorflow:DataType:InputArguments', 'Cannot create tensorflow.DataType from given argument.');
         end
         assert(size(val,1) <= 1, 'tensorflow:DataType:InputArguments', 'Given data type identifier maps to more than one variant.');
-        obj.set_value(val);
+        obj = obj.set_value(val);
       end
-    end
-
-    % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
-    function s = DataTypeSize(obj)
-      s = double(tensorflow_m_('TF_DataTypeSize', uint32(obj)));
     end
   end
 

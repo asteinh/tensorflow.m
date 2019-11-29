@@ -6,7 +6,7 @@ import matlab.unittest.TestRunner
 import matlab.unittest.plugins.CodeCoveragePlugin
 
 runner = TestRunner.withTextOutput;
-runner.addPlugin(CodeCoveragePlugin.forFolder('../tensorflow/+tensorflow'));
+% runner.addPlugin(CodeCoveragePlugin.forFolder('../tensorflow/+tensorflow'));
 
 suite = TestSuite.fromPackage('unittests');
 result = runner.run(suite);

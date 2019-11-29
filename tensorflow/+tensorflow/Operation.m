@@ -71,9 +71,10 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlInputs(TF_Operation* oper, TF_Operation** control_inputs, int max_control_inputs);
     function res = getControlInputs(obj)
+      error('Not implemented.');
       n = obj.numControlInputs();
       if n > 0
-        res = tensorflow.Operation.empty(n, 0);
+        res = tensorflow.Operation(uint64(zeros(n,1))); % TODO ownership? allocation?
         n_ = double(tensorflow_m_('TF_OperationGetControlInputs', obj.ref, [res.ref], n));
         assert(n == n_, ['Number of fetched control inputs (' n_ ') does not match number of existing control inputs (' n ').']);
       else
@@ -88,9 +89,10 @@ classdef Operation < util.mixin.Pointer
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlOutputs(TF_Operation* oper, TF_Operation** control_outputs, int max_control_outputs);
     function res = getControlOutputs(obj)
+      error('Not implemented.');
       n = obj.numControlOutputs();
       if n > 0
-        res = tensorflow.Operation.empty(n, 0);
+        res = tensorflow.Operation(uint64(zeros(n,1))); % TODO ownership? allocation?
         n_ = double(tensorflow_m_('TF_OperationGetControlOutputs', obj.ref, [res.ref], n));
         assert(n == n_, ['Number of fetched control outputs (' n_ ') does not match number of existing control outputs (' n ').']);
       else
@@ -170,10 +172,7 @@ classdef Operation < util.mixin.Pointer
       obj.assert_attr(attr);
       values = tensorflow_m_('TF_OperationGetAttrTypeList', obj.ref, attr(:)', obj.status.ref);
       obj.status.maybe_raise();
-      dtypes = tensorflow.DataType.empty(numel(values),0);
-      for i=1:numel(values)
-        dtypes(i) = tensorflow.DataType(values(i));
-      end
+      dtypes = tensorflow.DataType(values);
     end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name, int64_t* value, int num_dims, TF_Status* status);
@@ -209,10 +208,7 @@ classdef Operation < util.mixin.Pointer
       obj.assert_attr(attr);
       refs = tensorflow_m_('TF_OperationGetAttrTensorList', obj.ref, attr(:)', obj.status.ref);
       obj.status.maybe_raise();
-      tensors = tensorflow.Tensor.empty(numel(refs), 0);
-      for i = 1:1:numel(refs)
-        tensors(i) = tensorflow.Tensor(refs(i), true);
-      end
+      tensors = tensorflow.Tensor(refs, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name, TF_Buffer* output_attr_value, TF_Status* status);

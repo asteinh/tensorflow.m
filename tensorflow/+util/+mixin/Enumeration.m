@@ -1,4 +1,4 @@
-classdef Enumeration < handle
+classdef Enumeration
   % Note: We drag along a public value (string representation) to be shown when
   % calling 'disp' on an instance
   properties (GetAccess=public, SetAccess=protected)
@@ -59,7 +59,7 @@ classdef Enumeration < handle
   end
 
   methods (Access=protected)
-    function set_value(obj, val_cell)
+    function obj = set_value(obj, val_cell)
       obj.value  = val_cell{1};
       obj.value_ = val_cell;
     end

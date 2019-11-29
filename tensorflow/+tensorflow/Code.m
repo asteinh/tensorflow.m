@@ -1,4 +1,4 @@
-classdef Code < util.mixin.Enumeration
+classdef Code < util.mixin.Enumeration & util.mixin.MultiConstructor
   properties (Constant, Access=private)
   % CODEMAP collects two columns: TF code | enum value
     CODEMAP = [ ...
@@ -23,9 +23,15 @@ classdef Code < util.mixin.Enumeration
   end
 
   methods
-    function obj = Code(id)
+    function obj = Code(varargin)
+      obj = obj@util.mixin.MultiConstructor(varargin{:});
+    end
+  end
+
+  methods (Access=protected)
+    function obj = element_constructor(obj, id)
       if isa(id, 'tensorflow.Code')
-        obj.set_value(tensorflow.Code.lookup_fwd(id.value));
+        obj = obj.set_value(tensorflow.Code.lookup_fwd(id.value));
       else
         if ischar(id)
           % create from string
@@ -38,7 +44,7 @@ classdef Code < util.mixin.Enumeration
         else
           error('tensorflow:Code:InputArguments', 'Cannot create tensorflow.Code from given argument.');
         end
-        obj.set_value(val);
+        obj = obj.set_value(val);
       end
     end
   end
