@@ -3,8 +3,8 @@
 Matlab bindings for the [C library of Tensorflow](https://www.tensorflow.org/install/lang_c).
 
 [![Gitter](https://badges.gitter.im/tensorflowm/community.svg)](https://gitter.im/tensorflowm/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Issues](https://img.shields.io/github/issues/asteinh/tensorflow.m)]()
-[![License](https://img.shields.io/github/license/asteinh/tensorflow.m)]()
+[![Issues](https://img.shields.io/github/issues/asteinh/tensorflow.m)](https://github.com/asteinh/tensorflow.m/issues)
+[![License](https://img.shields.io/github/license/asteinh/tensorflow.m)](https://github.com/asteinh/tensorflow.m/blob/master/LICENSE)
 
 ### About
 `tensorflow.m` interfaces TensorFlow's C API via a MEX function and Matlab wrapper classes. This software is in active development, you may stumble upon occasional *Not implemented.* messages - feel free to open an issue or contribute via pull requests.
