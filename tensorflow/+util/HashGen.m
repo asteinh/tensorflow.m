@@ -24,20 +24,20 @@ classdef HashGen < handle
     end
 
     function [h, hs] = sha256(obj, str)
-      if nargin ~= 2 || isempty(str); str = obj.gen_string(); end
+      if nargin ~= 2 || isempty(str); str = obj.gen_string_(); end
       h = sprintf('%s', obj.sha256_fcn(str));
       hs = h(1:8);
     end
 
     function [h, hs] = sha1(obj, str)
-      if nargin ~= 2 || isempty(str); str = obj.gen_string(); end
+      if nargin ~= 2 || isempty(str); str = obj.gen_string_(); end
       h = sprintf('%s', obj.sha1_fcn(str));
       hs = h(1:8);
     end
   end
 
   methods (Access=private)
-    function s = gen_string(obj)
+    function s = gen_string_(obj)
       t = now();
       s = [datestr(t, 'hh:MM:ss:FFF@') char(floor(94*rand(1, 16)) + 32) datestr(t, '@dd-mm-yyyy')];
     end

@@ -5,7 +5,8 @@ classdef Status < util.mixin.Pointer
   methods
     % TF_CAPI_EXPORT extern TF_Status* TF_NewStatus(void);
     function obj = Status()
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewStatus'));
+      ref = tensorflow_m_('TF_NewStatus');
+      obj.set_reference_(ref, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_DeleteStatus(TF_Status*);

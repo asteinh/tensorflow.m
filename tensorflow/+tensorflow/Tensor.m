@@ -1,4 +1,4 @@
-classdef Tensor < util.mixin.Pointer
+classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
   %TENSOR Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -6,6 +6,27 @@ classdef Tensor < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor(TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
     % TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     function obj = Tensor(varargin)
+
+      % input arguments for:
+      %   - construction by reference (vectorized)
+      %     1) ref [uint64]
+      %        ... an array of reference values
+      %     2) owned [logical]
+      %        ... an array of boolean values if the underlying memory is owned
+      %            (true); size has to match size of reference value array
+      %
+      %   - construction by data
+      %     1) data [...]
+      %        ... data of arbitrary dimensions and data type
+      %
+      %   - construction by data type & dimensions
+      %     1) datatype [tensorflow.DataType]
+      %        ... the data type the Tensor represents
+      %     2) dims [numeric]
+      %        ... the dimensions of the resulting Tensor, must be a vector
+
+      obj.vectorize_constructor_(obj, ...);
+
       if (nargin == 1 || nargin == 2) && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
         if nargin == 1
@@ -36,7 +57,7 @@ classdef Tensor < util.mixin.Pointer
         owned = true;
       end
 
-      obj = obj@util.mixin.Pointer(ref, owned);
+      obj.set_reference_(ref, owned);
 
       if owned && ~isempty(data)
         obj.value(data); % set data, if given

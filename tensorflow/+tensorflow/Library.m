@@ -4,8 +4,7 @@ classdef Library < util.mixin.Pointer
 
   methods
     function obj = Library(ref)
-      assert(isa(ref, 'uint64'));
-      obj = obj@util.mixin.Pointer(ref);
+      obj.set_reference_(ref, true);
     end
 
     % TF_CAPI_EXPORT extern TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status);

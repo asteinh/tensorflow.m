@@ -1,4 +1,4 @@
-classdef DataType < util.mixin.Enumeration & util.mixin.MultiConstructor
+classdef DataType < util.mixin.Enumeration & util.mixin.Vectorize
   properties (Constant, Access=private)
     % TYPEMAP collects three columns: TF type | enum value | Matlab class
     TYPEMAP = [ ...
@@ -31,7 +31,7 @@ classdef DataType < util.mixin.Enumeration & util.mixin.MultiConstructor
 
   methods
     function obj = DataType(varargin)
-      obj@util.mixin.MultiConstructor(varargin{:});
+      obj@util.mixin.Vectorize(varargin{:});
     end
 
     % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);

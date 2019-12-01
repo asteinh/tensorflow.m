@@ -4,8 +4,7 @@ classdef WhileParams < util.mixin.Pointer
 
   methods
     function obj = WhileParams(ref)
-      assert(isa(ref, 'uint64'));
-      obj = obj@util.mixin.Pointer(ref);
+      obj.set_reference_(ref, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_FinishWhile(const TF_WhileParams* params, TF_Status* status, TF_Output* outputs);

@@ -1,4 +1,4 @@
-classdef Code < util.mixin.Enumeration & util.mixin.MultiConstructor
+classdef Code < util.mixin.Enumeration & util.mixin.Vectorize
   properties (Constant, Access=private)
   % CODEMAP collects two columns: TF code | enum value
     CODEMAP = [ ...
@@ -24,7 +24,7 @@ classdef Code < util.mixin.Enumeration & util.mixin.MultiConstructor
 
   methods
     function obj = Code(varargin)
-      obj = obj@util.mixin.MultiConstructor(varargin{:});
+      obj@util.mixin.Vectorize(varargin{:});
     end
   end
 

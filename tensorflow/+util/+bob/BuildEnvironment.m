@@ -1,4 +1,4 @@
-classdef BuildEnvironment < util.mixin.Base
+classdef BuildEnvironment < util.mixin.Base & util.mixin.Platform
   %BUILDENVIRONMENT Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -33,7 +33,7 @@ classdef BuildEnvironment < util.mixin.Base
       obj.executable = fullfile(obj.dirs.out, obj.filename);
 
       % clear possibly loaded MEXs
-      if obj.isMatlab
+      if obj.platform.ismatlab
         [~, loaded] = inmem();
         for f = 1:1:numel(loaded)
           if ~isempty(strfind(loaded{f}, obj.filename))
@@ -78,14 +78,14 @@ classdef BuildEnvironment < util.mixin.Base
       % library dependencies
       libs = { '-ltensorflow' };
 
-      % % helping Matlab to 'lib_tf.*' when executing the MEX function
-      % LD_RUN_PATH = getenv('LD_RUN_PATH');
-      % if ~contains(LD_RUN_PATH, fullfile(obj.lib.path, 'lib'))
-      %   setenv('LD_RUN_PATH', [fullfile(obj.lib.path, '/lib:'), LD_RUN_PATH]);
-      % end
+      % helping Matlab to 'lib_tf.*' when executing the MEX function
+      LD_RUN_PATH = getenv('LD_RUN_PATH');
+      if isempty(strfind(LD_RUN_PATH, fullfile(obj.lib.path, 'lib')))
+        setenv('LD_RUN_PATH', [fullfile(obj.lib.path, '/lib:'), LD_RUN_PATH]);
+      end
 
       % MEXing, possibly in debug mode (= verbose build + debug symbols)
-      if obj.isMatlab
+      if obj.platform.ismatlab
         % collected arguments for MEX
         mexargs = [ {'LDOPTIMFLAGS=-O3'}, ...
                     {['LDFLAGS=$LDFLAGS,-rpath,' fullfile(obj.lib.path, 'lib')]}, ...
@@ -105,7 +105,7 @@ classdef BuildEnvironment < util.mixin.Base
         end
       else
         % on Octave
-        mkoctargs = [ { ['-Wl,-rpath=' fullfile(obj.lib.path, 'lib')] }, ...
+        mkoctargs = [ { ['-Wl,-rpath ' fullfile(obj.lib.path, 'lib')] }, ...
                       includedirs(:)', ...
                       { file }, ...
                       sources(:)', ...

@@ -30,9 +30,7 @@ classdef Session < util.mixin.Pointer
         owned = true;
       end
 
-      % superclass constructor
-      obj = obj@util.mixin.Pointer(ref, owned);
-
+      obj.set_reference_(ref, owned);
       obj.status = status;
     end
 

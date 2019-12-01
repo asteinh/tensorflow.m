@@ -29,7 +29,7 @@ classdef Output < util.mixin.Pointer
         owned = true;
       end
 
-      obj = obj@util.mixin.Pointer(ref, owned);
+      obj.set_reference_(ref, owned);
     end
 
     % TF_CAPI_EXPORT extern TF_DataType TF_OperationOutputType(TF_Output oper_out);
