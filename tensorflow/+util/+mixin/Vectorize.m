@@ -5,24 +5,33 @@ classdef Vectorize < handle
 
   methods (Access=protected)
     function obj = vectorize_constructor_(obj, varargin)
-      if nargin ~= 0
-        inp = varargin{1};
-        if nargin > 1
-          add_arg = varargin(2:end);
-        else
-          add_arg = {};
-        end
-        if numel(inp) <= 1 || ischar(inp)
-          % shortcut
-          return;
-        else
-          % create matrix of elements
-          m = size(inp, 1);
-          n = size(inp, 2);
-          obj(m,n) = obj(1,1).empty_copy(); % automatic allocation of array of objects
+      if nargin == 1
+        return;
+      end
+
+      vec_arg = varargin{1};
+      add_arg = {};
+      if nargin > 2
+        add_arg = varargin(2:end);
+      end
+      if numel(vec_arg) <= 1 || ischar(vec_arg)
+        % vectorizing argument is scalar or a string
+        return;
+      else
+        % create matrix of elements
+        m = size(vec_arg, 1);
+        n = size(vec_arg, 2);
+        obj(m,n) = obj(1,1).empty_copy_(); % automatic allocation of array of objects
+        if iscell(vec_arg)
           for i = 1:1:m
             for j = 1:1:n
-              obj(i,j) = feval(class(obj), inp(i,j), add_arg{:});
+              obj(i,j) = feval(class(obj), vec_arg{i,j}, add_arg{:});
+            end
+          end
+        else
+          for i = 1:1:m
+            for j = 1:1:n
+              obj(i,j) = feval(class(obj), vec_arg(i,j), add_arg{:});
             end
           end
         end
@@ -33,8 +42,4 @@ classdef Vectorize < handle
       cp = feval(class(obj));
     end
   end
-
-  % methods (Abstract, Access=protected)
-  %   element_constructor(obj, varargin)
-  % end
 end

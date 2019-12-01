@@ -31,39 +31,37 @@ classdef DataType < util.mixin.Enumeration & util.mixin.Vectorize
 
   methods
     function obj = DataType(varargin)
-      obj@util.mixin.Vectorize(varargin{:});
+      obj = vectorize_constructor_(obj, varargin{:});
+      if numel(obj) == 1 && nargin ~= 0
+        id = varargin{1};
+        if isa(id, 'tensorflow.DataType')
+          obj.set_value_(id.value_);
+        else
+          if ischar(id)
+            % create from string
+            val = tensorflow.DataType.lookup_fwd(id);
+            if isempty(val)
+              % try reverse lookup
+              val = tensorflow.DataType.lookup_rev(id);
+              warning('tensorflow:DataType:InputArguments', 'Creating tensorflow.DataType from Matlab data type - this is not encouraged.');
+            end
+            assert(~isempty(val), 'tensorflow:DataType:InputArguments', 'Cannot map given data type identifier to a known variant.');
+          elseif tensorflow.DataType.is_int_robust_(id)
+            % create from integer
+            val = tensorflow.DataType.lookup_int(id);
+            assert(~isempty(val), 'tensorflow:DataType:InputArguments', 'Cannot map given data type identifier to a known variant.');
+          else
+            error('tensorflow:DataType:InputArguments', 'Cannot create tensorflow.DataType from given argument.');
+          end
+          assert(size(val,1) <= 1, 'tensorflow:DataType:InputArguments', 'Given data type identifier maps to more than one variant.');
+          obj.set_value_(val);
+        end
+      end
     end
 
     % TF_CAPI_EXPORT extern size_t TF_DataTypeSize(TF_DataType dt);
     function s = DataTypeSize(obj)
       s = double(tensorflow_m_('TF_DataTypeSize', uint32(obj)));
-    end
-  end
-
-  methods (Access=protected)
-    function element_constructor(obj, id)
-      if isa(id, 'tensorflow.DataType')
-        obj.set_value(id.value_);
-      else
-        if ischar(id)
-          % create from string
-          val = tensorflow.DataType.lookup_fwd(id);
-          if isempty(val)
-            % try reverse lookup
-            val = tensorflow.DataType.lookup_rev(id);
-            warning('tensorflow:DataType:InputArguments', 'Creating tensorflow.DataType from Matlab data type - this is not encouraged.');
-          end
-          assert(~isempty(val), 'tensorflow:DataType:InputArguments', 'Cannot map given data type identifier to a known variant.');
-        elseif tensorflow.DataType.is_int_robust(id)
-          % create from integer
-          val = tensorflow.DataType.lookup_int(id);
-          assert(~isempty(val), 'tensorflow:DataType:InputArguments', 'Cannot map given data type identifier to a known variant.');
-        else
-          error('tensorflow:DataType:InputArguments', 'Cannot create tensorflow.DataType from given argument.');
-        end
-        assert(size(val,1) <= 1, 'tensorflow:DataType:InputArguments', 'Given data type identifier maps to more than one variant.');
-        obj.set_value(val);
-      end
     end
   end
 

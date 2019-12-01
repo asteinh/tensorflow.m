@@ -24,27 +24,25 @@ classdef Code < util.mixin.Enumeration & util.mixin.Vectorize
 
   methods
     function obj = Code(varargin)
-      obj@util.mixin.Vectorize(varargin{:});
-    end
-  end
-
-  methods (Access=protected)
-    function obj = element_constructor(obj, id)
-      if isa(id, 'tensorflow.Code')
-        obj.set_value(tensorflow.Code.lookup_fwd(id.value));
-      else
-        if ischar(id)
-          % create from string
-          val = tensorflow.Code.lookup_fwd(id);
-          assert(~isempty(val), 'tensorflow:Code:InputArguments', 'Cannot map given message to a known TensorFlow code.');
-        elseif tensorflow.Code.is_int_robust(id)
-          % create from integer
-          val = tensorflow.Code.lookup_int(id);
-          assert(~isempty(val), 'tensorflow:Code:InputArguments', 'Cannot map given integer to a known TensorFlow Code.');
+      obj = vectorize_constructor_(obj, varargin{:});
+      if numel(obj) == 1 && nargin ~= 0
+        id = varargin{1};
+        if isa(id, 'tensorflow.Code')
+          obj.set_value_(tensorflow.Code.lookup_fwd(id.value));
         else
-          error('tensorflow:Code:InputArguments', 'Cannot create tensorflow.Code from given argument.');
+          if ischar(id)
+            % create from string
+            val = tensorflow.Code.lookup_fwd(id);
+            assert(~isempty(val), 'tensorflow:Code:InputArguments', ['Cannot map given message ''' id ''' to a known TensorFlow code.']);
+          elseif tensorflow.Code.is_int_robust_(id)
+            % create from integer
+            val = tensorflow.Code.lookup_int(id);
+            assert(~isempty(val), 'tensorflow:Code:InputArguments', ['Cannot map given integer ''' id ''' to a known TensorFlow Code.']);
+          else
+            error('tensorflow:Code:InputArguments', 'Cannot create tensorflow.Code from given arguments.');
+          end
+          obj.set_value_(val);
         end
-        obj.set_value(val);
       end
     end
   end
