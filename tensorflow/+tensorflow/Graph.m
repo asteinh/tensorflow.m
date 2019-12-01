@@ -48,14 +48,14 @@ classdef Graph < util.mixin.Pointer & tensorflow.Ops
       assert(ischar(oper_name), 'Provided operation name must be a string.');
       ref = tensorflow_m_('TF_GraphOperationByName', obj.ref, oper_name);
       assert(ref ~= 0, ['Couldn''t find operation by name ''' oper_name '''.']);
-      oper = tensorflow.Operation(ref);
+      oper = tensorflow.Operation(ref, false);
     end
 
     % TF_CAPI_EXPORT extern TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos);
     function oper = nextOperation(obj, pos)
       assert(isnumeric(pos) && isscalar(pos), 'Provided position must be numeric and scalar.');
       ref = tensorflow_m_('TF_GraphNextOperation', obj.ref, pos);
-      oper = tensorflow.Operation(ref);
+      oper = tensorflow.Operation(ref, false);
     end
 
     % TF_CAPI_EXPORT extern void TF_GraphToGraphDef(TF_Graph* graph, TF_Buffer* output_graph_def, TF_Status* status);

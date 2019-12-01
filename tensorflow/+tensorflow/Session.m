@@ -95,7 +95,7 @@ classdef Session < util.mixin.Pointer
 
       obj.status.maybe_raise();
 
-      res = tensorflow.Tensor(refs);
+      res = tensorflow.Tensor(refs, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_SessionPRunSetup(TF_Session*, const TF_Output* inputs, int ninputs, const TF_Output* outputs, int noutputs, const TF_Operation* const* target_opers, int ntargets, const char** handle, TF_Status*);

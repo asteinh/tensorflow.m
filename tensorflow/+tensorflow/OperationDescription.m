@@ -15,7 +15,7 @@ classdef OperationDescription < util.mixin.Pointer
 
       % create operation description
       ref = tensorflow_m_('TF_NewOperation', graph.ref, op_type, op_name);
-      obj.set_reference_(ref, true);
+      obj.set_reference_(ref, false);
 
       obj.status = tensorflow.Status();
     end
@@ -185,7 +185,7 @@ classdef OperationDescription < util.mixin.Pointer
     function oper = finishOperation(obj)
       ref = tensorflow_m_('TF_FinishOperation', obj.ref, obj.status.ref);
       obj.status.maybe_raise();
-      oper = tensorflow.Operation(ref);
+      oper = tensorflow.Operation(ref, false);
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -39,7 +39,7 @@ classdef Pointer < util.mixin.Base
       assert(numel(ref) == 1 && isa(ref, 'uint64') && ref ~= 0, 'You must supply a non-empty, non-zero reference of type ''uint64''.');
       assert(numel(owned) == 1 && islogical(owned), 'You must supply a non-empty, logical value for the ownership of the referenced memory.');
       obj.ref = ref;
-      obj.is_owned = false;
+      obj.isowned = owned;
     end
   end
 end

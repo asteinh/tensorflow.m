@@ -104,5 +104,15 @@ classdef DataType < util.mixin.Enumeration & util.mixin.Vectorize
       assert(~isempty(entry{1,1}), 'tensorflow:DataType:m2tf:NoEquivalent', ['No known TensorFlow equivalent for ''' char(mat_class) '''.']);
       tf = entry{1,1};
     end
+
+    function is = ismember(arg)
+      if ischar(arg)
+        is = ( ~isempty(tensorflow.DataType.lookup_fwd(arg)) || ~isempty(tensorflow.DataType.lookup_rev(arg)) );
+      elseif isnumeric(arg)
+        is = ~isempty(tensorflow.DataType.lookup_int(arg));
+      else
+        is = false;
+      end
+    end
   end
 end

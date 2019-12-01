@@ -1,4 +1,4 @@
-classdef Operation < util.mixin.Pointer
+classdef Operation < util.mixin.Pointer & util.mixin.Vectorize
   %OPERATION Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -7,13 +7,24 @@ classdef Operation < util.mixin.Pointer
   end
 
   methods
-    function obj = Operation(ref, owned)
-      if nargin ~= 2
+    function obj = Operation(varargin)
+      if nargin == 0
+        % dummy, for copying
+        return;
+      elseif nargin == 2
+        ref = varargin{1};
+        owned = varargin{2};
+        assert(numel(owned) == 1, 'tensorflow:Operation:InputArguments', '(Vectorized) Creation of Operation by reference has to have a single ownership flag.');
+        if numel(ref) > 1
+          obj = vectorize_constructor_(obj, varargin{:});
+          return;
+        else
+          obj.set_reference_(ref, owned);
+          obj.status = tensorflow.Status();
+        end
+      else
         error('tensorflow:Operation:InputArguments', 'Cannot create tensorflow.Operation with given arguments.');
       end
-
-      obj.set_reference_(ref, owned);
-      obj.status = tensorflow.Status();
     end
 
     % TF_CAPI_EXPORT extern const char* TF_OperationName(TF_Operation* oper);
