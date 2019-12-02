@@ -1,0 +1,18 @@
+version: 2.0
+
+jobs:
+  octave4:
+    docker:
+      - image: asteinh/docker:amd64-debian-octave4
+    steps:
+      - checkout
+      - run: octave setup.m
+      - run: cd tests && sh setup_unittests.sh
+      - run: octave run_unittests.m
+      - run: |
+          curl --verbose -F json_file=results/coverage.json https://coveralls.io/api/v1/jobs
+workflows:
+  version: 2
+  testing_octave:
+    jobs:
+      - octave4
