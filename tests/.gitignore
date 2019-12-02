@@ -1,0 +1,6 @@
+*.json
+*.xml
+
+MOxUnit
+MOcov
+results

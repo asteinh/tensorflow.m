@@ -8,7 +8,7 @@ classdef Input < util.mixin.Pointer
       assert(isa(oper, 'uint64'), 'First argument does not seem to be a valid reference.');
 
       if nargin == 1; index = 0; end
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewInput', oper, index));
+      obj.set_reference_(tensorflow_m_('TF_NewInput', oper, index), true);
     end
 
     % TF_CAPI_EXPORT extern TF_DataType TF_OperationInputType(TF_Input oper_in);

@@ -1,4 +1,4 @@
-classdef BuildEnvironment < util.mixin.Base
+classdef BuildEnvironment < util.mixin.Base & util.mixin.Platform
   %BUILDENVIRONMENT Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -7,7 +7,7 @@ classdef BuildEnvironment < util.mixin.Base
     pkg = [];
     dirs = struct();
     filename = 'tensorflow_m_'; % the name of the resulting MEX interface
-    mexfile = [];
+    executable = [];
   end
 
   methods
@@ -30,26 +30,28 @@ classdef BuildEnvironment < util.mixin.Base
     function prepare(obj)
       obj.dirs.mex = fullfile(obj.pkg, 'mex');
       obj.dirs.out = fullfile(obj.dirs.mex, 'build');
-      obj.mexfile = fullfile(obj.dirs.out, [obj.filename '.' mexext]);
+      obj.executable = fullfile(obj.dirs.out, obj.filename);
 
       % clear possibly loaded MEXs
-      [~, loaded] = inmem();
-      for f = 1:1:numel(loaded)
-        if ~isempty(strfind(loaded{f}, obj.filename))
-          clear(loaded{f});
+      if obj.platform.ismatlab
+        [~, loaded] = inmem();
+        for f = 1:1:numel(loaded)
+          if ~isempty(strfind(loaded{f}, obj.filename))
+            clear(loaded{f});
+          end
         end
       end
 
       % delete existing file with identical name
-      if exist(obj.mexfile, 'file') == 3
-        delete(obj.mexfile);
+      if exist([obj.executable '.' mexext], 'file') == 3
+        delete([obj.executable '.' mexext]);
       end
 
       % cleanup build directory
       files = dir(obj.dirs.out);
       for f = files'
         if ~f.isdir && ~strcmpi(f.name, '.gitkeep')
-          delete(fullfile(f.folder, f.name));
+          delete(fullfile(obj.dirs.out, f.name));
         end
       end
     end
@@ -78,27 +80,54 @@ classdef BuildEnvironment < util.mixin.Base
 
       % helping Matlab to 'lib_tf.*' when executing the MEX function
       LD_RUN_PATH = getenv('LD_RUN_PATH');
-      if ~contains(LD_RUN_PATH, fullfile(obj.lib.path, 'lib'))
+      if isempty(strfind(LD_RUN_PATH, fullfile(obj.lib.path, 'lib')))
         setenv('LD_RUN_PATH', [fullfile(obj.lib.path, '/lib:'), LD_RUN_PATH]);
       end
 
-      % collected arguments for MEX
-      mexargs = [ {'LDOPTIMFLAGS=-O3'}, ...
-                  {['LDFLAGS=$LDFLAGS,-rpath,' fullfile(obj.lib.path, 'lib')]}, ...
-                  includedirs(:)', ...
-                  { file }, ...
-                  sources(:)', ...
-                  libdirs(:)', ...
-                  libs(:)', ...
-                  {'-outdir'}, { obj.dirs.out }, ...
-                  {'-largeArrayDims'} ...
-                ];
-
       % MEXing, possibly in debug mode (= verbose build + debug symbols)
-      if obj.isdebug()
-        mex('-v', '-g',  'CFLAGS=$CFLAGS -std=c99 -DDEBUG -g -ggdb3', mexargs{:});
+      if obj.platform.ismatlab
+        % collected arguments for MEX
+        mexargs = [ {'LDOPTIMFLAGS=-O3'}, ...
+                    {['LDFLAGS=$LDFLAGS,-rpath,' fullfile(obj.lib.path, 'lib')]}, ...
+                    includedirs(:)', ...
+                    { file }, ...
+                    sources(:)', ...
+                    libdirs(:)', ...
+                    libs(:)', ...
+                    {'-outdir'}, { obj.dirs.out }, ...
+                    {'-largeArrayDims'} ...
+                  ];
+
+        if obj.isdebug()
+          mex('-v', '-g',  'CFLAGS=$CFLAGS -std=c99 -DDEBUG -g -ggdb3', mexargs{:});
+        else
+          mex('CFLAGS=$CFLAGS -std=c99', mexargs{:});
+        end
       else
-        mex('CFLAGS=$CFLAGS -std=c99', mexargs{:});
+        % on Octave
+        mkoctargs = [ { ['-Wl,-rpath ' fullfile(obj.lib.path, 'lib')] }, ...
+                      includedirs(:)', ...
+                      { file }, ...
+                      sources(:)', ...
+                      libdirs(:)', ...
+                      libs(:)', ...
+                      { '-o' }, { obj.executable }, ...
+                      { '--mex' } ...
+                    ];
+
+        if obj.isdebug()
+          [a, status] = mkoctfile('-v', '-g', mkoctargs{:});
+          assert(status == 0, 'Irrecoverable error while building interface. Aborting.');
+        else
+          mkoctfile(mkoctargs{:});
+        end
+
+        % cleanup
+        for f = dir'
+          if numel(f.name) > 2 && strcmp(f.name(end-1:end), '.o')
+            movefile(f.name, obj.dirs.out);
+          end
+        end
       end
 
       % TODO - find a nicer workaround for this:

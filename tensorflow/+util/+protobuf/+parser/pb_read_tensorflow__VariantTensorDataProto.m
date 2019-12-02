@@ -27,5 +27,5 @@ function [variant_tensor_data_proto] = pb_read_tensorflow__VariantTensorDataProt
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__VariantTensorDataProto();
-  variant_tensor_data_proto = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  variant_tensor_data_proto.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__VariantTensorDataProto;
+  variant_tensor_data_proto = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  variant_tensor_data_proto.descriptor_function =@() util.protobuf.parser.pb_descriptor_tensorflow__VariantTensorDataProto();

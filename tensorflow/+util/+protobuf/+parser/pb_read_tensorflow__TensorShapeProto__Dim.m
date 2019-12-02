@@ -26,5 +26,5 @@ function [dim] = pb_read_tensorflow__TensorShapeProto__Dim(buffer, buffer_start,
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__TensorShapeProto__Dim();
-  dim = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  dim.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__TensorShapeProto__Dim;
+  dim = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  dim.descriptor_function =@() util.protobuf.parser.pb_descriptor_tensorflow__TensorShapeProto__Dim();

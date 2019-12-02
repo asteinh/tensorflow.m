@@ -1,25 +1,25 @@
 function [buffer] = pblib_generic_serialize_to_string(msg)
 %pblib_generic_serialize_to_string
 %   function [buffer] = pblib_generic_serialize_to_string(msg)
-  
+
 %   protobuf-matlab - FarSounder's Protocol Buffer support for Matlab
 %   Copyright (c) 2008, FarSounder Inc.  All rights reserved.
 %   http://code.google.com/p/protobuf-matlab/
-%  
+%
 %   Redistribution and use in source and binary forms, with or without
 %   modification, are permitted provided that the following conditions are met:
-%  
+%
 %       * Redistributions of source code must retain the above copyright
 %   notice, this list of conditions and the following disclaimer.
-%  
+%
 %       * Redistributions in binary form must reproduce the above copyright
 %   notice, this list of conditions and the following disclaimer in the
 %   documentation and/or other materials provided with the distribution.
-%  
+%
 %       * Neither the name of the FarSounder Inc. nor the names of its
 %   contributors may be used to endorse or promote products derived from this
 %   software without specific prior written permission.
-%  
+%
 %   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 %   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -44,7 +44,7 @@ function [buffer] = pblib_generic_serialize_to_string(msg)
   num_written = 0;
   for i=1:length(descriptor.fields)
     field = descriptor.fields(i);
-    if (get(msg.has_field, field.name) == 0)
+    if (javaMethod('get', msg.has_field, field.name) == 0)
       continue;
     end
     if (field.label == LABEL_REPEATED)
@@ -108,4 +108,3 @@ function [wire_values] = write_packed_field(values, field)
     bytes_written = bytes_written + length(encoded_value);
   end
   wire_values = wire_values(1 : bytes_written);
-  

@@ -2,6 +2,8 @@
 
 Matlab bindings for the [C library of Tensorflow](https://www.tensorflow.org/install/lang_c).
 
+[![CircleCI](https://circleci.com/gh/asteinh/tensorflow.m.svg?style=shield)](https://circleci.com/gh/asteinh/tensorflow.m)
+[![Coverage Status](https://coveralls.io/repos/github/asteinh/tensorflow.m/badge.svg?branch=master)](https://coveralls.io/github/asteinh/tensorflow.m?branch=master)
 [![Gitter](https://badges.gitter.im/tensorflowm/community.svg)](https://gitter.im/tensorflowm/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Issues](https://img.shields.io/github/issues/asteinh/tensorflow.m)](https://github.com/asteinh/tensorflow.m/issues)
 [![License](https://img.shields.io/github/license/asteinh/tensorflow.m)](https://github.com/asteinh/tensorflow.m/blob/master/LICENSE)

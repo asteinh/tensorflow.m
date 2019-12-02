@@ -5,25 +5,19 @@ classdef ImportGraphDefResults < util.mixin.Pointer
   methods
     function obj = ImportGraphDefResults(ref)
       assert(isa(ref, 'uint64'));
-      obj = obj@util.mixin.Pointer(ref);
+      obj.set_reference_(ref, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOutputs(TF_ImportGraphDefResults* results, int* num_outputs, TF_Output** outputs);
     function outputs = returnOutputs(obj)
       refs = tensorflow_m_('TF_ImportGraphDefResultsReturnOutputs', obj.ref);
-      outputs = tensorflow.Output.empty(numel(refs), 0);
-      for i = 1:1:numel(refs)
-        outputs(i) = tensorflow.Output(refs(i), false); % no ownership, according to comment in header file
-      end
+      outputs = tensorflow.Output(refs, false); % no ownership, according to comment in header file
     end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsReturnOperations(TF_ImportGraphDefResults* results, int* num_opers, TF_Operation*** opers);
     function operations = returnOperations(obj)
       refs = tensorflow_m_('TF_ImportGraphDefResultsReturnOperations', obj.ref);
-      operations = tensorflow.Operation.empty(numel(refs), 0);
-      for i = 1:1:numel(refs)
-        operations(i) = tensorflow.Operation(refs(i), false); % no ownership, according to comment in header file
-      end
+      operations = tensorflow.Operation(refs, false); % no ownership, according to comment in header file
     end
 
     % TF_CAPI_EXPORT extern void TF_ImportGraphDefResultsMissingUnusedInputMappings(TF_ImportGraphDefResults* results, int* num_missing_unused_input_mappings, const char*** src_names, int** src_indexes);

@@ -32,5 +32,5 @@ function [list_value] = pb_read_tensorflow__AttrValue__ListValue(buffer, buffer_
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__AttrValue__ListValue();
-  list_value = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  list_value.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__AttrValue__ListValue;
+  list_value = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  list_value.descriptor_function = @() util.protobuf.parser.pb_descriptor_tensorflow__AttrValue__ListValue();

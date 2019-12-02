@@ -26,5 +26,5 @@ function [attr_entry] = pb_read_tensorflow__NameAttrList__AttrEntry(buffer, buff
   end
 
   descriptor = pb_descriptor_tensorflow__NameAttrList__AttrEntry();
-  attr_entry = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  attr_entry = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
   attr_entry.descriptor_function = @pb_descriptor_tensorflow__NameAttrList__AttrEntry;

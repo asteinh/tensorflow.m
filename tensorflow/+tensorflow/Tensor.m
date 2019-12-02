@@ -1,4 +1,4 @@
-classdef Tensor < util.mixin.Pointer
+classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
   %TENSOR Summary of this class goes here
   %   Detailed explanation goes here
 
@@ -6,41 +6,63 @@ classdef Tensor < util.mixin.Pointer
     % TF_CAPI_EXPORT extern TF_Tensor* TF_NewTensor(TF_DataType, const int64_t* dims, int num_dims, void* data, size_t len, void (*deallocator)(void* data, size_t len, void* arg), void* deallocator_arg);
     % TF_CAPI_EXPORT extern TF_Tensor* TF_AllocateTensor(TF_DataType, const int64_t* dims, int num_dims, size_t len);
     function obj = Tensor(varargin)
-      if (nargin == 1 || nargin == 2) && isa(varargin{1}, 'uint64')
-        ref = varargin{1}; % create pointer from given reference
-        if nargin == 1
-          owned = false;
-        elseif nargin == 2 && islogical(varargin{2})
-          owned = varargin{2};
+
+      % input arguments for:
+      %   - construction by reference (vectorized)
+      %     1) ref [uint64]
+      %        ... an array of reference values
+      %     2) owned [logical]
+      %        ... an array of boolean values if the underlying memory is owned
+      %            (true); size has to match size of reference value array
+      %
+      %   - construction by data
+      %     1) data [...]
+      %        ... data of arbitrary dimensions and data type
+      %
+      %   - construction by data type & dimensions
+      %     1) datatype [tensorflow.DataType]
+      %        ... the data type the Tensor represents
+      %     2) dims [numeric]
+      %        ... the dimensions of the resulting Tensor, must be a vector
+
+      if nargin == 0
+        % dummy, for copying
+        return;
+      elseif nargin == 1
+        % construction by data
+        data = varargin{1};
+        if iscell(data)
+          obj = vectorize_constructor_(obj, varargin{:});
+          return;
         else
-          error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
-        end
-        data = [];
-      else
-        if nargin == 1
-          % create Tensor from data
-          data = varargin{1};
-          dtype = tensorflow.DataType.m2tf(class(data)); % retrieve datatype from data
+          dtype = tensorflow.DataType(tensorflow.DataType.m2tf(class(data))); % retrieve datatype from data
           dims = size(data); % data dimensions
-        elseif nargin == 2
-          % create Tensor from dtype and dims
-          dtype = varargin{1};
-          dims = varargin{2};  % ...
-          data = [];
-        else
-          error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
+          ref = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
+          obj.set_reference_(ref, true);
+          obj.value(data); % set data
         end
-        assert(ismember(dtype, enumeration('tensorflow.DataType')));
+      elseif nargin == 2 && isa(varargin{1}, 'uint64') && islogical(varargin{2})
+        % construction by reference
+        ref = varargin{1};
+        owned = varargin{2};
+        assert(numel(owned) == 1, 'tensorflow:Tensor:InputArguments', '(Vectorized) Construction by reference has to have a single ownership flag.');
+        if numel(ref) > 1
+          obj = vectorize_constructor_(obj, varargin{:});
+          return;
+        else
+          obj.set_reference_(ref, owned);
+        end
+      elseif nargin == 2
+        % construction by data type & dimensions
+        dtype = varargin{1};
+        assert(tensorflow.DataType.ismember(dtype), 'tensorflow:Tensor:InputArguments', 'Construction by data type and dimension requires the first input to represent a data type, being either of class tensorflow.DataType or interpretable as such.');
         dtype = tensorflow.DataType(dtype);
-        assert(isvector(dims));
+        dims = varargin{2};
+        assert(isvector(dims), 'tensorflow:Tensor:InputArguments', 'Construction by data type and dimension requires the second input to be a numeric array of dimensions.');
         ref = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
-        owned = true;
-      end
-
-      obj = obj@util.mixin.Pointer(ref, owned);
-
-      if owned && ~isempty(data)
-        obj.value(data); % set data, if given
+        obj.set_reference_(ref, true);
+      else
+        error('tensorflow:Tensor:InputArguments', 'Cannot create tensorflow.Tensor with given arguments.');
       end
     end
 

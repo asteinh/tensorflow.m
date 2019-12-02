@@ -2,13 +2,9 @@ classdef Base < handle
   %BASE Summary of this class goes here
   %   Detailed explanation goes here
 
-  properties (SetAccess=private)
-    hash = [];
-  end
-
   properties (Access=protected)
     debug = false;
-    isMatlab = (exist('OCTAVE_VERSION', 'builtin') == 0);
+    hash = [];
   end
 
   properties (Constant)
@@ -17,7 +13,7 @@ classdef Base < handle
 
   methods
     function obj = Base()
-      obj.debug = obj.set_debug_mode();
+      obj.debug = obj.set_debug_mode_();
       obj.hash = obj.hash_generator.sha1();
       obj.debugMsg('%s: created new object with hash %s\n', class(obj), obj.hash);
     end
@@ -40,7 +36,7 @@ classdef Base < handle
   end
 
   methods (Static, Access=private)
-    function deb = set_debug_mode()
+    function deb = set_debug_mode_()
       % check if debug mode is activated
       if evalin('base', 'exist(''DEBUG'', ''var'')') == 0
         deb = false;

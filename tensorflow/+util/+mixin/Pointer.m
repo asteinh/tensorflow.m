@@ -6,20 +6,11 @@ classdef Pointer < util.mixin.Base
     ref = uint64([]);
   end
 
-  properties (Access=private)
-    is_owned = true;
+  properties (GetAccess=public, SetAccess=private)
+    isowned = true;
   end
 
-  methods
-    function obj = Pointer(ref, owned)
-      assert(~isempty(ref) && isa(ref, 'uint64') && ref ~= 0, 'You must supply a non-empty, non-zero reference of type ''uint64''.');
-      obj.ref = ref;
-
-      if nargin == 2 && owned == false
-        obj.is_owned = false;
-      end
-    end
-
+  methods (Access=public)
     % check if the Pointer object holds a valid reference
     function res = isempty(obj)
       if numel(obj) == 1
@@ -32,19 +23,23 @@ classdef Pointer < util.mixin.Base
       end
     end
 
-    % check if the referenced memory is owned by tensorflow.m
-    function res = isowned(obj)
-      res = obj.is_owned();
-    end
-
     % check if Pointer object holds a valid reference and is owned
     function res = isdeletable(obj)
-      res = ~obj.isempty() && obj.is_owned();
+      res = ~obj.isempty() && obj.isowned;
     end
 
     function delete(obj)
       obj.ref = [];
       delete@util.mixin.Base(obj);
+    end
+  end
+
+  methods (Access=protected)
+    function set_reference_(obj, ref, owned)
+      assert(numel(ref) == 1 && isa(ref, 'uint64') && ref ~= 0, 'You must supply a non-empty, non-zero reference of type ''uint64''.');
+      assert(numel(owned) == 1 && islogical(owned), 'You must supply a non-empty, logical value for the ownership of the referenced memory.');
+      obj.ref = ref;
+      obj.isowned = owned;
     end
   end
 end

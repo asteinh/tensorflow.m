@@ -25,5 +25,5 @@ function [op_list] = pb_read_tensorflow__OpList(buffer, buffer_start, buffer_end
   end
 
   descriptor = util.protobuf.parser.pb_descriptor_tensorflow__OpList();
-  op_list = pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
-  op_list.descriptor_function = @util.protobuf.parser.pb_descriptor_tensorflow__OpList;
+  op_list = util.protobuf.lib.pblib_generic_parse_from_string(buffer, descriptor, buffer_start, buffer_end);
+  op_list.descriptor_function =@() util.protobuf.parser.pb_descriptor_tensorflow__OpList();

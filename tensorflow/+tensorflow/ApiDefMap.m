@@ -15,7 +15,7 @@ classdef ApiDefMap < util.mixin.Pointer
       % superclass constructor
       ref = tensorflow_m_('TF_NewApiDefMap', op_list_buffer.ref, status.ref);
       status.maybe_raise();
-      obj = obj@util.mixin.Pointer(ref);
+      obj.set_reference_(ref, true);
       obj.status = status;
     end
 

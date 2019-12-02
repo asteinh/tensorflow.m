@@ -14,7 +14,9 @@ classdef Server < util.mixin.Pointer
       status = tensorflow.Status();
 
       % superclass constructor
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewServer', proto.ref, status.ref));
+      ref = tensorflow_m_('TF_NewServer', proto.ref, status.ref);
+      status.maybe_raise();
+      obj.set_reference_(ref, true);
       obj.status = status;
     end
 

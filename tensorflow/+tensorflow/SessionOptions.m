@@ -5,7 +5,8 @@ classdef SessionOptions < util.mixin.Pointer
   methods
     % TF_CAPI_EXPORT extern TF_SessionOptions* TF_NewSessionOptions(void);
     function obj = SessionOptions()
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewSessionOptions'));
+      ref = tensorflow_m_('TF_NewSessionOptions');
+      obj.set_reference_(ref, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_SetTarget(TF_SessionOptions* options, const char* target);

@@ -5,8 +5,7 @@ classdef ImportGraphDefOptions < util.mixin.Pointer
   methods
     % TF_CAPI_EXPORT extern TF_ImportGraphDefOptions* TF_NewImportGraphDefOptions(void);
     function obj = ImportGraphDefOptions()
-      % create operation description
-      obj = obj@util.mixin.Pointer(tensorflow_m_('TF_NewImportGraphDefOptions'));
+      obj.set_reference_(tensorflow_m_('TF_NewImportGraphDefOptions'), true);
     end
 
     % TF_CAPI_EXPORT extern void TF_DeleteImportGraphDefOptions(TF_ImportGraphDefOptions* opts);

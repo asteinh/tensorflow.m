@@ -40,7 +40,7 @@ classdef Buffer < util.mixin.Pointer
         owned = true;
       end
 
-      obj = obj@util.mixin.Pointer(ref, owned);
+      obj.set_reference_(ref, owned);
       obj.length_ = tensorflow_m_('TFM_BufferLength', obj.ref);
       obj.status = tensorflow.Status();
 

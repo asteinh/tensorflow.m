@@ -1,32 +1,40 @@
-function [msg_size] = pblib_get_serialized_size(msg)
-%pblib_get_serialized_size 
-%   function [msg_size] = pblib_get_serialized_size(msg)
+function [msg] = pblib_set(msg, field_name, value)
+%pblib_set
+%   function [msg] = pblib_set(msg, field_name, value)
 %
-%   Estimates the size a message will take when serialized.
-% 
-%   Will go through a message and estimate serialized sizes of valid fields.
-%   Estimates generally include tag size plus encoded field size.
+%   Sets a value in the proto message msg and updates the has_field hash table.  BEWARE:
+%   This function potentially makes a full copy of your msg because it gets modified.  I
+%   have no idea how smart matlab is and how big of a copy happens and haven't tested it.
+%   This function should therefore only be used if speed is not an issue or you are going
+%   to test the speed yourself. Otherwise simply call the contents of this functions
+%   inline in your own workspace.
 %
-%   See also pblib_generic_serialize_to_string, pblib_write_wire_type
-  
+%   To use this function if you a have proto message msg, call it with
+%     msg = pblib_set(msg, 'some_field_name', some_field_value);
+%
+%   If you would like to set the field of a message field, you need to do msg.some_field =
+%   pblib_set(msg.some_field, 'some_other_subfield', 'some_subfield_value');
+%
+%   See also pblib_generic_serialize_to_string
+
 %   protobuf-matlab - FarSounder's Protocol Buffer support for Matlab
 %   Copyright (c) 2008, FarSounder Inc.  All rights reserved.
 %   http://code.google.com/p/protobuf-matlab/
-%  
+%
 %   Redistribution and use in source and binary forms, with or without
 %   modification, are permitted provided that the following conditions are met:
-%  
+%
 %       * Redistributions of source code must retain the above copyright
 %   notice, this list of conditions and the following disclaimer.
-%  
+%
 %       * Redistributions in binary form must reproduce the above copyright
 %   notice, this list of conditions and the following disclaimer in the
 %   documentation and/or other materials provided with the distribution.
-%  
+%
 %       * Neither the name of the FarSounder Inc. nor the names of its
 %   contributors may be used to endorse or promote products derived from this
 %   software without specific prior written permission.
-%  
+%
 %   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 %   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 %   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -42,40 +50,5 @@ function [msg_size] = pblib_get_serialized_size(msg)
 %   Author: fedor.labounko@gmail.com (Fedor Labounko)
 %   Support function used by Protobuf compiler generated .m files.
 
-
-  LABEL_REPEATED = 3;
-  WIRE_TYPE_LENGTH_DELIMITED = 2;
-  msg_size = 0;
-  descriptor = msg.descriptor_function();
-  for i=1:length(descriptor.fields)
-    field = descriptor.fields(i);
-    if (get(msg.has_field, field.name) == 0 || isempty(msg.(field.name)))
-      continue;
-    end
-
-    if (field.options.packed)
-      tag_length = pblib_encoded_tag_size(...
-          field.number, WIRE_TYPE_LENGTH_DELIMITED);
-    else
-      tag_length = pblib_encoded_tag_size(...
-          field.number, field.wire_type);
-    end
-
-    % need this extra if to make sure repeated strings/bytes are done correctly
-    if (field.label == LABEL_REPEATED)
-      msg_size = msg_size + tag_length + ...
-          (1 - field.options.packed) * ...
-          (length(msg.(field.name)) - 1) * tag_length;
-    else
-      msg_size = msg_size + tag_length;
-    end
-    msg_size = msg_size + pblib_encoded_field_size(msg.(field.name), field);
-  end
-  
-  % Now add the space required by the stored unknown fields
-  for i=1:length(msg.unknown_fields)
-    msg_size = msg_size + length(msg.unknown_fields(i).raw_data);
-  end
-
-
-
+  msg.(field_name) = value;
+  javaMethod('put', msg.has_field, field_name, 1);

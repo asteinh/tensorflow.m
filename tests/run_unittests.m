@@ -1,12 +1,13 @@
-clear; clc;
-addpath('../tensorflow');
+clear; clc
 
-import matlab.unittest.TestSuite
-import matlab.unittest.TestRunner
-import matlab.unittest.plugins.CodeCoveragePlugin
+addpath(fullfile(pwd, 'MOxUnit', 'MOxUnit'));
+addpath(fullfile(pwd, 'MOcov', 'MOcov'));
+moxunit_set_path();
 
-runner = TestRunner.withTextOutput;
-runner.addPlugin(CodeCoveragePlugin.forFolder('../tensorflow/+tensorflow'));
+pkg_dir = fullfile(pwd, '..', 'tensorflow');
+res_dir = fullfile(pwd, 'results');
 
-suite = TestSuite.fromPackage('unittests');
-result = runner.run(suite);
+moxunit_runtests('unittests', '-verbose', ...
+                 '-with_coverage', '-cover', pkg_dir, ...
+                 '-cover_exclude', '@Ops', '-cover_exclude', '\+util', ...
+                 '-cover_json_file', fullfile(res_dir, 'coverage.json'));

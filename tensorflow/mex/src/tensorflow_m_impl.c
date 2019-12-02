@@ -754,7 +754,7 @@ void TF_OperationNumControlInputs_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_OperationGetControlInputs(TF_Operation* oper, TF_Operation** control_inputs, int max_control_inputs);
 void TF_OperationGetControlInputs_(MEX_ARGS) {
-  NOT_TESTED
+  NOT_IMPLEMENTED
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   TF_Operation** control_inputs = (TF_Operation**) arr2ptr(prhs[1]);
@@ -772,7 +772,7 @@ void TF_OperationNumControlOutputs_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_OperationGetControlOutputs(TF_Operation* oper, TF_Operation** control_outputs, int max_control_outputs);
 void TF_OperationGetControlOutputs_(MEX_ARGS) {
-  NOT_TESTED
+  NOT_IMPLEMENTED
 
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   TF_Operation** control_outputs = (TF_Operation**) arr2ptr(prhs[1]);
