@@ -16,9 +16,24 @@ jobs:
           sh setup_unittests.sh
           octave run_unittests.m
           curl -F json_file=results/coverage.json https://coveralls.io/api/v1/jobs
+  octave5:
+    docker:
+      - image: asteinh/docker:amd64-debian-octave5
+    steps:
+      - checkout
+      - run: |
+          curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz -o libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+          mkdir -p tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0
+          tar -C tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0 -xzf libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+      - run: octave setup.m
+      - run: |
+          cd tests
+          sh setup_unittests.sh
+          octave run_unittests.m
 
 workflows:
   version: 2
   testing_octave:
     jobs:
       - octave4
+      - octave5
