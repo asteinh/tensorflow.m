@@ -11,6 +11,7 @@ jobs:
       - run: octave run_unittests.m
       - run: |
           curl --verbose -F json_file=results/coverage.json https://coveralls.io/api/v1/jobs
+
 workflows:
   version: 2
   testing_octave:
