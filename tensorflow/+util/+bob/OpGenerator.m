@@ -45,7 +45,7 @@ classdef OpGenerator < util.mixin.Base
           % skip functions whose name starts with an underscore
           obj.debugMsg('Skipping %4d/%4d: ''%s''\n', i, nops, oplist(i).name);
         else
-          if any(strcmp(oplist(i).name, obj.reserved_keywords))
+          if any(strcmpi(oplist(i).name, obj.reserved_keywords))
             % modify name if blacklisted
             oplist(i).name = [ oplist(i).name '_' ];
           end
@@ -124,6 +124,12 @@ classdef OpGenerator < util.mixin.Base
 
       argstring = 'obj';
       if op.num.inputs > 0
+        for i = 1:1:op.num.inputs
+          if any(strcmpi(op.input_arg(i).name, obj.reserved_keywords))
+            op.input_arg(i).name = [ op.input_arg(i).name '_' ]; % modify name if blacklisted
+          end
+        end
+
         argstring = [ argstring ', ' strjoin({ op.input_arg(:).name }, ', ')];
 
         % fetch all attributes that can be inferred from inputs
@@ -134,6 +140,12 @@ classdef OpGenerator < util.mixin.Base
       end
 
       if op.num.outputs > 0
+        for i = 1:1:op.num.outputs
+          if any(strcmpi(op.output_arg(i).name, obj.reserved_keywords))
+            op.output_arg(i).name = [ op.output_arg(i).name '_' ]; % modify name if blacklisted
+          end
+        end
+        
         % fetch all attributes that are required by outputs
         output_attrs = unique({ op.output_arg(:).type_attr, ...
                                 op.output_arg(:).number_attr, ...
@@ -146,7 +158,7 @@ classdef OpGenerator < util.mixin.Base
       for i = 1:1:op.num.attrs
         op.attr(i).is_required = true;
         op.attr(i).is_inferred = false;
-        if any(strcmp(op.attr(i).name, obj.reserved_keywords))
+        if any(strcmpi(op.attr(i).name, obj.reserved_keywords))
           % modify name if blacklisted
           op.attr(i).name = [ op.attr(i).name '_' ];
         end

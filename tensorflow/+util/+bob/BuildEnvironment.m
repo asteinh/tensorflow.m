@@ -121,6 +121,13 @@ classdef BuildEnvironment < util.mixin.Base & util.mixin.Platform
         else
           mkoctfile(mkoctargs{:});
         end
+
+        % cleanup
+        for f = dir'
+          if numel(f.name) > 2 && strcmp(f.name(end-1:end), '.o')
+            movefile(f.name, obj.dirs.out);
+          end
+        end
       end
 
       % TODO - find a nicer workaround for this:

@@ -26,17 +26,21 @@ function setup()
   % add path, if not already added
   pkg_dir = fullfile(pwd, 'tensorflow');
   if DEBUG; disp(['Root folder of tensorflow.m: ' pkg_dir]); end
-
+  
   paths_ = regexp(path, pathsep, 'split');
-  if ( ispc && ~any(strcmpi(pkg_dir, paths_))) || ...
-     (~ispc && ~any(strcmp(pkg_dir, paths_)))
-    % not yet in path, add root folder
-    if DEBUG; disp('Root folder not found in path - adding it and saving the path.'); end
-    addpath(pkg_dir);
-    addpath(fullfile(pkg_dir, 'mex', 'build'));
-    savepath;
-  else
-    if DEBUG; disp('Root folder already in path.'); end
+  required_paths = { pkg_dir, fullfile(pkg_dir, 'mex', 'build') };
+  for i = 1:numel(required_paths)
+    p = required_paths{i};
+    if ( ispc && ~any(strcmpi(p, paths_))) || ...
+       (~ispc && ~any(strcmp(p, paths_)))
+      % not yet in path, add root folder
+      if DEBUG; disp(['Folder ''' p ''' not found in path - adding it and saving the path.']); end
+      addpath(p);
+      addpath(fullfile(p, 'mex', 'build'));
+      savepath;
+    else
+      if DEBUG; disp(['Folder ''' p ''' already in path.']); end
+    end
   end
 
   % 4) build MEX
