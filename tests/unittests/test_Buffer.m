@@ -11,7 +11,7 @@ function test_suite = test_Buffer()
     bufB = tensorflow.Buffer(bufA.ref); % if nargin == 1 && isa(varargin{1}, 'uint64')
     assertEqual(bufA.data, bufB.data);
 
-    bufC = tensorflow.Buffer(bufA.ref, true);
+    bufC = tensorflow.Buffer(bufA.ref, false);
     assertEqual(bufA.data, bufC.data);
 
     assertExceptionThrown(@() tensorflow.Buffer(bufA.ref, 'miss'), 'tensorflow:Buffer:InputArguments');
