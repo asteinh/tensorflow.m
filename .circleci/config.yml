@@ -1,7 +1,9 @@
-version: 2.0
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.5
 
 jobs:
-  octave4:
+  prepare-dependencies:
     docker:
       - image: asteinh/docker:amd64-debian-octave4
     steps:
@@ -10,30 +12,50 @@ jobs:
           curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz -o libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
           mkdir -p tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0
           tar -C tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0 -xzf libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
+  octave4:
+    docker:
+      - image: asteinh/docker:amd64-debian-octave4
+    steps:
+      - attach_workspace:
+          at: ~/
       - run: octave setup.m
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave run_unittests.m
-          curl -F json_file=results/coverage.json https://coveralls.io/api/v1/jobs
+          octave --eval "run_unittests -with_coverage"
+      - codecov/upload:
+          file: tests/results/coverage.xml
+          flags: unittests
+      - store_artifacts:
+          path: tests/results
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
   octave5:
     docker:
       - image: asteinh/docker:amd64-debian-octave5
     steps:
-      - checkout
-      - run: |
-          curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz -o libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
-          mkdir -p tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0
-          tar -C tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0 -xzf libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+      - attach_workspace:
+          at: ~/
       - run: octave setup.m
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave run_unittests.m
+          octave --eval "run_unittests"
 
 workflows:
   version: 2
   testing_octave:
     jobs:
-      - octave4
-      - octave5
+      - prepare-dependencies
+      - octave4:
+          requires:
+            - prepare-dependencies
+      - octave5:
+          requires:
+            - prepare-dependencies

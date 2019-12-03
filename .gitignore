@@ -1,6 +1,7 @@
 *.*~
 *.mex*
 *.o
+*.tar.gz
 nogit_*
 ops.pbtxt
 
