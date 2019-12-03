@@ -9,7 +9,12 @@ function test_suite = test_Buffer()
 
     % case: buffer from ref
     bufB = tensorflow.Buffer(bufA.ref); % if nargin == 1 && isa(varargin{1}, 'uint64')
-    assertEqual(bufA.ref, bufB.ref);
+    assertEqual(bufA.data, bufB.data);
+
+    bufC = tensorflow.Buffer(bufA.ref, true);
+    assertEqual(bufA.data, bufC.data);
+
+    assertExceptionThrown(@() tensorflow.Buffer(bufA.ref, 'miss'), 'tensorflow:Buffer:InputArguments');
 
     % case 3: empty buffer
     buf = tensorflow.Buffer(); % elseif nargin == 0

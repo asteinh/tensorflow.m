@@ -37,7 +37,7 @@ classdef Code < util.mixin.Enumeration & util.mixin.Vectorize
           elseif tensorflow.Code.is_int_robust_(id)
             % create from integer
             val = tensorflow.Code.lookup_int(id);
-            assert(~isempty(val), 'tensorflow:Code:InputArguments', ['Cannot map given integer ''' id ''' to a known TensorFlow Code.']);
+            assert(~isempty(val), 'tensorflow:Code:InputArguments', ['Cannot map given integer ''' num2str(id) ''' to a known TensorFlow Code.']);
           else
             error('tensorflow:Code:InputArguments', 'Cannot create tensorflow.Code from given arguments.');
           end
