@@ -61,7 +61,7 @@ classdef Operation < util.mixin.Pointer & util.mixin.Vectorize
 
     % TF_CAPI_EXPORT extern int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
     function res = inputListLength(obj, name)
-      assert(ischar(func), 'Provided input list identifier must be a char array.');
+      assert(ischar(name), 'Provided input list identifier must be a char array.');
       res = double(tensorflow_m_('TF_OperationInputListLength', obj.ref, name, obj.status.ref));
       obj.status.maybe_raise();
     end
