@@ -19,6 +19,6 @@ function test_suite = test_Output()
     desc.setAttrType('dtype', t.type);
     o4 = tensorflow.Output(desc.finishOperation(), 1);
 
-    assertEqual(o4.numConsumers, 0);
+    assertEqual(o4.numConsumers(), 0);
 
     assertExceptionThrown(@() tensorflow.Output('foo', 'bar', 'miss'), 'tensorflow:Output:InputArguments');
