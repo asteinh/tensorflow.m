@@ -11,6 +11,7 @@ classdef Session < util.mixin.Pointer
       if nargin == 1 && isa(varargin{1}, 'uint64')
         ref = varargin{1}; % create pointer from given reference
         owned = false;
+        status = tensorflow.Status();
       else
         if nargin == 1
           graph = varargin{1};
