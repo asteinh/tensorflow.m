@@ -72,17 +72,17 @@ classdef Operation < util.mixin.Pointer & util.mixin.Vectorize
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlInputs(TF_Operation* oper, TF_Operation** control_inputs, int max_control_inputs);
-    function res = getControlInputs(obj)
-      error('Not implemented.');
-      n = obj.numControlInputs();
-      if n > 0
-        res = tensorflow.Operation(uint64(zeros(n,1))); % TODO ownership? allocation?
-        n_ = double(tensorflow_m_('TF_OperationGetControlInputs', obj.ref, [res.ref], n));
-        assert(n == n_, ['Number of fetched control inputs (' n_ ') does not match number of existing control inputs (' n ').']);
-      else
-        res = [];
-      end
-    end
+    %TODO
+    % function res = getControlInputs(obj)
+    %   n = obj.numControlInputs();
+    %   if n > 0
+    %     res = tensorflow.Operation(uint64(zeros(n,1))); % TODO ownership? allocation?
+    %     n_ = double(tensorflow_m_('TF_OperationGetControlInputs', obj.ref, [res.ref], n));
+    %     assert(n == n_, ['Number of fetched control inputs (' n_ ') does not match number of existing control inputs (' n ').']);
+    %   else
+    %     res = [];
+    %   end
+    % end
 
     % TF_CAPI_EXPORT extern int TF_OperationNumControlOutputs(TF_Operation* oper);
     function res = numControlOutputs(obj)
@@ -90,17 +90,17 @@ classdef Operation < util.mixin.Pointer & util.mixin.Vectorize
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationGetControlOutputs(TF_Operation* oper, TF_Operation** control_outputs, int max_control_outputs);
-    function res = getControlOutputs(obj)
-      error('Not implemented.');
-      n = obj.numControlOutputs();
-      if n > 0
-        res = tensorflow.Operation(uint64(zeros(n,1))); % TODO ownership? allocation?
-        n_ = double(tensorflow_m_('TF_OperationGetControlOutputs', obj.ref, [res.ref], n));
-        assert(n == n_, ['Number of fetched control outputs (' n_ ') does not match number of existing control outputs (' n ').']);
-      else
-        res = [];
-      end
-    end
+    %TODO
+    % function res = getControlOutputs(obj)
+    %   n = obj.numControlOutputs();
+    %   if n > 0
+    %     res = tensorflow.Operation(uint64(zeros(n,1))); % TODO ownership? allocation?
+    %     n_ = double(tensorflow_m_('TF_OperationGetControlOutputs', obj.ref, [res.ref], n));
+    %     assert(n == n_, ['Number of fetched control outputs (' n_ ') does not match number of existing control outputs (' n ').']);
+    %   else
+    %     res = [];
+    %   end
+    % end
 
     % TF_CAPI_EXPORT extern TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper, const char* attr_name, TF_Status* status);
     % NOT_SUPPORTED
