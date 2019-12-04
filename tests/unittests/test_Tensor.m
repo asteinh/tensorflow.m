@@ -38,3 +38,11 @@ function test_utilities()
   vals_ = typecast(buf.data(), 'int16'); % have to cast manually
   vals_ = permute(reshape(vals_, fliplr(size(vals))), [numel(size(vals)):-1:1]); % have to transform to column-major manually
   assertEqual(vals, vals_);
+
+  % check string
+  str = 'teststr';
+  t2 = tensorflow.Tensor(str);
+  ret_str = t2.value();
+  % disp(str)
+  % disp(t2.value())
+  % assertEqual(t2.value(), str);

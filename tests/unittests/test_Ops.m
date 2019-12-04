@@ -8,16 +8,16 @@ function test_suite = test_Ops()
       tensorflow.DataType('TF_DOUBLE'), ...
       tensorflow.DataType('TF_INT32') ...
     };
-    ndims = [1:5]; % considered dimensions
+    ndims = [1:3]; % considered dimensions
     graph = tensorflow.Graph();
     session = tensorflow.Session(graph);
 
     for i = 1:1:numel(dtypes)
-      mdtype = tensorflow.DataType.tf2m(dtypes{i});
+      dtype = dtypes{i};
       for nd = ndims
         dims = randi([2 10], 1, nd);
-        aVal = rand_tensor([dims 1], mdtype);
-        bVal = rand_tensor([dims 1], mdtype);
+        aVal = rand_tensor([dims 1], dtype);
+        bVal = rand_tensor([dims 1], dtype);
         exptd = aVal+bVal;
 
         y = graph.add(graph.constant(aVal), graph.constant(bVal));
@@ -33,16 +33,16 @@ function test_suite = test_Ops()
       tensorflow.DataType('TF_DOUBLE'), ...
       tensorflow.DataType('TF_INT64') ...
     };
-    ndims = [1:5]; % considered dimensions
+    ndims = [1:3]; % considered dimensions
     graph = tensorflow.Graph();
     session = tensorflow.Session(graph);
 
     for i = 1:1:numel(dtypes)
-      mdtype = tensorflow.DataType.tf2m(dtypes{i});
+      dtype = dtypes{i};
       for nd = ndims
         dims = randi([2 10], 1, nd);
-        aVal = rand_tensor([dims 1], mdtype);
-        bVal = rand_tensor([dims 1], mdtype);
+        aVal = rand_tensor([dims 1], dtype);
+        bVal = rand_tensor([dims 1], dtype);
         exptd = aVal.*bVal;
 
         y = graph.mul(graph.constant(aVal), graph.constant(bVal));
@@ -102,7 +102,8 @@ function test_suite = test_Ops()
     res = session.run([b], [tensorflow.Tensor(bval)], [y]);
     assertTrue(norm(res(1).value-(A.')\bval) < 1e-6);
 
-  function randres = rand_tensor(dims, type)
+  function randres = rand_tensor(dims, dtype)
+    type = tensorflow.DataType.tf2m(dtype);
     if any(strcmp(type, { 'double', 'single' }))
       randres = randn(dims)*1e6;
     elseif strcmp(type, 'logical')
