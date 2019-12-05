@@ -788,10 +788,11 @@ void TF_OperationGetAttrString_(MEX_ARGS) {
   TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
   if(TF_GetCode(status) == TF_OK) {
     size_t max_length = meta.total_size;
-    void* value = mxCalloc(max_length, sizeof(uint8_t));
+    char* value = mxCalloc(max_length + 1, sizeof(uint8_t));
     if(!value)
       mexErrMsgTxt("Allocation of memory for string failed.\n");
 
+    value[max_length] = '\0';
     TF_OperationGetAttrString(oper, attr_name, value, max_length, status);
     plhs[0] = mxCreateString(value);
     mxFree(value);

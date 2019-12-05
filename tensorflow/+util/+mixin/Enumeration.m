@@ -71,7 +71,11 @@ classdef Enumeration < handle
 
   methods (Static, Access=protected)
     function is = is_int_robust_(val)
-      is = ( (val >= 0) && (norm(double(val-round(val))) < eps) );
+      if ~isempty(val) && isnumeric(val)
+        is = ( (val >= 0) && (norm(double(val-round(val))) < eps) );
+      else
+        is = false;
+      end
     end
 
     function varargout = sanitize_(varargin)
