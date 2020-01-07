@@ -17,8 +17,6 @@ The development of these MATLAB bindings obeys [the recommended approach](https:
 
 To install `tensorflow.m` you call the `setup()` function in `setup.m`, located in the root directory of the repository. If not provided (see *Flags* hereafter) nor found in a number of default search locations, the setup will automatically download and unpack the latest [TensorFlow C library](https://www.tensorflow.org/install/lang_c) into `tensorflow/mex/`.
 
-**Note** Observed in MATLAB R2019b, on Linux/Mac: MATLAB's `untar` function doesn't seem to appreciate symlinks, which will break the automated download&unpack (yielding the error `file not recognized: File truncated`). You can avoid this problem by manually downloading and unpacking the C library [from here](https://www.tensorflow.org/install/lang_c) and either placing it e.g. in your `$HOME/Downloads/` directory or pointing the setup to its location using the `LIBTENSORFLOW` variable (see below).
-
 ###### Flags
 The setup checks for the existence/value of two variables which you can set prior to running the function:
 
