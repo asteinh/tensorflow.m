@@ -37,6 +37,9 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
         else
           dtype = tensorflow.DataType(tensorflow.DataType.m2tf(class(data))); % retrieve datatype from data
           dims = size(data); % data dimensions
+          if dims(end) == 1
+            dims(end) = [];
+          end
           ref = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
           obj.set_reference_(ref, true);
           obj.value(data); % set data

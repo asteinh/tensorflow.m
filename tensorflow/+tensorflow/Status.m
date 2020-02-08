@@ -36,7 +36,8 @@ classdef Status < util.mixin.Pointer
     function maybe_raise(obj)
       c = obj.getCode();
       if c ~= tensorflow.Code('TF_OK')
-        e = MException(['tensorflow:Status:' char(c)], obj.message());
+        str = char(c);
+        e = MException(['tensorflow:Status:' str{1}], obj.message());
         throw(e);
       end
     end
