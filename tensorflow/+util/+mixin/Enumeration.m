@@ -25,9 +25,13 @@ classdef Enumeration < handle
       end
     end
     function val = char(obj)
-      val = cell(size(obj));
-      for i = 1:1:numel(obj)
-        val{i} = obj(i).value_{1};
+      if numel(obj) > 1
+        val = cell(size(obj));
+        for i = 1:1:numel(obj)
+          val{i} = obj(i).value_{1};
+        end
+      else
+        val = obj.value_{1};
       end
     end
 
@@ -67,7 +71,11 @@ classdef Enumeration < handle
 
   methods (Static, Access=protected)
     function is = is_int_robust_(val)
-      is = ( (val >= 0) && (norm(double(val-round(val))) < eps) );
+      if ~isempty(val) && isnumeric(val)
+        is = ( (val >= 0) && (norm(double(val-round(val))) < eps) );
+      else
+        is = false;
+      end
     end
 
     function varargout = sanitize_(varargin)

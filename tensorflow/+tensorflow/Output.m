@@ -42,20 +42,19 @@ classdef Output < util.mixin.Pointer & util.mixin.Vectorize
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputNumConsumers(TF_Output oper_out);
     function num = numConsumers(obj)
-      num = tensorflow_m_('TF_OperationOutputNumConsumers', obj.ref);
+      num = double(tensorflow_m_('TF_OperationOutputNumConsumers', obj.ref));
     end
 
     % TF_CAPI_EXPORT extern int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers, int max_consumers);
-    function c = consumers(obj)
-      error('tensorflow:Output:operationOutputConsumers:NotImplemented', 'Not implemented.'); % TODO
-
-      max_consumers = obj.numConsumers();
-      c = [];
-      for i = 1:1:max_consumers
-        c = [c; tensorflow.Input()];
-      end
-      tensorflow_m_('TF_OperationOutputConsumers', obj.ref);
-    end
+    %TODO
+    % function c = consumers(obj)
+    %   max_consumers = obj.numConsumers();
+    %   c = [];
+    %   for i = 1:1:max_consumers
+    %     c = [c; tensorflow.Input()];
+    %   end
+    %   tensorflow_m_('TF_OperationOutputConsumers', obj.ref);
+    % end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
