@@ -22,7 +22,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - run: octave setup.m
+      - run: octave --eval "DEBUG=true; run setup"
       - run: |
           cd tests
           sh setup_unittests.sh
@@ -42,7 +42,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - run: octave setup.m
+      - run: octave --eval "DEBUG=true; run setup"
       - run: |
           cd tests
           sh setup_unittests.sh

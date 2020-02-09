@@ -410,8 +410,6 @@ void TF_SetAttrStringList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
 void TF_SetAttrInt_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -424,8 +422,6 @@ void TF_SetAttrInt_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name, const int64_t* values, int num_values);
 void TF_SetAttrIntList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -439,8 +435,6 @@ void TF_SetAttrIntList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name, float value);
 void TF_SetAttrFloat_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -704,8 +698,6 @@ void TF_OperationInputType_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name, TF_Status* status);
 void TF_OperationInputListLength_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* arg_name = mxArrayToString(prhs[1]);
   if(!arg_name)
@@ -728,8 +720,6 @@ void TF_OperationInput_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern int TF_OperationOutputNumConsumers(TF_Output oper_out);
 void TF_OperationOutputNumConsumers_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Output oper_out = *((TF_Output*) arr2ptr(prhs[0]));
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
   *((int*) mxGetData(plhs[0])) = TF_OperationOutputNumConsumers(oper_out);
@@ -799,10 +789,11 @@ void TF_OperationGetAttrString_(MEX_ARGS) {
   TF_AttrMetadata meta = TF_OperationGetAttrMetadata(oper, attr_name, status);
   if(TF_GetCode(status) == TF_OK) {
     size_t max_length = meta.total_size;
-    void* value = mxCalloc(max_length, sizeof(uint8_t));
+    char* value = mxCalloc(max_length + 1, sizeof(uint8_t));
     if(!value)
       mexErrMsgTxt("Allocation of memory for string failed.\n");
 
+    value[max_length] = '\0';
     TF_OperationGetAttrString(oper, attr_name, value, max_length, status);
     plhs[0] = mxCreateString(value);
     mxFree(value);
@@ -847,8 +838,6 @@ void TF_OperationGetAttrStringList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrInt(TF_Operation* oper, const char* attr_name, int64_t* value, TF_Status* status);
 void TF_OperationGetAttrInt_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -868,8 +857,6 @@ void TF_OperationGetAttrInt_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrIntList(TF_Operation* oper, const char* attr_name, int64_t* values, int max_values, TF_Status* status);
 void TF_OperationGetAttrIntList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -894,8 +881,6 @@ void TF_OperationGetAttrIntList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloat(TF_Operation* oper, const char* attr_name, float* value, TF_Status* status);
 void TF_OperationGetAttrFloat_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -915,8 +900,6 @@ void TF_OperationGetAttrFloat_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloatList(TF_Operation* oper, const char* attr_name, float* values, int max_values, TF_Status* status);
 void TF_OperationGetAttrFloatList_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -941,8 +924,6 @@ void TF_OperationGetAttrFloatList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrBool(TF_Operation* oper, const char* attr_name, unsigned char* value, TF_Status* status);
 void TF_OperationGetAttrBool_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -988,8 +969,6 @@ void TF_OperationGetAttrBoolList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrType(TF_Operation* oper, const char* attr_name, TF_DataType* value, TF_Status* status);
 void TF_OperationGetAttrType_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -1033,8 +1012,6 @@ void TF_OperationGetAttrTypeList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name, int64_t* value, int num_dims, TF_Status* status);
 void TF_OperationGetAttrShape_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)
@@ -1076,8 +1053,6 @@ void TF_OperationGetAttrTensorShapeProtoList_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name, TF_Tensor** value, TF_Status* status);
 void TF_OperationGetAttrTensor_(MEX_ARGS) {
-  NOT_TESTED
-
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
   char* attr_name = mxArrayToString(prhs[1]);
   if(!attr_name)

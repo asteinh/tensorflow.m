@@ -4,6 +4,8 @@ function test_suite = test_Tensor()
 
 % testing constructors of Tensor
 function test_constructors()
+  t0 = tensorflow.Tensor();
+
   % case: Tensor from data
   t1 = tensorflow.Tensor(rand(randi([2 6], [1 5])));
 
@@ -15,6 +17,8 @@ function test_constructors()
 
   % case: Tensor from dtype and dims
   t3 = tensorflow.Tensor('TF_DOUBLE', [6 4]);
+
+  assertExceptionThrown(@() tensorflow.Tensor('foo', 'bar', 'miss'), 'tensorflow:Tensor:InputArguments');
 
 % testing utility functions
 function test_utilities()
@@ -34,3 +38,11 @@ function test_utilities()
   vals_ = typecast(buf.data(), 'int16'); % have to cast manually
   vals_ = permute(reshape(vals_, fliplr(size(vals))), [numel(size(vals)):-1:1]); % have to transform to column-major manually
   assertEqual(vals, vals_);
+
+  % check string
+  str = 'teststr';
+  t2 = tensorflow.Tensor(str);
+  ret_str = t2.value();
+  % disp(str)
+  % disp(t2.value())
+  % assertEqual(t2.value(), str);
