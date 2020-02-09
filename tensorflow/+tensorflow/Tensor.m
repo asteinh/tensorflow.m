@@ -110,12 +110,12 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
     end
 
     % TF_CAPI_EXPORT extern void TF_TensorBitcastFrom(const TF_Tensor* from, TF_DataType type, TF_Tensor* to, const int64_t* new_dims, int num_new_dims, TF_Status* status);
-    function bitcastFrom(obj, varargin)
-      % Questionable feasibility due to the following property:
-      %   "On success, *status is set to TF_OK and the two tensors share the same data buffer."
-      % For the time being - not supported.
-      error('tensorflow:Tensor:bitcastFrom:NotImplemented', 'Not supported.');
-    end
+    %TODO
+    % function bitcastFrom(obj, varargin)
+    %   % Questionable feasibility due to the following property:
+    %   %   "On success, *status is set to TF_OK and the two tensors share the same data buffer."
+    %   % For the time being - not supported.
+    % end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -130,7 +130,7 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
       if nargin == 1
         % read data
         data = tensorflow_m_('TFM_GetTensorData', obj.ref);
-        if strcmp(obj.type, 'TF_STRING')
+        if obj.type == 'TF_STRING'
           data = char(data);
         else
           data = typecast(data, tensorflow.DataType.tf2m(obj.type()));
@@ -149,7 +149,7 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
       elseif nargin == 2 && nargout == 0
         % write data
         varargout = {};
-        if strcmp(obj.type, 'TF_STRING')
+        if obj.type == 'TF_STRING'
           data = uint8(varargin{1});
         else
           data_cm = varargin{1};
