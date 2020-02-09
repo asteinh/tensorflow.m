@@ -105,6 +105,9 @@ classdef Graph < util.mixin.Pointer & tensorflow.Ops
 
     % TF_CAPI_EXPORT void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx, TF_Output* dx, TF_Status* status, TF_Output* dy);
     function dy = addGradients(obj, y, x)
+      %TODO bug for numel(x) > 1
+      assert(numel(x) == 1, 'addGradients currently only supports one denominating variable.');
+
       assert(isa(x, 'tensorflow.Output') && isa(y, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
       ref = tensorflow_m_('TF_AddGradients', obj.ref, [y.ref], int32(numel(y)), [x.ref], int32(numel(x)), [], obj.status.ref);
       obj.status.maybe_raise();

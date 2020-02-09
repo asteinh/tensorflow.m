@@ -36,9 +36,14 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
           return;
         else
           dtype = tensorflow.DataType(tensorflow.DataType.m2tf(class(data))); % retrieve datatype from data
-          dims = size(data); % data dimensions
-          if dims(end) == 1
-            dims(end) = [];
+          if isscalar(data)
+            dims = [];
+          else
+            dims = size(data); % data dimensions
+            if dims(end) == 1
+              % strip meaningless last dimensions
+              dims(end) = [];
+            end
           end
           ref = tensorflow_m_('TF_AllocateTensor', int32(dtype), int64(dims), int32(numel(dims)));
           obj.set_reference_(ref, true);
@@ -136,7 +141,7 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
           data = typecast(data, tensorflow.DataType.tf2m(obj.type()));
           % permute to obtain column-major representation
           dims = obj.getDimensions();
-          if ~isscalar(dims)
+          if numel(dims) > 1
             data = permute(reshape(data, fliplr(dims)), [numel(dims):-1:1]);
           end
         end

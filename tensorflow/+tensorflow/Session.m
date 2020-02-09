@@ -54,11 +54,12 @@ classdef Session < util.mixin.Pointer
       end
       assert(numel(outputs) > 0 && isa(outputs, 'tensorflow.Output'), 'Provided outputs must be non-empty and of class tensorflow.Output.');
 
-      % TODO additional arguments are not supported yet; consider this pseudo code
       target_opers = [];
       if nargin > 4
         assert(isa(target_opers, 'tensorflow.Operation'), 'Provided target operations must be of class tensorflow.Operation.');
       end
+
+      % TODO additional arguments are not supported yet; consider this pseudo code
       run_options = [];
       if nargin > 5
         assert(isa(run_options, 'tensorflow.Buffer'), 'Provided run options must be of class tensorflow.Buffer.');
