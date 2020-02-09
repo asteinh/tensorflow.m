@@ -92,9 +92,7 @@ classdef Session < util.mixin.Pointer
                       inputs_ref, input_values_ref, int32(ninputs), ...
                       outputs_ref, int32(noutputs), ...
                       target_opers_ref, ntargets, run_metadata, obj.status.ref);
-
       obj.status.maybe_raise();
-
       res = tensorflow.Tensor(refs, true);
     end
 

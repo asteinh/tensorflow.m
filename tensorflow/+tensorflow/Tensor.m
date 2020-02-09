@@ -136,7 +136,9 @@ classdef Tensor < util.mixin.Pointer & util.mixin.Vectorize
           data = typecast(data, tensorflow.DataType.tf2m(obj.type()));
           % permute to obtain column-major representation
           dims = obj.getDimensions();
-          data = permute(reshape(data, fliplr(dims)), [numel(dims):-1:1]);
+          if ~isscalar(dims)
+            data = permute(reshape(data, fliplr(dims)), [numel(dims):-1:1]);
+          end
         end
 
         if nargout == 1

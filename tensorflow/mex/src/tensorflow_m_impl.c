@@ -405,6 +405,7 @@ void TF_SetAttrStringList_(MEX_ARGS) {
     mxFree(values[i]);
   mxFree(values);
   mxFree(lengths);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name, int64_t value);
@@ -806,6 +807,7 @@ void TF_OperationGetAttrString_(MEX_ARGS) {
     plhs[0] = mxCreateString(value);
     mxFree(value);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrStringList(TF_Operation* oper, const char* attr_name, void** values, size_t* lengths, int max_values, void* storage, size_t storage_size, TF_Status* status);
@@ -840,6 +842,7 @@ void TF_OperationGetAttrStringList_(MEX_ARGS) {
     mxFree(lengths);
     mxFree(storage);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrInt(TF_Operation* oper, const char* attr_name, int64_t* value, TF_Status* status);
@@ -860,6 +863,7 @@ void TF_OperationGetAttrInt_(MEX_ARGS) {
   plhs[0] = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
   memcpy(mxGetData(plhs[0]), value, sizeof(int64_t));
   mxFree(value);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrIntList(TF_Operation* oper, const char* attr_name, int64_t* values, int max_values, TF_Status* status);
@@ -885,6 +889,7 @@ void TF_OperationGetAttrIntList_(MEX_ARGS) {
     memcpy(mxGetData(plhs[0]), values, max_values*sizeof(int64_t));
     mxFree(values);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloat(TF_Operation* oper, const char* attr_name, float* value, TF_Status* status);
@@ -905,6 +910,7 @@ void TF_OperationGetAttrFloat_(MEX_ARGS) {
   plhs[0] = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
   memcpy(mxGetData(plhs[0]), value, sizeof(float));
   mxFree(value);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrFloatList(TF_Operation* oper, const char* attr_name, float* values, int max_values, TF_Status* status);
@@ -930,6 +936,7 @@ void TF_OperationGetAttrFloatList_(MEX_ARGS) {
     memcpy(mxGetData(plhs[0]), values, max_values*sizeof(float));
     mxFree(values);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrBool(TF_Operation* oper, const char* attr_name, unsigned char* value, TF_Status* status);
@@ -950,6 +957,7 @@ void TF_OperationGetAttrBool_(MEX_ARGS) {
   plhs[0] = mxCreateNumericMatrix(1, 1, mxLOGICAL_CLASS, mxREAL);
   memcpy(mxGetData(plhs[0]), value, sizeof(unsigned char));
   mxFree(value);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrBoolList(TF_Operation* oper, const char* attr_name, unsigned char* values, int max_values, TF_Status* status);
@@ -975,6 +983,7 @@ void TF_OperationGetAttrBoolList_(MEX_ARGS) {
     memcpy(mxGetData(plhs[0]), values, max_values*sizeof(unsigned char));
     mxFree(values);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrType(TF_Operation* oper, const char* attr_name, TF_DataType* value, TF_Status* status);
@@ -995,6 +1004,7 @@ void TF_OperationGetAttrType_(MEX_ARGS) {
   plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT32_CLASS, mxREAL);
   memcpy(mxGetData(plhs[0]), value, sizeof(TF_DataType));
   mxFree(value);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTypeList(TF_Operation* oper, const char* attr_name, TF_DataType* values, int max_values, TF_Status* status);
@@ -1018,6 +1028,7 @@ void TF_OperationGetAttrTypeList_(MEX_ARGS) {
     memcpy(mxGetData(plhs[0]), values, max_values*sizeof(TF_DataType));
     mxFree(values);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name, int64_t* value, int num_dims, TF_Status* status);
@@ -1043,6 +1054,7 @@ void TF_OperationGetAttrShape_(MEX_ARGS) {
     memcpy(mxGetData(plhs[0]), values, num_dims*sizeof(int64_t));
     mxFree(values);
   }
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name, int64_t** dims, int* num_dims, int num_shapes, int64_t* storage, int storage_size, TF_Status* status);
@@ -1079,6 +1091,7 @@ void TF_OperationGetAttrTensor_(MEX_ARGS) {
 
   plhs[0] = ptr2arr((void*) *value);
   mxFree(value);
+  mxFree(attr_name);
 }
 
 // TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name, TF_Tensor** values, int max_values, TF_Status* status);
@@ -1293,6 +1306,53 @@ void TF_FinishWhile_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT extern void TF_AbortWhile(const TF_WhileParams* params);
 void TF_AbortWhile_(MEX_ARGS) {
+  NOT_IMPLEMENTED
+}
+
+// TF_CAPI_EXPORT void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx, TF_Output* dx, TF_Status* status, TF_Output* dy);
+void TF_AddGradients_(MEX_ARGS) {
+  NOT_TESTED;
+
+  TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[0]);
+
+  uint64_t* y_ref = (uint64_t*) mxGetData(prhs[1]);
+  int ny = *(int*) mxGetData(prhs[2]);
+  TF_Output* y = (TF_Output*) mxCalloc(ny, sizeof(TF_Output));
+  if(!y)
+    mexErrMsgTxt("Allocation of memory for y failed.\n");
+  for(int i = 0; i < ny; i++)
+    y[i] = *((TF_Output*) y_ref[i]);
+
+  uint64_t* x_ref = (uint64_t*) mxGetData(prhs[3]);
+  int nx = *(int*) mxGetData(prhs[4]);
+  TF_Output* x = (TF_Output*) mxCalloc(nx, sizeof(TF_Output));
+  if(!x)
+    mexErrMsgTxt("Allocation of memory for x failed.\n");
+  for(int i = 0; i < nx; i++)
+    x[i] = *((TF_Output*) x_ref[i]);
+
+  TF_Output* dx = NULL; // TODO
+  TF_Status* status = (TF_Status*) arr2ptr(prhs[6]);
+
+  TF_Output* dy = (TF_Output*) mxCalloc(nx, sizeof(TF_Output));
+  if(!dy)
+    mexErrMsgTxt("Allocation of memory for partial derivatives failed.\n");
+  mexMakeMemoryPersistent(dy);
+  mexLock();
+
+  TF_AddGradients(graph, y, ny, x, nx, dx, status, dy);
+
+  plhs[0] = mxCreateNumericMatrix(1, nx, mxUINT64_CLASS, mxREAL);
+  uint64_t* res = (uint64_t*) mxGetData(plhs[0]);
+  for(int i = 0; i < nx; i++)
+    res[i] = (uint64_t) &(dy[i]);
+
+  mxFree(y);
+  mxFree(x);
+}
+
+// TF_CAPI_EXPORT void TF_AddGradientsWithPrefix(TF_Graph* g, const char* prefix, TF_Output* y, int ny, TF_Output* x, int nx, TF_Output* dx, TF_Status* status, TF_Output* dy);
+void TF_AddGradientsWithPrefix_(MEX_ARGS) {
   NOT_IMPLEMENTED
 }
 
