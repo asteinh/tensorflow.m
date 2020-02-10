@@ -67,7 +67,8 @@ classdef LibHandler < util.mixin.Base
         if strcmp(fext, 'zip')
           unzip(dl_file, location);
         else
-          untar(dl_file, location);
+          [s,c] = system(['mkdir -p ' location ' && tar -xzf ' dl_file ' --directory ' location]);
+          assert(s==0, 'Untar failed, setup aborted. The command returned:\n%s', c)
         end
       end
     end
