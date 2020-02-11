@@ -201,16 +201,16 @@ classdef Operation < util.mixin.Pointer & util.mixin.Vectorize
     function tensor = getAttrTensor(obj, attr)
       obj.assert_attr_(attr);
       ref = tensorflow_m_('TF_OperationGetAttrTensor', obj.ref, attr(:)', obj.status.ref);
-      tensor = tensorflow.Tensor(ref, true);
       obj.status.maybe_raise();
+      tensor = tensorflow.Tensor(ref, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name, TF_Tensor** values, int max_values, TF_Status* status);
     function tensors = getAttrTensorList(obj, attr)
       obj.assert_attr_(attr);
       refs = tensorflow_m_('TF_OperationGetAttrTensorList', obj.ref, attr(:)', obj.status.ref);
-      tensors = tensorflow.Tensor(refs, true);
       obj.status.maybe_raise();
+      tensors = tensorflow.Tensor(refs, true);
     end
 
     % TF_CAPI_EXPORT extern void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name, TF_Buffer* output_attr_value, TF_Status* status);
