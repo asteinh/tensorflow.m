@@ -112,11 +112,13 @@ void TFM_DeleteOutput(MEX_ARGS) {
 
 void TFM_DeleteOperation(MEX_ARGS) {
   TF_Operation* oper = (TF_Operation*) arr2ptr(prhs[0]);
+  mxFree(oper);
   destroy(oper);
 }
 
 void TFM_DeleteOperationDescription(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
+  mxFree(desc);
   destroy(desc);
 }
 
@@ -211,15 +213,13 @@ void TFM_FileToBuffer(MEX_ARGS) {
 
   FILE* f = fopen(fname, "rb");
   mxFree(fname);
-  if(!f)
-    mexErrMsgTxt("Failed to open file.\n");
+  if(!f) mexErrMsgTxt("Failed to open file.\n");
 
   fseek(f, 0, SEEK_END);
   size_t length = (size_t) ftell(f);
   fseek(f, 0, SEEK_SET);
   void* data = mxCalloc(length, sizeof(uint8_t));
-  if(!data)
-    mexErrMsgTxt("Allocation of memory for file reading failed.\n");
+  if(!data) mexErrMsgTxt("Allocation of memory for file reading failed.\n");
 
   size_t n_read = fread(data, sizeof(uint8_t), length, f);
   fclose(f);
@@ -238,16 +238,15 @@ void TFM_BufferToFile(MEX_ARGS) {
   char* fname = mxArrayToString(prhs[1]);
   FILE* f = fopen(fname, "wb");
   mxFree(fname);
-  if(!f)
-    mexErrMsgTxt("Failed to open file.\n");
+  if(!f) mexErrMsgTxt("Failed to open file.\n");
 
   size_t n_write = fwrite(buffer->data, 1, buffer->length, f);
   fclose(f);
-  if(n_write != buffer->length)
-    mexErrMsgTxt("Failed to write the required number of bytes to file.\n");
+  if(n_write != buffer->length) mexErrMsgTxt("Failed to write the required number of bytes to file.\n");
 }
 
 void TFM_DeleteWhile(MEX_ARGS) {
   TF_WhileParams* params = (TF_WhileParams*) arr2ptr(prhs[0]);
+  mxFree(params);
   destroy(params);
 }
