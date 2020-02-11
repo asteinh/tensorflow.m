@@ -21,12 +21,14 @@ classdef OpGenerator < util.mixin.Base
   properties
     op_dir = [];
     id = '';
-    signatures = util.Typewriter;
+    signatures = [];
   end
 
   methods
     function obj = OpGenerator(op_dir)
       obj.op_dir = op_dir;
+      obj.signatures = util.Typewriter();
+      
       obj.setupDestination();
 
       disp('Parsing registered operations ...');
@@ -105,7 +107,7 @@ classdef OpGenerator < util.mixin.Base
       end
       tw.addEmptyLine();
 
-      tw < obj.gen_EXIT_();
+      tw < obj.gen_EXIT_(op);
 
       file = fullfile(obj.op_dir, [op.id '.m']);
       fid = fopen(file, 'w');
@@ -145,7 +147,7 @@ classdef OpGenerator < util.mixin.Base
             op.output_arg(i).name = [ op.output_arg(i).name '_' ]; % modify name if blacklisted
           end
         end
-        
+
         % fetch all attributes that are required by outputs
         output_attrs = unique({ op.output_arg(:).type_attr, ...
                                 op.output_arg(:).number_attr, ...
@@ -293,9 +295,13 @@ classdef OpGenerator < util.mixin.Base
       txt = tw.getText();
     end
 
-    function txt = gen_EXIT_(obj)
+    function txt = gen_EXIT_(obj, op)
       tw = util.Typewriter;
-      tw < '  out = tensorflow.Output(desc.finishOperation());';
+      if op.num.outputs > 0
+        tw < '  out = tensorflow.Output(desc.finishOperation());';
+      else
+        tw < '  out = desc.finishOperation();';
+      end
       tw < 'end' ;
 
       txt = tw.getText();

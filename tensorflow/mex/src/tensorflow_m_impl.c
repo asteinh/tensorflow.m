@@ -1433,30 +1433,37 @@ void TF_SessionRun_(MEX_ARGS) {
   uint64_t* outputs_ref = (uint64_t*) mxGetData(prhs[5]);
   int noutputs = *(int*) mxGetData(prhs[6]);
   TF_Output* outputs = (TF_Output*) mxCalloc(noutputs, sizeof(TF_Output));
-  if(!outputs)
-    mexErrMsgTxt("Allocation of memory for outputs failed.\n");
-
   TF_Tensor** output_values = (TF_Tensor**) mxCalloc(noutputs, sizeof(TF_Tensor*));
-  if(!output_values)
-    mexErrMsgTxt("Allocation of memory for output values failed.\n");
-
-  for(int i = 0; i < noutputs; i++) {
-    outputs[i] = *((TF_Output*) outputs_ref[i]);
-    output_values[i] = NULL;
+  if(noutputs > 0) {
+    if(!outputs)
+      mexErrMsgTxt("Allocation of memory for outputs failed.\n");
+    if(!output_values)
+      mexErrMsgTxt("Allocation of memory for output values failed.\n");
+    for(int i = 0; i < noutputs; i++) {
+      outputs[i] = *((TF_Output*) outputs_ref[i]);
+      output_values[i] = NULL;
+    }
   }
 
   // prepare targets
-  const TF_Operation* target_opers = NULL;
-  if(!mxIsEmpty(prhs[7]))
-    target_opers = (TF_Operation*) arr2ptr(prhs[7]);
+  uint64_t* target_refs = (uint64_t*) mxGetData(prhs[7]);
   int ntargets = *(int*) mxGetData(prhs[8]);
+  TF_Operation** target_opers = (TF_Operation**) mxCalloc(ntargets, sizeof(TF_Operation*));
+  if(ntargets > 0 && !target_opers)
+    mexErrMsgTxt("Allocation of memory for target operations failed.\n");
+  for(int i = 0; i < ntargets; i++)
+    target_opers[i] = (TF_Operation*) target_refs[i];
+
   TF_Buffer* run_metadata = NULL;
   if(!mxIsEmpty(prhs[9]))
     run_metadata = (TF_Buffer*) arr2ptr(prhs[9]);
+
   TF_Status* status = (TF_Status*) arr2ptr(prhs[10]);
 
-  TF_SessionRun(session, run_options, inputs, input_values, ninputs,
-                outputs, output_values, noutputs, &target_opers, ntargets,
+  TF_SessionRun(session, run_options,
+                inputs, input_values, ninputs,
+                outputs, output_values, noutputs,
+                (const TF_Operation* const*) target_opers, ntargets,
                 run_metadata, status);
 
   plhs[0] = mxCreateNumericMatrix(1, noutputs, mxUINT64_CLASS, mxREAL);

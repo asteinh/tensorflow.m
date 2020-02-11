@@ -68,7 +68,7 @@ void free_buffer(void* data, size_t length) {
 void TFM_Info(MEX_ARGS) {
   mexPrintf("MEX information:\n");
   mexPrintf("\tMEX locked: %s\n", mexIsLocked() ? "true" : "false");
-  mexPrintf("\tRunning on TensorFlow v%s.\n", TF_Version());
+  mexPrintf("\tRunning on TensorFlow v%s\n", TF_Version());
   mexPrintf("\tBuild date: %s @ %s\n", __DATE__, __TIME__);
 }
 
