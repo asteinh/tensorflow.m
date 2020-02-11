@@ -1,7 +1,7 @@
 /*
  * This file is part of tensorflow.m
  *
- * Copyright 2019 Armin Steinhauser
+ * Copyright 2019-2020 Armin Steinhauser
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -315,7 +315,7 @@ void TF_NewOperation_(MEX_ARGS) {
   // no ownership of operation description, therefore avoiding ptr2arr
   plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
   *((uint64_t*) mxGetData(plhs[0])) = (uint64_t) desc;
-  
+
   mxFree(op_type);
   mxFree(oper_name);
 }
