@@ -1417,16 +1417,14 @@ void TF_SessionRun_(MEX_ARGS) {
   uint64_t* input_values_ref = (uint64_t*) mxGetData(prhs[3]);
   int ninputs = *(int*) mxGetData(prhs[4]);
   TF_Output* inputs = (TF_Output*) mxCalloc(ninputs, sizeof(TF_Output));
-  if(ninputs > 0 && !inputs)
-    mexErrMsgTxt("Allocation of memory for inputs failed.\n");
-
   TF_Tensor** input_values = (TF_Tensor**) mxCalloc(ninputs, sizeof(TF_Tensor*));
-  if(ninputs > 0 && !input_values)
-    mexErrMsgTxt("Allocation of memory for input values failed.\n");
-
-  for(int i = 0; i < ninputs; i++) {
-    inputs[i] = *((TF_Output*) inputs_ref[i]);
-    input_values[i] = (TF_Tensor*) input_values_ref[i];
+  if(ninputs > 0) {
+    if(!inputs) mexErrMsgTxt("Allocation of memory for inputs failed.\n");
+    if(!input_values) mexErrMsgTxt("Allocation of memory for input values failed.\n");
+    for(int i = 0; i < ninputs; i++) {
+      inputs[i] = *((TF_Output*) inputs_ref[i]);
+      input_values[i] = (TF_Tensor*) input_values_ref[i];
+    }
   }
 
   // prepare outputs
@@ -1435,10 +1433,8 @@ void TF_SessionRun_(MEX_ARGS) {
   TF_Output* outputs = (TF_Output*) mxCalloc(noutputs, sizeof(TF_Output));
   TF_Tensor** output_values = (TF_Tensor**) mxCalloc(noutputs, sizeof(TF_Tensor*));
   if(noutputs > 0) {
-    if(!outputs)
-      mexErrMsgTxt("Allocation of memory for outputs failed.\n");
-    if(!output_values)
-      mexErrMsgTxt("Allocation of memory for output values failed.\n");
+    if(!outputs) mexErrMsgTxt("Allocation of memory for outputs failed.\n");
+    if(!output_values) mexErrMsgTxt("Allocation of memory for output values failed.\n");
     for(int i = 0; i < noutputs; i++) {
       outputs[i] = *((TF_Output*) outputs_ref[i]);
       output_values[i] = NULL;
@@ -1449,8 +1445,7 @@ void TF_SessionRun_(MEX_ARGS) {
   uint64_t* target_refs = (uint64_t*) mxGetData(prhs[7]);
   int ntargets = *(int*) mxGetData(prhs[8]);
   TF_Operation** target_opers = (TF_Operation**) mxCalloc(ntargets, sizeof(TF_Operation*));
-  if(ntargets > 0 && !target_opers)
-    mexErrMsgTxt("Allocation of memory for target operations failed.\n");
+  if(ntargets > 0 && !target_opers) mexErrMsgTxt("Allocation of memory for target operations failed.\n");
   for(int i = 0; i < ntargets; i++)
     target_opers[i] = (TF_Operation*) target_refs[i];
 
@@ -1476,6 +1471,7 @@ void TF_SessionRun_(MEX_ARGS) {
   mxFree(input_values);
   mxFree(outputs);
   mxFree(output_values);
+  mxFree(target_opers);
 }
 
 // TF_CAPI_EXPORT extern void TF_SessionPRunSetup(TF_Session*, const TF_Output* inputs, int ninputs, const TF_Output* outputs, int noutputs, const TF_Operation* const* target_opers, int ntargets, const char** handle, TF_Status*);
