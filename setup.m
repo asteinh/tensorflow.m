@@ -45,6 +45,7 @@ function setup()
 
   % 4) build MEX
   disp('Building MEX interface ...');
+  warning('off', 'MATLAB:mex:GccVersion_link');
   util.bob.BuildEnvironment(pkg_dir, LIBTENSORFLOW);
 
   % 5) generate OPs
