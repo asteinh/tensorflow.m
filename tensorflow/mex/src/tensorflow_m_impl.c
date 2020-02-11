@@ -1294,8 +1294,6 @@ void TF_AbortWhile_(MEX_ARGS) {
 
 // TF_CAPI_EXPORT void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx, TF_Output* dx, TF_Status* status, TF_Output* dy);
 void TF_AddGradients_(MEX_ARGS) {
-  NOT_TESTED;
-
   TF_Graph* graph = (TF_Graph*) arr2ptr(prhs[0]);
 
   uint64_t* y_ref = (uint64_t*) mxGetData(prhs[1]);
