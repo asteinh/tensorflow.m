@@ -25,13 +25,9 @@ classdef Enumeration < handle
       end
     end
     function val = char(obj)
-      if numel(obj) > 1
-        val = cell(size(obj));
-        for i = 1:1:numel(obj)
-          val{i} = obj(i).value_{1};
-        end
-      else
-        val = obj.value_{1};
+      val = cell(size(obj));
+      for i = 1:1:numel(obj)
+        val{i} = obj(i).value_{1};
       end
     end
 

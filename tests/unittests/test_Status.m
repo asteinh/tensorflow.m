@@ -9,6 +9,7 @@ function test_suite = test_Status()
     s.setStatus(c, msg);
     assertEqual(s.getCode, c);
     assertEqual(s.message, msg);
-    assertExceptionThrown(@() s.maybe_raise(), ['tensorflow:Status:' char(c)]);
+    str = char(c);
+    assertExceptionThrown(@() s.maybe_raise(), ['tensorflow:Status:' str{1}]);
 
     s.deleteStatus();

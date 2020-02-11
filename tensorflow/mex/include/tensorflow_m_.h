@@ -1,7 +1,7 @@
 /*
  * This file is part of tensorflow.m
  *
- * Copyright 2019 Armin Steinhauser
+ * Copyright 2019-2020 Armin Steinhauser
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,6 +187,8 @@ void TF_OperationToNodeDef_(MEX_ARGS);
 void TF_NewWhile_(MEX_ARGS);
 void TF_FinishWhile_(MEX_ARGS);
 void TF_AbortWhile_(MEX_ARGS);
+void TF_AddGradients_(MEX_ARGS);
+void TF_AddGradientsWithPrefix_(MEX_ARGS);
 void TF_GraphToFunction_(MEX_ARGS);
 void TF_FunctionName_(MEX_ARGS);
 void TF_FunctionToFunctionDef_(MEX_ARGS);
@@ -388,6 +390,8 @@ static command_handle handles[] = {
   { "TF_NewWhile", TF_NewWhile_ },
   { "TF_FinishWhile", TF_FinishWhile_ },
   { "TF_AbortWhile", TF_AbortWhile_ },
+  { "TF_AddGradients", TF_AddGradients_ },
+  { "TF_AddGradientsWithPrefix", TF_AddGradientsWithPrefix_ },
   { "TF_GraphToFunction", TF_GraphToFunction_ },
   { "TF_FunctionName", TF_FunctionName_ },
   { "TF_FunctionToFunctionDef", TF_FunctionToFunctionDef_ },

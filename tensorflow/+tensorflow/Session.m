@@ -52,13 +52,17 @@ classdef Session < util.mixin.Pointer
         assert(isa(inputs, 'tensorflow.Output'), 'Provided inputs must be of class tensorflow.Output.');
         assert(isa(input_values, 'tensorflow.Tensor'), 'Provided input values must be of class tensorflow.Tensor.');
       end
-      assert(numel(outputs) > 0 && isa(outputs, 'tensorflow.Output'), 'Provided outputs must be non-empty and of class tensorflow.Output.');
+      if numel(outputs) > 0
+        assert(isa(outputs, 'tensorflow.Output'), 'Provided outputs must be of class tensorflow.Output.');
+      end
 
-      % TODO additional arguments are not supported yet; consider this pseudo code
-      target_opers = [];
       if nargin > 4
         assert(isa(target_opers, 'tensorflow.Operation'), 'Provided target operations must be of class tensorflow.Operation.');
+      else
+        target_opers = [];
       end
+
+      % TODO additional arguments are not supported yet; consider this pseudo code
       run_options = [];
       if nargin > 5
         assert(isa(run_options, 'tensorflow.Buffer'), 'Provided run options must be of class tensorflow.Buffer.');
@@ -92,11 +96,14 @@ classdef Session < util.mixin.Pointer
       refs = tensorflow_m_('TF_SessionRun', obj.ref, run_options, ...
                       inputs_ref, input_values_ref, int32(ninputs), ...
                       outputs_ref, int32(noutputs), ...
-                      target_opers_ref, ntargets, run_metadata, obj.status.ref);
-
+                      target_opers_ref, int32(ntargets), ...
+                      run_metadata, obj.status.ref);
       obj.status.maybe_raise();
-
-      res = tensorflow.Tensor(refs, true);
+      if ~isempty(refs)
+        res = tensorflow.Tensor(refs, true);
+      else
+        res = [];
+      end
     end
 
     % TF_CAPI_EXPORT extern void TF_SessionPRunSetup(TF_Session*, const TF_Output* inputs, int ninputs, const TF_Output* outputs, int noutputs, const TF_Operation* const* target_opers, int ntargets, const char** handle, TF_Status*);
