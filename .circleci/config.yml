@@ -36,17 +36,7 @@ jobs:
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
-          exit $?
-      - codecov/upload:
-          file: tests/results/coverage.xml
-          flags: unittests
-      - store_artifacts:
-          path: tests/results
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/*
+          octave --eval "s = run_unittests(); exit(s)"
   octave5:
     docker:
       - image: asteinh/docker:amd64-debian-octave5
@@ -57,8 +47,20 @@ jobs:
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave --eval "s = run_unittests(); exit(s)"
-          exit $?
+          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
+  codecov:
+    docker:
+      - image: asteinh/docker:amd64-debian-octave5
+    steps:
+      - attach_workspace:
+          at: ~/
+      - codecov/upload:
+          file: tests/results/coverage.xml
+          flags: unittests
   sphinx:
     docker:
       - image: asteinh/docker:sphinx
@@ -103,10 +105,14 @@ workflows:
           <<: *no-pages
           requires:
             - prepare-dependencies
+      - codecov:
+          <<: *no-pages
+          requires:
+            - octave5
       - sphinx:
           <<: *no-pages
           requires:
-            - octave4
+            - octave5
       - pages:
           <<: *no-pages
           requires:
