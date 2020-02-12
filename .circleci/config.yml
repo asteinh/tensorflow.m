@@ -86,7 +86,7 @@ jobs:
           git config user.email "ci-build@tensorflowm"
           git config user.name "ci-build"
       - run: |
-          ssh -o "StrictHostKeyChecking no" github.com | true
+          ssh -o "StrictHostKeyChecking no" github.com || true
           touch docs/build/html/.nojekyll
           gh-pages --dotfiles --message "Update pages" --dist docs/build/html
 
