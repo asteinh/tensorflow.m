@@ -82,10 +82,13 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: |
-            npm install -g --silent gh-pages@2.2.0
-            git config user.email "ci-build@tensorflowm"
-            git config user.name "ci-build"
-      - run: gh-pages --message "Update pages" --dist docs/build/html
+          npm install -g --silent gh-pages@2.2.0
+          git config user.email "ci-build@tensorflowm"
+          git config user.name "ci-build"
+      - run: |
+          ssh -o "StrictHostKeyChecking no" github.com
+          touch docs/build/html/.nojekyll
+          gh-pages --dotfiles --message "Update pages" --dist docs/build/html
 
 workflows:
   version: 2
