@@ -98,22 +98,19 @@ workflows:
     jobs:
       - prepare-dependencies: *no-pages
       - octave4:
-          <<: *no-pages
           requires:
             - prepare-dependencies
       - octave5:
-          <<: *no-pages
           requires:
             - prepare-dependencies
       - codecov:
-          <<: *no-pages
+          <<: *only-master
           requires:
             - octave5
       - sphinx:
-          <<: *no-pages
           requires:
             - octave5
       - pages:
-          <<: *no-pages
+          <<: *only-master
           requires:
             - sphinx
