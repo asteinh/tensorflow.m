@@ -67,8 +67,9 @@ jobs:
           at: ~/
       - run: cd docs/ && make html
       - persist_to_workspace:
-          root: docs/build
-          paths: html
+          root: ~/
+          paths:
+            - project/*
       - store_artifacts:
           path: docs/build
   pages:
@@ -79,7 +80,7 @@ jobs:
           fingerprints:
             - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
       - attach_workspace:
-          at: docs/build
+          at: ~/
       - run: |
             npm install -g --silent gh-pages@2.2.0
             git config user.email "ci-build@tensorflowm"
