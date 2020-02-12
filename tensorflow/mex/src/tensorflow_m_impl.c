@@ -1,7 +1,7 @@
 /*
  * This file is part of tensorflow.m
  *
- * Copyright 2019 Armin Steinhauser
+ * Copyright 2019-2020 Armin Steinhauser
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,12 +173,14 @@ void TF_TensorByteSize_(MEX_ARGS) {
 void TF_TensorData_(MEX_ARGS) {
   TF_Tensor* tensor = (TF_Tensor*) arr2ptr(prhs[0]);
 
-  // a simple wrapper; NOT owning the data, but referring to it
+  // a simple wrapper; not owning the data, but referring to it
   TF_Buffer* buffer = TF_NewBuffer();
   buffer->data = TF_TensorData(tensor);
   buffer->length = TF_TensorByteSize(tensor);
   buffer->data_deallocator = NULL;
-  plhs[0] = ptr2arr((void*) buffer);
+  // no ownership of buffer, therefore avoiding ptr2arr
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+  *((uint64_t*) mxGetData(plhs[0])) = (uint64_t) buffer;
 }
 
 // TF_CAPI_EXPORT extern int64_t TF_TensorElementCount(const TF_Tensor* tensor);
@@ -309,7 +311,11 @@ void TF_NewOperation_(MEX_ARGS) {
     mexErrMsgTxt("Could not transform given argument to string.\n");
 
   TF_OperationDescription* desc = TF_NewOperation(graph, op_type, oper_name);
-  plhs[0] = ptr2arr((void*) desc);
+
+  // no ownership of operation description, therefore avoiding ptr2arr
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+  *((uint64_t*) mxGetData(plhs[0])) = (uint64_t) desc;
+
   mxFree(op_type);
   mxFree(oper_name);
 }
@@ -628,7 +634,9 @@ void TF_FinishOperation_(MEX_ARGS) {
   TF_OperationDescription* desc = (TF_OperationDescription*) arr2ptr(prhs[0]);
   TF_Status* status = (TF_Status*) arr2ptr(prhs[1]);
   TF_Operation* oper = TF_FinishOperation(desc, status);
-  plhs[0] = ptr2arr((void*) oper);
+  // no ownership of operation, therefore avoiding ptr2arr
+  plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+  *((uint64_t*) mxGetData(plhs[0])) = (uint64_t) oper;
 }
 
 // TF_CAPI_EXPORT extern const char* TF_OperationName(TF_Operation* oper);
@@ -1293,16 +1301,14 @@ void TF_AddGradients_(MEX_ARGS) {
   uint64_t* y_ref = (uint64_t*) mxGetData(prhs[1]);
   int ny = *(int*) mxGetData(prhs[2]);
   TF_Output* y = (TF_Output*) mxCalloc(ny, sizeof(TF_Output));
-  if(!y)
-    mexErrMsgTxt("Allocation of memory for y failed.\n");
+  if(!y) mexErrMsgTxt("Allocation of memory for y failed.\n");
   for(int i = 0; i < ny; i++)
     y[i] = *((TF_Output*) y_ref[i]);
 
   uint64_t* x_ref = (uint64_t*) mxGetData(prhs[3]);
   int nx = *(int*) mxGetData(prhs[4]);
   TF_Output* x = (TF_Output*) mxCalloc(nx, sizeof(TF_Output));
-  if(!x)
-    mexErrMsgTxt("Allocation of memory for x failed.\n");
+  if(!x) mexErrMsgTxt("Allocation of memory for x failed.\n");
   for(int i = 0; i < nx; i++)
     x[i] = *((TF_Output*) x_ref[i]);
 
@@ -1310,17 +1316,17 @@ void TF_AddGradients_(MEX_ARGS) {
   TF_Status* status = (TF_Status*) arr2ptr(prhs[6]);
 
   TF_Output* dy = (TF_Output*) mxCalloc(nx, sizeof(TF_Output));
-  if(!dy)
-    mexErrMsgTxt("Allocation of memory for partial derivatives failed.\n");
+  if(!dy) mexErrMsgTxt("Allocation of memory for partial derivatives failed.\n");
   mexMakeMemoryPersistent(dy);
-  mexLock();
 
   TF_AddGradients(graph, y, ny, x, nx, dx, status, dy);
 
   plhs[0] = mxCreateNumericMatrix(1, nx, mxUINT64_CLASS, mxREAL);
   uint64_t* res = (uint64_t*) mxGetData(plhs[0]);
-  for(int i = 0; i < nx; i++)
+  for(int i = 0; i < nx; i++) {
     res[i] = (uint64_t) &(dy[i]);
+    mexLock();
+  }
 
   mxFree(y);
   mxFree(x);
@@ -1417,58 +1423,63 @@ void TF_SessionRun_(MEX_ARGS) {
   uint64_t* input_values_ref = (uint64_t*) mxGetData(prhs[3]);
   int ninputs = *(int*) mxGetData(prhs[4]);
   TF_Output* inputs = (TF_Output*) mxCalloc(ninputs, sizeof(TF_Output));
-  if(ninputs > 0 && !inputs)
-    mexErrMsgTxt("Allocation of memory for inputs failed.\n");
-
   TF_Tensor** input_values = (TF_Tensor**) mxCalloc(ninputs, sizeof(TF_Tensor*));
-  if(ninputs > 0 && !input_values)
-    mexErrMsgTxt("Allocation of memory for input values failed.\n");
-
-  for(int i = 0; i < ninputs; i++) {
-    inputs[i] = *((TF_Output*) inputs_ref[i]);
-    input_values[i] = (TF_Tensor*) input_values_ref[i];
+  if(ninputs > 0) {
+    if(!inputs) mexErrMsgTxt("Allocation of memory for inputs failed.\n");
+    if(!input_values) mexErrMsgTxt("Allocation of memory for input values failed.\n");
+    for(int i = 0; i < ninputs; i++) {
+      inputs[i] = *((TF_Output*) inputs_ref[i]);
+      input_values[i] = (TF_Tensor*) input_values_ref[i];
+    }
   }
 
   // prepare outputs
   uint64_t* outputs_ref = (uint64_t*) mxGetData(prhs[5]);
   int noutputs = *(int*) mxGetData(prhs[6]);
   TF_Output* outputs = (TF_Output*) mxCalloc(noutputs, sizeof(TF_Output));
-  if(!outputs)
-    mexErrMsgTxt("Allocation of memory for outputs failed.\n");
-
   TF_Tensor** output_values = (TF_Tensor**) mxCalloc(noutputs, sizeof(TF_Tensor*));
-  if(!output_values)
-    mexErrMsgTxt("Allocation of memory for output values failed.\n");
-
-  for(int i = 0; i < noutputs; i++) {
-    outputs[i] = *((TF_Output*) outputs_ref[i]);
-    output_values[i] = NULL;
+  if(noutputs > 0) {
+    if(!outputs) mexErrMsgTxt("Allocation of memory for outputs failed.\n");
+    if(!output_values) mexErrMsgTxt("Allocation of memory for output values failed.\n");
+    for(int i = 0; i < noutputs; i++) {
+      outputs[i] = *((TF_Output*) outputs_ref[i]);
+      output_values[i] = NULL;
+    }
   }
 
   // prepare targets
-  const TF_Operation* target_opers = NULL;
-  if(!mxIsEmpty(prhs[7]))
-    target_opers = (TF_Operation*) arr2ptr(prhs[7]);
+  uint64_t* target_refs = (uint64_t*) mxGetData(prhs[7]);
   int ntargets = *(int*) mxGetData(prhs[8]);
+  TF_Operation** target_opers = (TF_Operation**) mxCalloc(ntargets, sizeof(TF_Operation*));
+  if(ntargets > 0 && !target_opers) mexErrMsgTxt("Allocation of memory for target operations failed.\n");
+  for(int i = 0; i < ntargets; i++)
+    target_opers[i] = (TF_Operation*) target_refs[i];
+
   TF_Buffer* run_metadata = NULL;
   if(!mxIsEmpty(prhs[9]))
     run_metadata = (TF_Buffer*) arr2ptr(prhs[9]);
+
   TF_Status* status = (TF_Status*) arr2ptr(prhs[10]);
 
-  TF_SessionRun(session, run_options, inputs, input_values, ninputs,
-                outputs, output_values, noutputs, &target_opers, ntargets,
+  TF_SessionRun(session, run_options,
+                inputs, input_values, ninputs,
+                outputs, output_values, noutputs,
+                (const TF_Operation* const*) target_opers, ntargets,
                 run_metadata, status);
 
   plhs[0] = mxCreateNumericMatrix(1, noutputs, mxUINT64_CLASS, mxREAL);
   uint64_t* y = (uint64_t*) mxGetData(plhs[0]);
-  for(int i = 0; i < noutputs; i++)
+  for(int i = 0; i < noutputs; i++) {
     y[i] = (uint64_t) (output_values[i]);
+    mexLock(); // lock once for every allocated TF_Output
+  }
 
   // cleanup
   mxFree(inputs);
   mxFree(input_values);
   mxFree(outputs);
   mxFree(output_values);
+  mxFree(target_opers);
 }
 
 // TF_CAPI_EXPORT extern void TF_SessionPRunSetup(TF_Session*, const TF_Output* inputs, int ninputs, const TF_Output* outputs, int noutputs, const TF_Operation* const* target_opers, int ntargets, const char** handle, TF_Status*);

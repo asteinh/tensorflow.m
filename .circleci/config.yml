@@ -26,7 +26,8 @@ jobs:
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave --eval "run_unittests -with_coverage"
+          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
+          exit $?
       - codecov/upload:
           file: tests/results/coverage.xml
           flags: unittests
@@ -46,7 +47,8 @@ jobs:
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave --eval "run_unittests"
+          octave --eval "s = run_unittests(); exit(s)"
+          exit $?
 
 workflows:
   version: 2

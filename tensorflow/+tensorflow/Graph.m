@@ -9,7 +9,8 @@ classdef Graph < util.mixin.Pointer & tensorflow.Ops
   methods
     % TF_CAPI_EXPORT extern TF_Graph* TF_NewGraph(void);
     function obj = Graph()
-      obj.set_reference_(tensorflow_m_('TF_NewGraph'), true);
+      ref = tensorflow_m_('TF_NewGraph');
+      obj.set_reference_(ref, true);
       obj.status = tensorflow.Status();
     end
 
