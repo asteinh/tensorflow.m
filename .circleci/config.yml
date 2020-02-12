@@ -62,14 +62,15 @@ jobs:
   docs:
     docker:
       - image: asteinh/docker:sphinx
-    - attach_workspace:
-        at: ~/
-    - run: cd docs/ && make html
-    - persist_to_workspace:
-        root: docs/build
-        paths: html
-    - store_artifacts:
-        path: docs/build
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: cd docs/ && make html
+      - persist_to_workspace:
+          root: docs/build
+          paths: html
+      - store_artifacts:
+          path: docs/build
 
 workflows:
   version: 2
