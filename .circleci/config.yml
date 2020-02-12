@@ -1,3 +1,13 @@
+only-master: &only-master
+  filters:
+    branches:
+      only: master
+
+no-pages: &no-pages
+  filters:
+    branches:
+      ignore: gh-pages
+
 version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.5
@@ -49,15 +59,32 @@ jobs:
           sh setup_unittests.sh
           octave --eval "s = run_unittests(); exit(s)"
           exit $?
+  docs:
+    docker:
+      - image: asteinh/docker:sphinx
+    - attach_workspace:
+        at: ~/
+    - run: cd docs/ && make html
+    - persist_to_workspace:
+        root: docs/build
+        paths: html
+    - store_artifacts:
+        path: docs/build
 
 workflows:
   version: 2
-  testing_octave:
+  develop:
     jobs:
-      - prepare-dependencies
+      - prepare-dependencies: *no-pages
       - octave4:
+          <<: *no-pages
           requires:
             - prepare-dependencies
       - octave5:
+          <<: *no-pages
           requires:
             - prepare-dependencies
+      - docs:
+          <<: *only-master
+          requires:
+            - octave4
