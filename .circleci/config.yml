@@ -1,3 +1,13 @@
+only-master: &only-master
+  filters:
+    branches:
+      only: master
+
+no-pages: &no-pages
+  filters:
+    branches:
+      ignore: gh-pages
+
 version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.5
@@ -26,17 +36,7 @@ jobs:
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
-          exit $?
-      - codecov/upload:
-          file: tests/results/coverage.xml
-          flags: unittests
-      - store_artifacts:
-          path: tests/results
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/*
+          octave --eval "s = run_unittests(); exit(s)"
   octave5:
     docker:
       - image: asteinh/docker:amd64-debian-octave5
@@ -47,17 +47,70 @@ jobs:
       - run: |
           cd tests
           sh setup_unittests.sh
-          octave --eval "s = run_unittests(); exit(s)"
-          exit $?
+          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
+  codecov:
+    docker:
+      - image: asteinh/docker:amd64-debian-octave5
+    steps:
+      - attach_workspace:
+          at: ~/
+      - codecov/upload:
+          file: tests/results/coverage.xml
+          flags: unittests
+  sphinx:
+    docker:
+      - image: asteinh/docker:sphinx
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: cd docs/ && make html
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
+      - store_artifacts:
+          path: docs/build
+  pages:
+    docker:
+      - image: node:8.10.0
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
+      - attach_workspace:
+          at: ~/
+      - run: |
+          npm install -g --silent gh-pages@2.2.0
+          git config user.email "ci-build@tensorflowm"
+          git config user.name "ci-build"
+      - run: |
+          ssh -o "StrictHostKeyChecking no" github.com || true
+          touch docs/build/html/.nojekyll
+          gh-pages --dotfiles --message "Update pages" --dist docs/build/html
 
 workflows:
   version: 2
-  testing_octave:
+  develop:
     jobs:
-      - prepare-dependencies
+      - prepare-dependencies: *no-pages
       - octave4:
           requires:
             - prepare-dependencies
       - octave5:
           requires:
             - prepare-dependencies
+      - codecov:
+          <<: *only-master
+          requires:
+            - octave5
+      - sphinx:
+          requires:
+            - octave5
+      - pages:
+          <<: *only-master
+          requires:
+            - sphinx
