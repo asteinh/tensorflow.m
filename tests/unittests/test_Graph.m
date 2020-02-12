@@ -36,3 +36,19 @@ function test_interface()
 
   % manual deletion
   graph.deleteGraph();
+
+function test_gradient()
+  graph = tensorflow.Graph();
+  session = tensorflow.Session(graph);
+
+  x = graph.placeholder('TF_FLOAT');
+  y = graph.square(x);
+  grad1 = graph.addGradients(y, x);
+  grad2 = graph.addGradients(graph.square(y), x);
+
+  res = session.run(x, tensorflow.Tensor(single(1)), grad1).value();
+  assertEqual(res, single(2));
+  res = session.run(x, tensorflow.Tensor(single(5)), grad1).value();
+  assertEqual(res, single(10));
+  res = session.run(x, tensorflow.Tensor(single(5)), grad2).value();
+  assertEqual(res, single(500));
