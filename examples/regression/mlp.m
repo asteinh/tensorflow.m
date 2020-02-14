@@ -35,7 +35,7 @@ classdef mlp
         w_ = g.variable([layers(i); layers(i+1)], tensorflow.DataType('TF_DOUBLE'), 'name', ['w' num2str(i)]);
         % bias
         b_ = g.variable([layers(i+1)], tensorflow.DataType('TF_DOUBLE'), 'name', ['b' num2str(i)]);
-        
+
         stddev = g.constant(1/sqrt(layers(i)));
         if true
           % normal
@@ -57,9 +57,9 @@ classdef mlp
           obj.pred = y_pre;
         else
           % hidden layers using ReLU
-          y_layer = g.tanh(y_pre);
+          y_layer = g.relu(y_pre);
         end
-        
+
         params = [params; w_; b_];
       end
 
@@ -69,7 +69,7 @@ classdef mlp
         g.mean(g.squareddifference(obj.y, g.transpose(obj.pred, g.constant(int32([1; 0])))), g.constant(int32([0;1]))), ...
         g.mul(lambda_, g.l2loss(params)) ...
       ]);
-      
+
       % backpropagation
       for i = 1:1:numel(params)
         gradient = g.addGradients(obj.cost, params(i));
@@ -90,12 +90,12 @@ classdef mlp
       %  learning_rate ... learning rate [0.001]
       %  gamma_mean ... decay rate of mean value [0.9]
       %  gamma_mom ... decay rate of momentum [0.9]
-      
+
       eta = obj.g.constant(learning_rate);
       gamma = obj.g.constant(gamma_mean);
       mom_decay = obj.g.constant(gamma_mom);
       epsilon = obj.g.constant(1e-16);
-      
+
       apply_rmsprop = [];
       for i = 1:1:numel(obj.params)
         shape = obj.s.run([],[],obj.g.shape(obj.params(i))).value;
@@ -105,7 +105,7 @@ classdef mlp
         mom = obj.g.variable(shape, tensorflow.DataType('TF_DOUBLE'), 'name', ['mom' num2str(i)]);
         % initialize mean and momentum variables
         obj.s.run([],[], [obj.g.assign(ms, obj.g.zeroslike(ms)); obj.g.assign(mom, obj.g.zeroslike(mom))]);
-        
+
         % RMSprop update
         apply_ = obj.g.applyrmsprop(obj.params(i), ms, mom, eta, gamma, mom_decay, epsilon, obj.grad(i));
         apply_rmsprop = [apply_rmsprop; apply_];
@@ -115,14 +115,14 @@ classdef mlp
       nbatch = ceil(ndata/batchsize);
       f = NaN(nepoch*nbatch,1);
       cnt = 0;
-      
+
       rng(2020);
       for m = 1:1:nepoch
         % in every epoch we shuffle the data
         idx = randi(ndata, ndata, 1);
         X_shuffle = X(idx,:);
         y_shuffle = y(idx,:);
-        
+
         for n = 1:1:nbatch
           if n == nbatch && nbatch > ndata/batchsize
             batchsize_ = min(batchsize, ndata-(nbatch-1)*batchsize); % make batchsize of last batch adapt to remaining amount of data
@@ -132,10 +132,10 @@ classdef mlp
           cnt = (m-1)*nbatch + n;
           idx = (1:batchsize_)+(n-1)*batchsize;
           batch_input = [ tensorflow.Tensor(X_shuffle(idx,:)), tensorflow.Tensor(y_shuffle(idx,:)) ];
-          
+
           % run the gradient update
           f(cnt) = obj.s.run([obj.X, obj.y], batch_input, obj.cost).value();
-          
+
           % abort on nan/inf
           if isnan(f(cnt)) || isinf(f(cnt))
             error('Invalid value encountered - aborting.');
@@ -154,7 +154,7 @@ classdef mlp
         fprintf(' %5d | %.2e\n', m, f(cnt));
 
       end
-      
+
       res = obj.s.run([],[], obj.params);
       w = res(1:2:end);
       b = res(2:2:end);
