@@ -43,11 +43,10 @@ classdef mlp
           rnd = g.randomstandardnormal(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,2));
           w_init = g.add(g.mul(rnd, stddev), mean);
           mean = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,3));
-          rnd = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,3));
+          rnd = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,4));
           b_init = g.add(g.mul(rnd, stddev), mean);
           % uniform
 %           rnd = g.randomuniform(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,1));
-%           w_init = g.mul(g.mul(g.sub(rnd, g.constant(0.5)), g.constant(2.)), stddev);
         end
         % assign initial values
         s.run([],[], [g.assign(w_, w_init); g.assign(b_, b_init)]);
@@ -66,14 +65,11 @@ classdef mlp
 
       % objective
       lambda_ = g.constant(lambda);
-%       obj.cost = g.addn( [ ...
-%                    g.mean(g.square(g.sub(obj.y, obj.pred)), g.constant(int32([0; 1]))), ... % loss
-%                    g.mul(lambda_, g.l2loss(params)) ... % regularization
-%                  ] );
-      obj.cost = g.mean(g.squareddifference(obj.y, obj.pred), g.constant(int32(-1)));
+      obj.cost = g.addn([ ...
+        g.mean(g.squareddifference(obj.y, g.transpose(obj.pred, g.constant(int32([1; 0])))), g.constant(int32([0;1]))), ...
+        g.mul(lambda_, g.l2loss(params)) ...
+      ]);
       
-      % TODO cost is not scalar due to shapes of y and pred ...
-
       % backpropagation
       for i = 1:1:numel(params)
         gradient = g.addGradients(obj.cost, params(i));
@@ -139,16 +135,7 @@ classdef mlp
           
           % run the gradient update
           f(cnt) = obj.s.run([obj.X, obj.y], batch_input, obj.cost).value();
-
-          % print output
-          if mod(cnt, 20) == 0
-            % informative header
-            fprintf('-----------------------------\n');
-            fprintf(' Epoch | Batch |  Loss   \n');
-            fprintf('-----------------------------\n');
-          end
-          fprintf(' %5d | %5d | %.2e | \n', m, n, f(cnt));
-
+          
           % abort on nan/inf
           if isnan(f(cnt)) || isinf(f(cnt))
             error('Invalid value encountered - aborting.');
@@ -156,6 +143,16 @@ classdef mlp
 
           obj.s.run([obj.X, obj.y], batch_input, [apply_rmsprop; obj.pred]);
         end
+
+        % print output
+        if mod(m, 25) == 1
+          % informative header
+          fprintf('-----------------\n');
+          fprintf(' Epoch |   Loss  \n');
+          fprintf('-----------------\n');
+        end
+        fprintf(' %5d | %.2e\n', m, f(cnt));
+
       end
       
       res = obj.s.run([],[], obj.params);

@@ -34,27 +34,25 @@ train_data_std = std(train_data);
 train_data_norm = (train_data - repmat(train_data_mean,ntrain,1))./repmat(train_data_std,ntrain,1);
 test_data_norm = (test_data - repmat(train_data_mean,ntest,1))./repmat(train_data_std,ntest,1);
 
-% train_data_norm = train_data;
-% test_data_norm = test_data;
-
-clear fname raw_data
 %%
-model = mlp([size(train_data_norm,2) 64 64 1], 0);
+model = mlp([size(train_data_norm,2) 64 64 1], 1e-6);
 
-% arguments: X, y, nepoch, learning_rate, gamma_mean, gamma_mom
-[f, w, b] = model.fit(train_data_norm, train_labels, 1000, 32, 0.001, 0.9, 0.9);
+% arguments: X, y, nepoch, n_per_batch, learning_rate, gamma_mean, gamma_mom
+% [f, w, b] = model.fit(train_data_norm, train_labels, 1000, 32, 0.001, 0.9, 0.9); % close to TF example
+[f, w, b] = model.fit(train_data_norm, train_labels, 1000, ntrain, 0.001, 0.9, 0.9); % single batch
 
 yfit = model.predict(train_data_norm);
 yhat = model.predict(test_data_norm);
 
+%%
 figure(1);
-  subplot(4,2,1);
-    stem(yfit-train_labels);
-  subplot(4,2,3);
-    stem(yhat-test_labels);
+  subplot(2,2,1);
+    stem(yfit-train_labels); ylabel('fitting residuals');
   subplot(2,2,2);
+    semilogy(f); grid on; ylabel('cost'); xlabel('iteration');
+  subplot(2,2,3);
+    stem(yhat-test_labels); ylabel('prediction residuals');
+  subplot(2,2,4);
     plot([min(test_labels) max(test_labels)], [min(test_labels) max(test_labels)], 'k--'); hold on;
     plot(test_labels, yhat, 'bo'); hold off;
     xlabel('real MPG'); ylabel('predicted MPG'); grid on;
-  subplot(2,2,3);
-    semilogy(f); grid on;
