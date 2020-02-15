@@ -37,17 +37,15 @@ classdef mlp
         b_ = g.variable([layers(i+1)], tensorflow.DataType('TF_DOUBLE'), 'name', ['b' num2str(i)]);
 
         stddev = g.constant(1/sqrt(layers(i)));
-        if true
-          % normal
-          mean = g.randomstandardnormal(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,1));
-          rnd = g.randomstandardnormal(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,2));
-          w_init = g.add(g.mul(rnd, stddev), mean);
-          mean = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,3));
-          rnd = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,4));
-          b_init = g.add(g.mul(rnd, stddev), mean);
-          % uniform
-%           rnd = g.randomuniform(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,1));
-        end
+        % normal
+        mean = g.randomstandardnormal(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,1));
+        rnd = g.randomstandardnormal(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,2));
+        w_init = g.add(g.mul(rnd, stddev), mean);
+        mean = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,3));
+        rnd = g.randomstandardnormal(g.shape(b_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,4));
+        b_init = g.add(g.mul(rnd, stddev), mean);
+        % uniform
+%         rnd = g.randomuniform(g.shape(w_), tensorflow.DataType('TF_DOUBLE'), 'seed', seeds(i,1));
         % assign initial values
         s.run([],[], [g.assign(w_, w_init); g.assign(b_, b_init)]);
 
@@ -81,17 +79,17 @@ classdef mlp
       obj.params = params;
     end
 
-    function [f, w, b] = fit(obj, X, y, nepoch, batchsize, learning_rate, gamma_mean, gamma_mom)
+    function [f, w, b] = fit(obj, X, y, nepoch, batchsize, lr, gamma_mean, gamma_mom)
       %FIT Fit weights of MLP to X/y using RMSprop
       %  X ... input data
       %  y ... targets
       %  nepoch ... number of epochs to run
       %  batchsize ... data per batch
-      %  learning_rate ... learning rate [0.001]
+      %  lr ... learning rate [0.001]
       %  gamma_mean ... decay rate of mean value [0.9]
       %  gamma_mom ... decay rate of momentum [0.9]
 
-      eta = obj.g.constant(learning_rate);
+      eta = obj.g.constant(lr);
       gamma = obj.g.constant(gamma_mean);
       mom_decay = obj.g.constant(gamma_mom);
       epsilon = obj.g.constant(1e-16);
@@ -133,7 +131,7 @@ classdef mlp
           idx = (1:batchsize_)+(n-1)*batchsize;
           batch_input = [ tensorflow.Tensor(X_shuffle(idx,:)), tensorflow.Tensor(y_shuffle(idx,:)) ];
 
-          % run the gradient update
+          % run the parameter update
           f(cnt) = obj.s.run([obj.X, obj.y], batch_input, obj.cost).value();
 
           % abort on nan/inf

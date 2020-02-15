@@ -38,4 +38,5 @@ tensorflow.m is licensed under the `Apache License 2.0 <https://www.apache.org/l
 
    quick-start
    installation
+   examples/index
    api-doc/index
