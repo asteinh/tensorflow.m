@@ -11,10 +11,6 @@ RUN curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-c
     tar -xzf libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz -C tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0 && \
     rm libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
 
-WORKDIR tensorflow/
-
-RUN ls -l
-
 RUN octave-cli --eval "setup();"
 
 ENTRYPOINT ["/bin/bash"]

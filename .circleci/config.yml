@@ -42,6 +42,7 @@ jobs:
           export IMAGENAME=tensorflowm-octave5:${CIRCLE_SHA1:0:7}
           docker build -t $IMAGENAME .
           docker save --output images/octave5.tar $IMAGENAME
+          echo $IMAGENAME > images/octave5
           rm Dockerfile
       - persist_to_workspace:
           root: ~/
@@ -50,18 +51,20 @@ jobs:
 
   # RUN UNIT TESTS, needs to run on 'machine' to be able to mount repository
   unit-tests:
-    machine:
-      image: circleci/classic:latest
+    <<: *config
+    # machine:
+    #   image: circleci/classic:latest
     steps:
       - checkout
+      - setup_remote_docker
       - attach_workspace:
           at: ~/
       - run: |
+          cat ../images/octave5
           docker load --input ../images/octave5.tar
-          docker run --rm -v "$PWD:/home/octave" -it octave5
-          ls -l
-          uname -a
-          exit
+          docker run --rm octave5 /bin/bash -c "cd tests && ./setup_unittests.sh"
+          docker exec octave5 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
+          docker stop octave5 && docker rm octave5
       - persist_to_workspace:
           root: ~/project/
           paths:
