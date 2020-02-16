@@ -69,6 +69,51 @@ jobs:
           paths:
             - tests/*
 
+  # UPLOAD COVERAGE REPORT
+  coverage:
+    <<: *config
+    steps:
+      - attach_workspace:
+          at: ~/project/
+      - run: |
+          ls -l
+          ls -l tests/
+
+  # DEPLOY DOCKER IMAGES
+  deploy-images:
+    <<: *config
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: ls -l
+
+  # BUILD DOCS
+  build-docs:
+    <<: *config
+    steps:
+      - run: |
+          ls -l
+          mkdir -p docs && touch docs/test-doc.md
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - docs/*
+
+  # DEPLOY DOCS TO GITHUB PAGES
+  deploy-docs:
+    <<: *config
+    steps:
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run: |
+          ls -l
+          ls -l docs/
+#          gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+
 ################################################################################
 # WORKFLOWS
 ################################################################################
@@ -83,5 +128,38 @@ workflows:
           requires:
             - build-images
       - build-docs:
+          requires:
+            - unit-tests
+
+  # MASTER WORKFLOW: BUILD, TEST, DOCUMENT
+  master:
+    jobs:
+      - build-images:
+          <<: *master-filter
+      - unit-tests:
+          requires:
+            - build-images
+      - coverage:
+          requires:
+            - unit-tests
+      - build-docs:
+          requires:
+            - unit-tests
+      - deploy-docs:
+          requires:
+            - build-docs
+
+  # RELEASE WORKFLOW: BUILD, TEST, DEPLOY
+  # seems the tag-filter needs to be applied for every job
+  deploy:
+    jobs:
+      - build-images:
+          <<: *deploy-filter
+      - unit-tests:
+          <<: *deploy-filter
+          requires:
+            - build-images
+      - deploy-images:
+          <<: *deploy-filter
           requires:
             - unit-tests
