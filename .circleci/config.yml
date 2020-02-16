@@ -60,7 +60,6 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: |
-#          cat ../images/octave5
           docker load --input ../images/octave5.tar
           docker run --rm octave5 /bin/bash -c "cd tests && ./setup_unittests.sh"
           docker exec octave5 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
