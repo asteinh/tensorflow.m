@@ -2,8 +2,6 @@ FROM asteinh/docker:tensorflowm-octave5-base
 
 MAINTAINER asteinh
 
-RUN apt-get update
-
 # obtain: /home/cibuild/REPOSITORY-CONTENT
 COPY project/ ./
 
