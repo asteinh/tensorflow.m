@@ -61,7 +61,7 @@ jobs:
           at: ~/
       - run: |
           docker load --input ../images/octave5.tar
-          docker run --rm octave5 /bin/bash -c "cd tests && ./setup_unittests.sh"
+          docker run octave5 /bin/bash -c "cd tests && ./setup_unittests.sh"
           docker exec octave5 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
           docker stop octave5 && docker rm octave5
       - persist_to_workspace:
