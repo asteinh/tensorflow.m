@@ -3,7 +3,7 @@ FROM asteinh/docker:tensorflowm-octave5-base
 MAINTAINER asteinh
 
 # obtain: /home/cibuild/REPOSITORY-CONTENT
-COPY project/* .
+COPY project/* ./
 
 WORKDIR tensorflow/
 
