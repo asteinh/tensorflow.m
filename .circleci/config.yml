@@ -41,8 +41,8 @@ jobs:
           cp project/.circleci/docker/octave5/Dockerfile .
       - run: |
           export IMAGENAME=tensorflowm-octave5:${CIRCLE_SHA1:0:7}
-          docker build -t IMAGENAME .
-          docker save --output images/octave5.tar IMAGENAME
+          docker build -t $IMAGENAME .
+          docker save --output images/octave5.tar $IMAGENAME
       - run: |
           rm Dockerfile
       - persist_to_workspace:
