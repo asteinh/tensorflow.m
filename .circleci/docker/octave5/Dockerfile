@@ -3,7 +3,7 @@ FROM asteinh/docker:tensorflowm-octave5-base
 MAINTAINER asteinh
 
 # obtain: /home/cibuild/REPOSITORY-CONTENT
-COPY project/ ./
+COPY --chown=octave:octave project/ ./
 
 RUN sudo chown -R octave:octave *
 
