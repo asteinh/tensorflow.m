@@ -13,6 +13,8 @@ RUN curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-c
 
 WORKDIR tensorflow/
 
-RUN octave --eval "setup();"
+RUN ls -l
+
+RUN octave-cli --eval "setup();"
 
 ENTRYPOINT ["/bin/bash"]
