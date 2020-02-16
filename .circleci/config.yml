@@ -1,116 +1,87 @@
-only-master: &only-master
+version: 2.1
+
+executors:
+  tensorflowm-ci:
+    docker:
+      - image: asteinh/docker:tensorflowm-ci
+
+default-config: &config
+  executor: tensorflowm-ci
+
+# FILTERS FOR WORKFLOWS
+develop: &develop-filter
+  filters:
+    branches:
+      ignore:
+        - master
+        - gh-pages
+master: &master-filter
   filters:
     branches:
       only: master
-
-no-pages: &no-pages
+deploy: &deploy-filter
   filters:
+    tags:
+      only: /^v.*/
     branches:
-      ignore: gh-pages
+      ignore: /.*/
 
-version: 2.1
-orbs:
-  codecov: codecov/codecov@1.0.5
-
+################################################################################
+# JOBS
+################################################################################
 jobs:
-  prepare-dependencies:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave4
+  # BUILD DOCKER IMAGES
+  build-images:
+    <<: *config
     steps:
       - checkout
+      - setup_remote_docker
       - run: |
-          curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz -o libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
-          mkdir -p tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0
-          tar -C tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0 -xzf libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+          cd .. && mkdir -p images
+          cp project/.circleci/docker/octave5/Dockerfile .
+      - run: |
+          export IMAGENAME=tensorflowm-octave5:${CIRCLE_SHA1:0:7}
+          docker build -t IMAGENAME .
+          docker save --output images/octave5.tar IMAGENAME
+      - run: |
+          rm Dockerfile
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/*
-  octave4:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave4
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: octave --eval "DEBUG=true; run setup"
-      - run: |
-          cd tests
-          sh setup_unittests.sh
-          octave --eval "s = run_unittests(); exit(s)"
-  octave5:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave5
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: octave --eval "DEBUG=true; run setup"
-      - run: |
-          cd tests
-          sh setup_unittests.sh
-          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/*
-  codecov:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave5
-    steps:
-      - attach_workspace:
-          at: ~/
-      - codecov/upload:
-          file: tests/results/coverage.xml
-          flags: unittests
-  sphinx:
-    docker:
-      - image: asteinh/docker:sphinx
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: cd docs/ && make html
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/*
-      - store_artifacts:
-          path: docs/build
-  pages:
-    docker:
-      - image: node:8.10.0
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
-      - attach_workspace:
-          at: ~/
-      - run: |
-          npm install -g --silent gh-pages@2.2.0
-          git config user.email "ci-build@tensorflowm"
-          git config user.name "ci-build"
-      - run: |
-          ssh -o "StrictHostKeyChecking no" github.com || true
-          touch docs/build/html/.nojekyll
-          gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+            - images/
 
+  # RUN UNIT TESTS, needs to run on 'machine' to be able to mount repository
+  unit-tests:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run: |
+          docker load --input ../images/octave5.tar
+          docker run --rm -v "$PWD:/home/octave" -it octave5
+          ls -l
+          uname -a
+          exit
+      - persist_to_workspace:
+          root: ~/project/
+          paths:
+            - tests/*
+
+################################################################################
+# WORKFLOWS
+################################################################################
 workflows:
   version: 2
+  # DEVELOPMENT WORKFLOW: BUILD & TEST
   develop:
     jobs:
-      - prepare-dependencies: *no-pages
-      - octave4:
+      - build-images:
+          <<: *develop-filter
+      - unit-tests:
           requires:
-            - prepare-dependencies
-      - octave5:
+            - build-images
+      - build-docs:
           requires:
-            - prepare-dependencies
-      - codecov:
-          <<: *only-master
-          requires:
-            - octave5
-      - sphinx:
-          requires:
-            - octave5
-      - pages:
-          <<: *only-master
-          requires:
-            - sphinx
+            - unit-tests
