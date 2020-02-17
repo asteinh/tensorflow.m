@@ -170,7 +170,7 @@ jobs:
           command: |
             export SHORT_SHA1=${CIRCLE_SHA1:0:7}
             docker run --rm $SHORT_SHA1 /bin/bash -c \
-              "cd tests && ./setup_unittests.sh && cd ../ && octave-cli --eval \"s = run_unittests(); exit(s);\""
+              "cd tests && ./setup_unittests.sh && octave-cli --eval \"s = run_unittests(); exit(s);\""
 
   # deploy image to github packages
   deploy_image:
