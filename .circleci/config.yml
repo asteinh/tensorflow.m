@@ -88,11 +88,11 @@ jobs:
           steps:
             - run:
                 name: Unit tests + coverage
-                command: cd tests && octave-cli --eval "s = run_unittests('-with-coverage'); exit(s);"
+                command: cd tests && octave-cli --eval "s = run_unittests('-with_coverage'); exit(s);"
             - persist_to_workspace:
                 root: ~/
                 paths:
-                  - project/tests/results/
+                  - project/
       - unless:
           condition: << parameters.with_coverage >>
           steps:
