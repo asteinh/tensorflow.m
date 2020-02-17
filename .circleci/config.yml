@@ -141,8 +141,6 @@ jobs:
   # build, test and deploy a Docker image with TensorFlow libraries and tensorflow.m set up
   deploy_package:
     parameters:
-      image:
-        type: string
       dockerfile:
         type: string
     executor: build_env
@@ -154,8 +152,8 @@ jobs:
       - run:
           name: Prepare build
           command: |
-            export IMAGE=<< parameters.image >>
-            echo 'export IMAGE_TAG=docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:$CIRCLE_TAG' >> $BASH_ENV
+            export IMAGE=<< parameters.name >>
+            echo 'export IMAGE_TAG=docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:latest' >> $BASH_ENV
             cp .circleci/Dockerfiles/<< parameters.dockerfile >> Dockerfile
       - run:
           name: docker build
@@ -256,13 +254,13 @@ workflows:
           <<: *develop_filter
       - deploy_package:
           <<: *develop_filter
-          image: octave4-debian10-x64
+          name: octave4-debian10-x64
           dockerfile: Dockerfile.octave4
           requires:
             - prepare_tests
       - deploy_package:
           <<: *develop_filter
-          image: octave5-debian11-x64
+          name: octave5-debian11-x64
           dockerfile: Dockerfile.octave5
           requires:
             - prepare_tests
