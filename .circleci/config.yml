@@ -4,7 +4,7 @@ defaults: &defaults
   working_directory: ~/project/
   shell: /bin/bash
   environment:
-    - SHORT_SHA1: ${CIRCLE_SHA1:0:7}
+    - SHORT_SHA1: echo ${CIRCLE_SHA1:0:7}
     - LIBTENSORFLOW_URL: https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
 
 executors:
@@ -114,7 +114,6 @@ jobs:
       - attach_workspace:
           at: ~/project/
       - run: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
-      - run: echo "NO UPLOAD"
 
 # DEPLOY jobs
   # build a Docker image based on Octave 5 with TensorFlow libraries and tensorflow.m set up
@@ -204,22 +203,22 @@ workflows:
   master:
     jobs:
       - run_tests:
-          <<: *develop_filter
+          <<: *master_filter
           executor: octave4_env
           name: tests_octave4
       - run_tests:
-          <<: *develop_filter
+          <<: *master_filter
           executor: octave5_env
           name: tests_octave5
           with_coverage: true
       - coverage:
-          <<: *develop_filter
+          <<: *master_filter
           requires:
             - tests_octave5
       - build_docs:
-          <<: *develop_filter
+          <<: *master_filter
       - deploy_docs:
-          <<: *develop_filter
+          <<: *master_filter
           requires: # deploy iff tests and building succeeds
             - tests_octave4
             - tests_octave5
