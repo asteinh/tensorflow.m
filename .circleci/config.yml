@@ -208,13 +208,13 @@ workflows:
       - run_tests:
           <<: *develop_filter
           executor: octave4_env
-          name: tests_octave4
+          name: tests-octave4
           requires:
             - prepare_tests
       - run_tests:
           <<: *develop_filter
           executor: octave5_env
-          name: tests_octave5
+          name: tests-octave5
           requires:
             - prepare_tests
       - build_docs:
@@ -224,46 +224,46 @@ workflows:
   master:
     jobs:
       - prepare_tests:
-          <<: *master_filter
+          <<: *develop_filter
       - run_tests:
-          <<: *master_filter
+          <<: *develop_filter
           executor: octave4_env
-          name: tests_octave4
+          name: tests-octave4-master
           requires:
             - prepare_tests
       - run_tests:
-          <<: *master_filter
+          <<: *develop_filter
           executor: octave5_env
-          name: tests_octave5
+          name: tests-octave5-master
           with_coverage: true
           requires:
             - prepare_tests
       - coverage:
-          <<: *master_filter
+          <<: *develop_filter
           requires:
-            - tests_octave5
+            - tests-octave5-master
       - build_docs:
-          <<: *master_filter
+          <<: *develop_filter
       - deploy_docs:
-          <<: *master_filter
+          <<: *develop_filter
           requires: # deploy iff tests and building succeeds
-            - tests_octave4
-            - tests_octave5
+            - tests-octave4-master
+            - tests-octave5-master
             - build_docs
 
   # release workflow - build Docker image, run unit tests in container and deploy image
   deploy:
     jobs:
       - prepare_tests:
-          <<: *develop_filter
+          <<: *deploy_filter
       - deploy_package:
-          <<: *develop_filter
+          <<: *deploy_filter
           name: octave4-debian10-x64
           dockerfile: Dockerfile.octave4
           requires:
             - prepare_tests
       - deploy_package:
-          <<: *develop_filter
+          <<: *deploy_filter
           name: octave5-debian11-x64
           dockerfile: Dockerfile.octave5
           requires:
