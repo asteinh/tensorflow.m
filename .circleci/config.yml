@@ -138,71 +138,39 @@ jobs:
           name: gh-pages
           command: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
 
-# DEPLOY jobs
-  # build a Docker image based on Octave 5 with TensorFlow libraries and tensorflow.m set up
-  build_image:
+  # build, test and deploy a Docker image with TensorFlow libraries and tensorflow.m set up
+  deploy_package:
+    parameters:
+      name:
+        type: string
+      base_image:
+        type: string
     executor: build_env
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - setup_remote_docker
-      - prepare_libraries:
-          dest: tensorflow/mex/third_party
-          url: $LIBTENSORFLOW_URL
+      - run:
+          name: Prepare build
+          command: |
+            export IMAGE=<< parameters.name >>
+            echo 'export IMAGE_TAG=docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:$CIRCLE_TAG' >> $BASH_ENV
+            cp .circleci/Dockerfiles/<< parameters.base_image >> Dockerfile
       - run:
           name: docker build
           command: |
-            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-            cp .circleci/Dockerfiles/Dockerfile.deploy Dockerfile
-            docker build -t $SHORT_SHA1 .
-      - run:
-          name: docker save
-          command: |
-            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-            mkdir -p ../images
-            docker save $SHORT_SHA1 | gzip > ../images/$SHORT_SHA1.tar.gz
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - images/
-
-  # run unit tests in built image
-  test_image:
-    executor: build_env
-    steps:
-      - setup_remote_docker
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: docker load
-          command: |
-            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-            docker load --input ../images/$SHORT_SHA1.tar.gz
+            docker build -t $IMAGE_TAG .
       - run:
           name: docker run
           command: |
-            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-            docker run --rm $SHORT_SHA1 /bin/bash -c \
+            docker run --rm $IMAGE_TAG /bin/bash -c \
               "cd tests && ./setup_unittests.sh && octave-cli --eval \"s = run_unittests(); exit(s);\""
-
-  # deploy image to github packages
-  deploy_image:
-    executor: build_env
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
-      - attach_workspace:
-          at: ~/
       - run:
-          name: deploy
+          name: docker push
           command: |
-            export IMAGE=octave5-debian11-x64
-            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-            docker load --input ../images/$SHORT_SHA1.tar.gz
-            export IMAGEID=$(docker images -q $SHORT_SHA1)
             echo $GITHUB_TOKEN | docker login docker.pkg.github.com --username $GITHUB_USER --password-stdin
-            docker tag $IMAGEID docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:$CIRCLE_TAG
-            docker push docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:$CIRCLE_TAG
+            docker push $IMAGE_TAG
             rm ~/.docker/config.json
 
 ################################################################################
@@ -284,13 +252,17 @@ workflows:
   # release workflow - build Docker image, run unit tests in container and deploy image
   deploy:
     jobs:
-      - build_image:
+      - prepare_tests:
           <<: *develop_filter
-      - test_image:
+      - deploy_package:
           <<: *develop_filter
+          name: octave4-debian10-x64
+          base_image: Dockerfile.octave4
           requires:
-            - build_image
-      - deploy_image:
+            - prepare_tests
+      - deploy_package:
           <<: *develop_filter
+          name: octave5-debian11-x64
+          base_image: Dockerfile.octave5
           requires:
-            - test_image
+            - prepare_tests
