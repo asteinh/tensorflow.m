@@ -52,6 +52,9 @@ jobs:
   # run unit tests
   run_tests:
     parameters:
+      executor:
+        type: executor
+        default: octave5
       with_coverage:
         type: boolean
         default: false
