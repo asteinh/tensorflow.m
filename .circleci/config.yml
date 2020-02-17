@@ -117,9 +117,7 @@ jobs:
       - checkout
       - run:
           name: Make HTML
-          command: |
-            pip install sphinx-press-theme
-            cd docs && make html
+          command: cd docs && make html
       - persist_to_workspace:
           root: ~/project/
           paths:
