@@ -27,7 +27,7 @@ matlab_keep_package_prefix = False
 primary_domain = 'mat'
 
 # HTML
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'press' #'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 source_suffix = ['.rst', '.md']
