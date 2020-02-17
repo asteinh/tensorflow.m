@@ -51,6 +51,22 @@ commands:
 ################################################################################
 jobs:
 
+  # prepare unit test environment
+  prepare_tests:
+    executor: build_env
+    steps:
+      - checkout
+      - prepare_libraries:
+          dest: tensorflow/mex/third_party
+          url: $LIBTENSORFLOW_URL
+      - run:
+          name: Set up unit tests
+          command: cd tests && ./setup_unittests.sh
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/
+
   # run unit tests
   run_tests:
     parameters:
@@ -63,14 +79,11 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
-      - prepare_libraries:
-          dest: tensorflow/mex/third_party
-          url: $LIBTENSORFLOW_URL
+      - attach_workspace:
+          at: ~/
       - run:
           name: Setup
-          command: |
-            octave-cli --eval "setup();"
-            cd tests && ./setup_unittests.sh
+          command: octave-cli --eval "setup();"
       - when:
           condition: << parameters.with_coverage >>
           steps:
@@ -156,7 +169,6 @@ jobs:
   test_image:
     executor: build_env
     steps:
-      - checkout
       - setup_remote_docker
       - attach_workspace:
           at: ~/
@@ -176,13 +188,15 @@ jobs:
   deploy_image:
     executor: build_env
     steps:
-      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
       - attach_workspace:
           at: ~/
       - run:
           name: deploy
           command: |
-            ls -l images/
+            ls -l ../images/
 
 ################################################################################
 # WORKFLOWS
@@ -212,29 +226,41 @@ workflows:
   # development workflow - run unit tests and build docs
   develop:
     jobs:
+      - prepare_tests:
+          <<: *develop_filter
       - run_tests:
           <<: *develop_filter
           executor: octave4_env
           name: tests_octave4
+          requires:
+            - prepare_tests
       - run_tests:
           <<: *develop_filter
           executor: octave5_env
           name: tests_octave5
+          requires:
+            - prepare_tests
       - build_docs:
           <<: *develop_filter
 
   # master workflow - run unit tests, coverage, build and deploy docs
   master:
     jobs:
+      - prepare_tests:
+          <<: *master_filter
       - run_tests:
           <<: *master_filter
           executor: octave4_env
           name: tests_octave4
+          requires:
+            - prepare_tests
       - run_tests:
           <<: *master_filter
           executor: octave5_env
           name: tests_octave5
           with_coverage: true
+          requires:
+            - prepare_tests
       - coverage:
           <<: *master_filter
           requires:
