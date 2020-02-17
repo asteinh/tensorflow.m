@@ -159,7 +159,7 @@ jobs:
           command: |
             export SHORT_SHA1=${CIRCLE_SHA1:0:7}
             mkdir -p ../images
-            docker save --output ../images/$SHORT_SHA1.tar $SHORT_SHA1
+            docker save $SHORT_SHA1 | gzip > ../images/$SHORT_SHA1.tar.gz
       - persist_to_workspace:
           root: ~/
           paths:
@@ -196,7 +196,13 @@ jobs:
       - run:
           name: deploy
           command: |
-            ls -l ../images/
+            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
+            export IMAGEID=$(docker images -q $SHORT_SHA1)
+            echo $IMAGEID
+            # docker login -u $GITHUB_USER -p $GITHUB_TOKEN docker.pkg.github.com
+            docker login docker.pkg.github.com --username asteinh
+            # docker tag $IMAGEID docker.pkg.github.com/asteinh/tensorflow.m/IMAGE_NAME:VERSION
+            # docker push docker.pkg.github.com/asteinh/tensorflow.m/IMAGE_NAME:VERSION
 
 ################################################################################
 # WORKFLOWS
