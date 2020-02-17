@@ -149,27 +149,30 @@ jobs:
       - attach_workspace:
           at: ~/
       - setup_remote_docker
-      - run: echo 'export IMAGE=$CIRCLE_JOB' >> $BASH_ENV
+      - run:
+          name: Export variables
+          command: |
+            echo 'export TAG=$CIRCLE_TAG' >> $BASH_ENV
+            echo 'export JOB=$CIRCLE_JOB' >> $BASH_ENV
       - run:
           name: Prepare build
           command: |
-            echo $IMAGE
-            echo 'export IMAGE_TAG=docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:latest' >> $BASH_ENV
+            echo 'export IMAGE=docker.pkg.github.com/asteinh/tensorflow.m/$JOB:$TAG' >> $BASH_ENV
             cp .circleci/Dockerfiles/<< parameters.dockerfile >> Dockerfile
       - run:
           name: docker build
           command: |
-            docker build -t $IMAGE_TAG .
+            docker build -t $IMAGE .
       - run:
           name: docker run
           command: |
-            docker run --rm $IMAGE_TAG /bin/bash -c \
+            docker run --rm $IMAGE /bin/bash -c \
               "cd tests && ./setup_unittests.sh && octave-cli --eval \"s = run_unittests(); exit(s);\""
       - run:
           name: docker push
           command: |
             echo $GITHUB_TOKEN | docker login docker.pkg.github.com --username $GITHUB_USER --password-stdin
-            docker push $IMAGE_TAG
+            docker push $IMAGE
             rm ~/.docker/config.json
 
 ################################################################################
