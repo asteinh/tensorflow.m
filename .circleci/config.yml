@@ -39,8 +39,8 @@ commands:
           echo $FILE
           export FOLDER=${FILE%.tar.gz}
           echo $FOLDER
-          export DEST=<< parameters.libtensorflow_url >>/$FOLDER
-          curl << parameters.libtensorflow_url >> -o /tmp/$FILE
+          export DEST=$LIBTENSORFLOW_URL/$FOLDER
+          curl $LIBTENSORFLOW_URL -o /tmp/$FILE
           mkdir -p $DEST && tar -xzf /tmp/$FILE -C $DEST
           rm /tmp/$FILE
 
