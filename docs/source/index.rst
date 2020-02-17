@@ -3,9 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to tensorflow.m's documentation!
-========================================
-
 .. toctree::
    :maxdepth: 2
    :hidden:
@@ -19,6 +16,7 @@ Welcome to tensorflow.m's documentation!
    :maxdepth: 2
    :hidden:
    :glob:
+   :caption: Examples
 
    examples/index
 
@@ -26,8 +24,12 @@ Welcome to tensorflow.m's documentation!
    :maxdepth: 2
    :hidden:
    :glob:
+   :caption: API
 
    api-doc/index
+
+Welcome to tensorflow.m's documentation!
+========================================
 
 tensorflow.m is a free and open-source MATLAB/Octave package, interfacing `TensorFlow <https://www.tensorflow.org/>`_'s `C API <https://www.tensorflow.org/install/lang_c>`_ without requiring any additional tools.
 

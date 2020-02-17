@@ -1,10 +1,7 @@
-Examples
-========
-
-Overview of documented examples.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :glob:
    :caption: Examples
 
    regression/index

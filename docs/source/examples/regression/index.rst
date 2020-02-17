@@ -1,5 +1,5 @@
-A regression example
-====================
+Regression
+==========
 .. TODO link to binder, link to source
 
 This example showcases how tensorflow.m can be used for a regression problem,

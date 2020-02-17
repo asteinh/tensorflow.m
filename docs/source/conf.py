@@ -27,8 +27,16 @@ matlab_keep_package_prefix = False
 primary_domain = 'mat'
 
 # HTML
-html_theme = 'press' #'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme = 'sphinx_rtd_theme'
+# html_static_path = ['_static']
+html_context = {
+    'source_url_prefix': "https://github.com/asteinh/tensorflow.m/blob/master/docs/source/",
+    "display_github": True, # Integrate GitHub
+    "github_user": "asteinh", # Username
+    "github_repo": "tensorflow.m", # Repo name
+    "github_version": "master", # Version
+    "conf_py_path": "/docs/source/",
+}
 
 source_suffix = ['.rst', '.md']
 
