@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>A regression example &mdash; tensorflow.m  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API documentation" href="../../api-doc/index.html" />
+    <link rel="prev" title="Examples" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> tensorflow.m
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">A regression example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data">Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#preparation">Preparation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cleansing">Cleansing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#selection">Selection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#normalization">Normalization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-network">Building the network</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#inputs-and-output">Inputs and output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hidden-layers">Hidden layers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gradients">Gradients</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#training">Training</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rmsprop-algorithm">RMSprop algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#preparing-the-training-step">Preparing the training step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#executing-the-training-step">Executing the training step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#prediction">Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api-doc/index.html">API documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tensorflow.m</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Examples</a> &raquo;</li>
+        
+      <li>A regression example</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/examples/regression/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="a-regression-example">
+<h1>A regression example<a class="headerlink" href="#a-regression-example" title="Permalink to this headline">¶</a></h1>
+<p>This example showcases how tensorflow.m can be used for a regression problem,
+reproducing the steps of TensorFlow’s <a class="reference external" href="https://www.tensorflow.org/tutorials/keras/regression">regression example</a> using Keras.</p>
+<p>Note that the code snippets are at times adapted for readability of this documentation - please refer to the the actual implementation for a working example.</p>
+<div class="section" id="data">
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
+<p>We use the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/auto+mpg">auto MPG dataset</a> from the UCI Machine Learning Repository that comprises the columns <cite>MPG, Cylinders, Displacement, Horsepower, Weight, Acceleration, Model Year</cite> and <cite>Origin</cite>.
+<strong>The goal</strong> is to predict the MPG value of a car given the remaining features.
+Let’s start by fetching the data</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">fname</span> <span class="p">=</span> <span class="s">&#39;auto-mpg.data&#39;</span><span class="p">;</span>
+<span class="n">websave</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s">&#39;https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data&#39;</span><span class="p">);</span>
+<span class="n">raw_data</span> <span class="p">=</span> <span class="nb">textscan</span><span class="p">(</span><span class="nb">strrep</span><span class="p">(</span><span class="n">fileread</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span><span class="s">&#39;?&#39;</span><span class="p">,</span><span class="s">&#39;NaN&#39;</span><span class="p">),</span> <span class="s">&#39;%f %f %f %f %f %f %f %f %s&#39;</span><span class="p">,</span> <span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="s">&#39;\n&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="preparation">
+<h3>Preparation<a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h3>
+<p>As a first step, we expand the <cite>Origin</cite> column to a binary map:</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">map</span> <span class="p">=</span> <span class="nb">zeros</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">raw_data</span><span class="p">{</span><span class="mi">1</span><span class="p">},</span><span class="mi">1</span><span class="p">),</span><span class="mi">3</span><span class="p">);</span> <span class="c">% 1: USA, 2: Europe, 3: Japan</span>
+<span class="k">for</span> <span class="n">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="nb">size</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">map</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">raw_data</span><span class="p">{</span><span class="mi">8</span><span class="p">}(</span><span class="n">i</span><span class="p">))</span> <span class="p">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>The original <cite>Origin</cite> column values are in {1,2,3}, corresponding to the areas USA, Europe and Japan. Much like the exemplary tutorial of TensorFlow, we split this numeric column into three categorical columns, encoding the origin in a binary fashion.</p>
+</div>
+<div class="section" id="cleansing">
+<h3>Cleansing<a class="headerlink" href="#cleansing" title="Permalink to this headline">¶</a></h3>
+<p>Looking at the values in <code class="code docutils literal notranslate"><span class="pre">raw_data</span></code>, we find some <code class="code docutils literal notranslate"><span class="pre">NaN</span></code> values arising from unknown features. We will simply drop those rows and proceed with the remaining data.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="p">=</span> <span class="p">[</span><span class="n">raw_data</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">}</span> <span class="n">map</span><span class="p">];</span> <span class="c">% concatenate numeric values</span>
+<span class="n">data</span> <span class="p">=</span> <span class="n">data</span><span class="p">(</span><span class="o">~</span><span class="nb">sum</span><span class="p">(</span><span class="nb">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="mi">2</span><span class="p">),:);</span> <span class="c">% drop NaN values</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="selection">
+<h3>Selection<a class="headerlink" href="#selection" title="Permalink to this headline">¶</a></h3>
+<p>Since the original data is sorted by <cite>Model Year</cite>, we will shuffle the dataset and then select an arbitrary portion as training data, while the remaining rows will be our test data.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="p">=</span> <span class="n">data</span><span class="p">(</span><span class="nb">randi</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="nb">size</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">),:);</span>
+
+<span class="n">ntrain</span> <span class="p">=</span> <span class="mi">314</span><span class="p">;</span>
+<span class="n">ntest</span> <span class="p">=</span> <span class="nb">size</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">ntrain</span><span class="p">;</span>
+
+<span class="n">train_data</span> <span class="p">=</span> <span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">ntrain</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="k">end</span><span class="p">);</span>
+<span class="n">train_labels</span> <span class="p">=</span> <span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">ntrain</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">test_data</span> <span class="p">=</span> <span class="n">data</span><span class="p">(</span><span class="n">ntrain</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="k">end</span><span class="p">);</span>
+<span class="n">test_labels</span> <span class="p">=</span> <span class="n">data</span><span class="p">(</span><span class="n">ntrain</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Again, we follow the TensorFlow tutorial and go for 314 samples of training data, leaving 78 rows of test data.</p>
+</div>
+<div class="section" id="normalization">
+<h3>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline">¶</a></h3>
+<p>To better scale our inputs we will normalize all columns w.r.t. their mean values, and divide them by their standard deviation.
+Since we don’t want to cheat, we need to apply the same normalization to our test data (or, any data you want to feed to the trained network).</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">train_data_mean</span> <span class="p">=</span> <span class="nb">mean</span><span class="p">(</span><span class="n">train_data</span><span class="p">);</span>
+<span class="n">train_data_std</span> <span class="p">=</span> <span class="nb">std</span><span class="p">(</span><span class="n">train_data</span><span class="p">);</span>
+<span class="n">train_data_norm</span> <span class="p">=</span> <span class="p">(</span><span class="n">train_data</span> <span class="o">-</span> <span class="nb">repmat</span><span class="p">(</span><span class="n">train_data_mean</span><span class="p">,</span><span class="n">ntrain</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">./</span><span class="nb">repmat</span><span class="p">(</span><span class="n">train_data_std</span><span class="p">,</span><span class="n">ntrain</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">test_data_norm</span> <span class="p">=</span> <span class="p">(</span><span class="n">test_data</span> <span class="o">-</span> <span class="nb">repmat</span><span class="p">(</span><span class="n">train_data_mean</span><span class="p">,</span><span class="n">ntest</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">./</span><span class="nb">repmat</span><span class="p">(</span><span class="n">train_data_std</span><span class="p">,</span><span class="n">ntest</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>With that, we are all set to move on to building our neural network that will be trained to solve our regression task.</p>
+</div>
+</div>
+<div class="section" id="building-the-network">
+<h2>Building the network<a class="headerlink" href="#building-the-network" title="Permalink to this headline">¶</a></h2>
+<p>Now it’s time to implement our core tool - a multilayer perceptron (MLP) with two hidden layers and ReLU activations.
+To keep our main script <code class="code docutils literal notranslate"><span class="pre">auto_mpg.m</span></code> somewhat clean, we will wrap our MLP in a simple class in <code class="code docutils literal notranslate"><span class="pre">mlp.m</span></code>.</p>
+<p>The constructor of <code class="code docutils literal notranslate"><span class="pre">mlp</span></code> takes two arguments: an array listing the layer dimensions (including input and output) and a scalar value for an optional Tikhonov regularization, added to the overall cost.
+Early on, we create a graph and a session that we will drag along by keeping the objects as properties of the class.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>obj <span class="p">=</span><span class="w"> </span><span class="nf">mlp</span><span class="p">(</span>layers, lambda<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="c">% ...</span>
+  <span class="n">g</span> <span class="p">=</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">Graph</span><span class="p">();</span>
+  <span class="n">s</span> <span class="p">=</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">Session</span><span class="p">(</span><span class="n">g</span><span class="p">);</span>
+  <span class="c">% ...</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<div class="section" id="inputs-and-output">
+<h3>Inputs and output<a class="headerlink" href="#inputs-and-output" title="Permalink to this headline">¶</a></h3>
+<p>Next, we create two placeholders - one for our inputs, and one for our output. The shape <code class="code docutils literal notranslate"><span class="pre">-1</span></code> indicates a size that is unknown at this time, such that we can later supply an arbitrary number of data. Since MATLAB defaults to double values, we choose for convenience to build our network for TensorFlow’s double data type - if you prefer to use single precision values, you can create placeholders for <code class="code docutils literal notranslate"><span class="pre">TF_SINGLE</span></code> and supply values of type <code class="code docutils literal notranslate"><span class="pre">single()</span></code>.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="p">.</span><span class="n">X</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tensorflow</span><span class="p">.</span><span class="n">DataType</span><span class="p">(</span><span class="s">&#39;TF_DOUBLE&#39;</span><span class="p">),</span> <span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">layers</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;X&#39;</span><span class="p">);</span>
+<span class="n">obj</span><span class="p">.</span><span class="n">y</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tensorflow</span><span class="p">.</span><span class="n">DataType</span><span class="p">(</span><span class="s">&#39;TF_DOUBLE&#39;</span><span class="p">),</span> <span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">layers</span><span class="p">(</span><span class="k">end</span><span class="p">)],</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hidden-layers">
+<h3>Hidden layers<a class="headerlink" href="#hidden-layers" title="Permalink to this headline">¶</a></h3>
+<p>What connects our placeholders are dense layers of neurons with ReLU activations and bias terms, which we create by looping over the layers - the forward propagation, really.</p>
+<p>Every layer consists of the variables <code class="code docutils literal notranslate"><span class="pre">w_</span></code> and <code class="code docutils literal notranslate"><span class="pre">b_</span></code>, holding the weights and the bias terms, respectively.
+Multiplying the weights with the latest inputs <code class="code docutils literal notranslate"><span class="pre">y_layer</span></code> and adding the bias gives us the pre-activations <code class="code docutils literal notranslate"><span class="pre">y_pre</span></code>, which are either fed to the <code class="code docutils literal notranslate"><span class="pre">tensorflow.Ops.relu()</span></code> operation (for hidden layers), or are linearly mapped to the output of the last layer stored in <code class="code docutils literal notranslate"><span class="pre">obj.pred</span></code>.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="p">=</span> <span class="p">[];</span>
+<span class="n">y_layer</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">X</span><span class="p">;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="n">n_layers</span><span class="o">-</span><span class="mi">1</span>
+  <span class="n">w_</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">variable</span><span class="p">([</span><span class="n">layers</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="n">layers</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">DataType</span><span class="p">(</span><span class="s">&#39;TF_DOUBLE&#39;</span><span class="p">),</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;w&#39;</span> <span class="n">num2str</span><span class="p">(</span><span class="n">i</span><span class="p">)]);</span>
+  <span class="n">b_</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">variable</span><span class="p">([</span><span class="n">layers</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">DataType</span><span class="p">(</span><span class="s">&#39;TF_DOUBLE&#39;</span><span class="p">),</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;b&#39;</span> <span class="n">num2str</span><span class="p">(</span><span class="n">i</span><span class="p">)]);</span>
+  <span class="c">% ... initialization (skipped)</span>
+  <span class="n">y_pre</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">g</span><span class="p">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">y_layer</span><span class="p">,</span> <span class="n">w_</span><span class="p">),</span> <span class="n">b_</span><span class="p">);</span>
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">n_layers</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">obj</span><span class="p">.</span><span class="n">pred</span> <span class="p">=</span> <span class="n">y_pre</span><span class="p">;</span> <span class="c">% output layer (linear)</span>
+  <span class="k">else</span>
+    <span class="n">y_layer</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">relu</span><span class="p">(</span><span class="n">y_pre</span><span class="p">);</span> <span class="c">% hidden layers using ReLU</span>
+  <span class="k">end</span>
+  <span class="n">params</span> <span class="p">=</span> <span class="p">[</span><span class="n">params</span><span class="p">;</span> <span class="n">w_</span><span class="p">;</span> <span class="n">b_</span><span class="p">];</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>The parameters are initialized by random draws from a normal distribution - for the sake of compactness, we skipped the corresponding lines in the code snipped above (have a look at the source for the full implementation).
+<em>Note</em>: Feel free to replace the ReLU activation at this point with an activation function of your choice, e.g., <code class="code docutils literal notranslate"><span class="pre">y_layer</span> <span class="pre">=</span> <span class="pre">g.tanh(y_pre);</span></code> or <code class="code docutils literal notranslate"><span class="pre">y_layer</span> <span class="pre">=</span> <span class="pre">g.sigmoid(y_pre);</span></code>.</p>
+</div>
+<div class="section" id="objective">
+<h3>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h3>
+<p>At this point we have expressions for our predicted output <code class="code docutils literal notranslate"><span class="pre">obj.pred</span></code> and all parameters <code class="code docutils literal notranslate"><span class="pre">params</span></code>, such that we can define a mean squared error (MSE) objective (adding a Tikhonov regularization term):</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="p">.</span><span class="n">cost</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">addn</span><span class="p">([</span> <span class="p">...</span>
+  <span class="n">g</span><span class="p">.</span><span class="nb">mean</span><span class="p">(</span><span class="n">g</span><span class="p">.</span><span class="n">squareddifference</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">g</span><span class="p">.</span><span class="nb">transpose</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">pred</span><span class="p">,</span> <span class="n">g</span><span class="p">.</span><span class="n">constant</span><span class="p">(</span><span class="n">int32</span><span class="p">([</span><span class="mi">1</span><span class="p">;</span> <span class="mi">0</span><span class="p">])))),</span> <span class="n">g</span><span class="p">.</span><span class="n">constant</span><span class="p">(</span><span class="n">int32</span><span class="p">([</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]))),</span> <span class="p">...</span>
+  <span class="n">g</span><span class="p">.</span><span class="n">mul</span><span class="p">(</span><span class="n">lambda</span><span class="p">,</span> <span class="n">g</span><span class="p">.</span><span class="n">l2loss</span><span class="p">(</span><span class="n">params</span><span class="p">))</span> <span class="p">...</span>
+<span class="p">]);</span>
+</pre></div>
+</div>
+<p>We make use of a number of TensorFlow operations here, where most of them represent obvious functionality (<code class="code docutils literal notranslate"><span class="pre">addn</span></code>, <code class="code docutils literal notranslate"><span class="pre">mean</span></code>, <code class="code docutils literal notranslate"><span class="pre">squareddifference</span></code>, <code class="code docutils literal notranslate"><span class="pre">mul</span></code>, <code class="code docutils literal notranslate"><span class="pre">l2loss</span></code>). However, the <code class="code docutils literal notranslate"><span class="pre">transpose</span></code> operation is necessary to obtain compatible dimensions for the remaining operations - a technicality, so to speak.</p>
+</div>
+<div class="section" id="gradients">
+<h3>Gradients<a class="headerlink" href="#gradients" title="Permalink to this headline">¶</a></h3>
+<p>Having computed the cost, we can now prepare our later backpropagation by computing the gradients, using the <code class="code docutils literal notranslate"><span class="pre">tensorflow.Graph.addGradient()</span></code> method:</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+  <span class="nb">gradient</span> <span class="p">=</span> <span class="n">g</span><span class="p">.</span><span class="n">addGradients</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">cost</span><span class="p">,</span> <span class="n">params</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+  <span class="n">obj</span><span class="p">.</span><span class="n">grad</span> <span class="p">=</span> <span class="p">[</span><span class="n">obj</span><span class="p">.</span><span class="n">grad</span><span class="p">;</span> <span class="nb">gradient</span><span class="p">];</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>And that’s all for building our network - we’re ready to proceed to find some good values for our parameters.</p>
+</div>
+</div>
+<div class="section" id="training">
+<h2>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h2>
+<p>For training our network we will use the RMSprop algorithm with a user-defined batch size. To write a nice wrapper for our training task, we create a <code class="code docutils literal notranslate"><span class="pre">mlp.fit()</span></code> method that accepts seven arguments: the inputs <code class="code docutils literal notranslate"><span class="pre">X</span></code>, the targets <code class="code docutils literal notranslate"><span class="pre">y</span></code>, the number of epochs to run <code class="code docutils literal notranslate"><span class="pre">nepoch</span></code>, the batch size to use <code class="code docutils literal notranslate"><span class="pre">batchsize</span></code>, the learning rate <code class="code docutils literal notranslate"><span class="pre">lr</span></code> and the decay values for averaging and momentum, <code class="code docutils literal notranslate"><span class="pre">gamma_mean</span></code> and <code class="code docutils literal notranslate"><span class="pre">gamma_mom</span></code>, respectively. As results, we will return the cost values after every batch in <code class="code docutils literal notranslate"><span class="pre">f</span></code>, the trained weights <code class="code docutils literal notranslate"><span class="pre">w</span></code> and the trained bias <code class="code docutils literal notranslate"><span class="pre">b</span></code>.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>[f, w, b] <span class="p">=</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>obj, X, y, nepoch, batchsize, lr, gamma_mean, gamma_mom<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="c">% ...</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<div class="section" id="rmsprop-algorithm">
+<h3>RMSprop algorithm<a class="headerlink" href="#rmsprop-algorithm" title="Permalink to this headline">¶</a></h3>
+<p>To use the RMSprop algorithm, we create an operation that we will then repeatedly run in a loop. For every parameter we create two variables - one keeping track of the mean <code class="code docutils literal notranslate"><span class="pre">ms</span></code>, and one for the momentum <code class="code docutils literal notranslate"><span class="pre">mom</span></code>. Making use of <code class="code docutils literal notranslate"><span class="pre">tensorflow.Ops.shape</span></code> to obtain the respective parameter’s shape, they are initialized to zero with the <code class="code docutils literal notranslate"><span class="pre">tensorflow.Ops.zeroslike</span></code> operation and are then fed to <code class="code docutils literal notranslate"><span class="pre">tensorflow.Ops.applyrmsprop</span></code> together with earlier described hyperparameters and the gradient.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">apply_rmsprop</span> <span class="p">=</span> <span class="p">[];</span>
+<span class="k">for</span> <span class="n">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">params</span><span class="p">)</span>
+  <span class="n">shape</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="nb">run</span><span class="p">([],[],</span><span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">params</span><span class="p">(</span><span class="n">i</span><span class="p">))).</span><span class="n">value</span><span class="p">;</span>
+  <span class="n">ms</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">variable</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">DataType</span><span class="p">(</span><span class="s">&#39;TF_DOUBLE&#39;</span><span class="p">),</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;ms&#39;</span> <span class="n">num2str</span><span class="p">(</span><span class="n">i</span><span class="p">)]);</span>
+  <span class="n">mom</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">variable</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">DataType</span><span class="p">(</span><span class="s">&#39;TF_DOUBLE&#39;</span><span class="p">),</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;mom&#39;</span> <span class="n">num2str</span><span class="p">(</span><span class="n">i</span><span class="p">)]);</span>
+  <span class="n">obj</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="nb">run</span><span class="p">([],[],</span> <span class="p">[</span><span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">zeroslike</span><span class="p">(</span><span class="n">ms</span><span class="p">));</span> <span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">assign</span><span class="p">(</span><span class="n">mom</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">zeroslike</span><span class="p">(</span><span class="n">mom</span><span class="p">))]);</span>
+  <span class="n">apply_</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">g</span><span class="p">.</span><span class="n">applyrmsprop</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">params</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">ms</span><span class="p">,</span> <span class="n">mom</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">gamma_mean</span><span class="p">,</span> <span class="n">gamma_mom</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">grad</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+  <span class="n">apply_rmsprop</span> <span class="p">=</span> <span class="p">[</span><span class="n">apply_rmsprop</span><span class="p">;</span> <span class="n">apply_</span><span class="p">];</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="preparing-the-training-step">
+<h3>Preparing the training step<a class="headerlink" href="#preparing-the-training-step" title="Permalink to this headline">¶</a></h3>
+<p>We proceed to the actual training loop - running for <code class="code docutils literal notranslate"><span class="pre">nepoch</span></code> epochs, each with a batch size of <code class="code docutils literal notranslate"><span class="pre">batchsize</span></code>. At the beginning of every epoch we shuffle the data and then select the required batch to apply our RMSprop for.
+Two session runs are executed for every batch - a forward propagation that gives us the cost evaluated with the current parameters, and a backpropagation through running the previously built <code class="code docutils literal notranslate"><span class="pre">apply_rmsprop</span></code> outputs together with the predicted output.
+The result is an update of the parameter values according to our chosen hyperparameters, automatically stored in our graph to be used in the next batch/epoch or for prediction.</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">m</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="n">nepoch</span>
+  <span class="n">idx</span> <span class="p">=</span> <span class="nb">randi</span><span class="p">(</span><span class="n">ndata</span><span class="p">,</span> <span class="n">ndata</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="n">X_shuffle</span> <span class="p">=</span> <span class="n">X</span><span class="p">(</span><span class="n">idx</span><span class="p">,:);</span>
+  <span class="n">y_shuffle</span> <span class="p">=</span> <span class="n">y</span><span class="p">(</span><span class="n">idx</span><span class="p">,:);</span>
+
+  <span class="k">for</span> <span class="n">n</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="n">nbatch</span>
+    <span class="c">% ...</span>
+    <span class="n">idx</span> <span class="p">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">batchsize</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">batchsize</span><span class="p">;</span>
+    <span class="n">batch_input</span> <span class="p">=</span> <span class="p">[</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">X_shuffle</span><span class="p">(</span><span class="n">idx</span><span class="p">,:)),</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">y_shuffle</span><span class="p">(</span><span class="n">idx</span><span class="p">,:))</span> <span class="p">];</span>
+
+    <span class="n">f</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="nb">run</span><span class="p">([</span><span class="n">obj</span><span class="p">.</span><span class="n">X</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">y</span><span class="p">],</span> <span class="n">batch_input</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">cost</span><span class="p">).</span><span class="n">value</span><span class="p">();</span>
+    <span class="n">obj</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="nb">run</span><span class="p">([</span><span class="n">obj</span><span class="p">.</span><span class="n">X</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">y</span><span class="p">],</span> <span class="n">batch_input</span><span class="p">,</span> <span class="p">[</span><span class="n">apply_rmsprop</span><span class="p">;</span> <span class="n">obj</span><span class="p">.</span><span class="n">pred</span><span class="p">]);</span>
+  <span class="k">end</span>
+  <span class="c">% ...</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="executing-the-training-step">
+<h3>Executing the training step<a class="headerlink" href="#executing-the-training-step" title="Permalink to this headline">¶</a></h3>
+<p>Having implemented our class method, we invoke the fitting task by calling it with a set of arguments that match the TensorFlow tutorial’s values (and the default values of Keras), namely <code class="code docutils literal notranslate"><span class="pre">1000</span></code> epochs with a batch size of <code class="code docutils literal notranslate"><span class="pre">32</span></code>, a learning rate of <code class="code docutils literal notranslate"><span class="pre">0.001</span></code> and decay values for RMSprop’s averaging and momentum of <code class="code docutils literal notranslate"><span class="pre">0.9</span></code>:</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">f</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span> <span class="p">=</span> <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data_norm</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-----------------
+Epoch <span class="p">|</span>   Loss
+-----------------
+    <span class="m">1</span> <span class="p">|</span> <span class="m">1</span>.53e+03
+    <span class="m">2</span> <span class="p">|</span> <span class="m">4</span>.04e+02
+    <span class="m">3</span> <span class="p">|</span> <span class="m">1</span>.56e+02
+    <span class="m">4</span> <span class="p">|</span> <span class="m">1</span>.37e+02
+    <span class="m">5</span> <span class="p">|</span> <span class="m">1</span>.22e+02
+...
+</pre></div>
+</div>
+<p>After running for a while, we can now use our model and predict the MPG for our test data.</p>
+</div>
+</div>
+<div class="section" id="prediction">
+<h2>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h2>
+<p>The prediction is a simple forward sweep of our trained network, which we implement as a one-liner method of our <code class="code docutils literal notranslate"><span class="pre">mlp</span></code> class:</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>yhat <span class="p">=</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>obj, X<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">yhat</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">s</span><span class="p">.</span><span class="nb">run</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">X</span><span class="p">,</span> <span class="n">tensorflow</span><span class="p">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">obj</span><span class="p">.</span><span class="n">pred</span><span class="p">).</span><span class="n">value</span><span class="p">();</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>Calling this method with our test data, we obtain the predicted MPG as <code class="code docutils literal notranslate"><span class="pre">yhat</span></code>:</p>
+<div class="highlight-octave notranslate"><div class="highlight"><pre><span></span><span class="n">yhat</span> <span class="p">=</span> <span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data_norm</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="results">
+<h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h3>
+<p>The resulting predictions are shown in the figure below (bottom-right) - note the dashed black line, indicating the optimal result.</p>
+<img alt="../../_images/results.png" src="../../_images/results.png" />
+<p>We also visualize the residuals of the fit (top-left) and the prediction (bottom-left), together with the evolution of the cost over run batches (top-right).
+While the predictions seem reasonable and are already pretty close to the actual MPG, the evolution of the cost suggests that we could still gain better fits by tuning the hyperparameters.</p>
+<p>This, however, we will leave to you to play with ;)</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../api-doc/index.html" class="btn btn-neutral float-right" title="API documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

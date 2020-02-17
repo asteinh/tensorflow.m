@@ -3,6 +3,6 @@ Examples
 
 .. toctree::
    :glob:
-   :maxdepth: 2
+   :maxdepth: 1
 
-   simple-mlp
+   regression/index
