@@ -137,7 +137,7 @@ jobs:
           at: ~/project/
       - run:
           name: gh-pages
-          command: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+          command: gh-pages --dotfiles --message "[skip ci] Update pages" --dist docs/build/html
 
   # build, test and deploy a Docker image with TensorFlow libraries and tensorflow.m set up
   deploy_package:
