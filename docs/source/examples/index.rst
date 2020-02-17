@@ -1,8 +1,7 @@
-Examples
-========
 
 .. toctree::
-   :glob:
    :maxdepth: 2
+   :glob:
+   :caption: Examples
 
-   simple-mlp
+   regression/index

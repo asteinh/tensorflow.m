@@ -3,14 +3,37 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. _Welcome:
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: Docs
+
+   quick-start
+   installation
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: Examples
+
+   examples/index
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: API
+
+   api-doc/index
 
 Welcome to tensorflow.m's documentation!
 ========================================
 
 tensorflow.m is a free and open-source MATLAB/Octave package, interfacing `TensorFlow <https://www.tensorflow.org/>`_'s `C API <https://www.tensorflow.org/install/lang_c>`_ without requiring any additional tools.
 
-Looking for an easy way to get started? Check out the `quick start guide <quick-start.html>`__.
+Looking for an easy way to get started? Check out the `quick start guide <quick-start.html>`_.
 
 This allows you to use the functionality of TensorFlow's core from within MATLAB/Octave via a MEX function and wrapper classes.
 Since the purpose of this package is to interface libraries provided by TensorFlow (rather than duplicating code in another language), anything not exposed to the C API is considered beyond the scope.
@@ -30,12 +53,3 @@ License
 tensorflow.m is licensed under the `Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_.
 
 **Note**: This software is in active development, we cannot make any promises regarding the stability of the API.
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :glob:
-
-   quick-start
-   installation
-   api-doc/index

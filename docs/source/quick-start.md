@@ -43,7 +43,7 @@ c_val = session.run([], [], c).value();
 ```
 Note the appended `.value()`, which fetches the numeric values of a tensor.
 
-## Where to go from here
+## What's next
 You're all set.
 Feel free to head over to [the examples](examples/index) and have a go at more complex examples, or start working on your own project.
 For details on available operations, etc. take a look at the [API documentation](api-doc/index).
