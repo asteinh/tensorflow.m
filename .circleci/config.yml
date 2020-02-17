@@ -78,7 +78,6 @@ jobs:
         default: false
     executor: << parameters.executor >>
     steps:
-      - checkout
       - attach_workspace:
           at: ~/
       - run:
@@ -97,16 +96,16 @@ jobs:
                 name: Unit tests
                 command: cd tests && octave-cli --eval "s = run_unittests(); exit(s);"
       - persist_to_workspace:
-          root: ~/project/
+          root: ~/
           paths:
-            - tests/results/
+            - project/tests/results/
 
   # upload coverage report
   coverage:
     executor: build_env
     steps:
       - attach_workspace:
-          at: ~/project/
+          at: ~/
       - codecov/upload:
           file: tests/results/coverage.xml
           flags: unittests
@@ -120,9 +119,9 @@ jobs:
           name: Make HTML
           command: cd docs && make html
       - persist_to_workspace:
-          root: ~/project/
+          root: ~/
           paths:
-            - docs/build/html
+            - project/docs/build/html
 
   # deploy documentation to github pages
   deploy_docs:
@@ -131,9 +130,8 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
-      - checkout
       - attach_workspace:
-          at: ~/project/
+          at: ~/
       - run:
           name: gh-pages
           command: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
@@ -145,7 +143,6 @@ jobs:
         type: string
     executor: build_env
     steps:
-      - checkout
       - attach_workspace:
           at: ~/
       - setup_remote_docker
