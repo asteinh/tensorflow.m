@@ -149,10 +149,11 @@ jobs:
       - attach_workspace:
           at: ~/
       - setup_remote_docker
+      - run: echo 'export IMAGE=$CIRCLE_JOB' >> $BASH_ENV
       - run:
           name: Prepare build
           command: |
-            export IMAGE=$CIRCLE_JOB
+            echo $IMAGE
             echo 'export IMAGE_TAG=docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:latest' >> $BASH_ENV
             cp .circleci/Dockerfiles/<< parameters.dockerfile >> Dockerfile
       - run:
