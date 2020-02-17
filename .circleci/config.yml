@@ -36,13 +36,15 @@ commands:
         description: url of the TensorFlow libraries
         type: string
     steps:
-      - run: |
-          export FILE=$(echo << parameters.url >> | awk -F '/' '{print $NF}')
-          export FOLDER=${FILE%.tar.gz}
-          export DEST=<< parameters.dest >>/$FOLDER
-          curl << parameters.url >> -o /tmp/$FILE
-          mkdir -p $DEST && tar -xzf /tmp/$FILE -C $DEST
-          rm /tmp/$FILE
+      - run:
+          name: Prepare TensorFlow libraries
+          command: |
+            export FILE=$(echo << parameters.url >> | awk -F '/' '{print $NF}')
+            export FOLDER=${FILE%.tar.gz}
+            export DEST=<< parameters.dest >>/$FOLDER
+            curl << parameters.url >> -o /tmp/$FILE
+            mkdir -p $DEST && tar -xzf /tmp/$FILE -C $DEST
+            rm /tmp/$FILE
 
 ################################################################################
 # JOBS
@@ -64,17 +66,23 @@ jobs:
       - prepare_libraries:
           dest: tensorflow/mex/third_party
           url: $LIBTENSORFLOW_URL
-      - run: |
-          octave-cli --eval "setup();"
-          cd tests && ./setup_unittests.sh
+      - run:
+          name: Setup
+          command: |
+            octave-cli --eval "setup();"
+            cd tests && ./setup_unittests.sh
       - when:
           condition: << parameters.with_coverage >>
           steps:
-            - run: cd tests && octave-cli --eval "s = run_unittests('--with-coverage'); exit(s);"
+            - run:
+                name: Unit tests + coverage
+                command: cd tests && octave-cli --eval "s = run_unittests('--with-coverage'); exit(s);"
       - unless:
           condition: << parameters.with_coverage >>
           steps:
-            - run: cd tests && octave-cli --eval "s = run_unittests(); exit(s);"
+            - run:
+                name: Unit tests
+                command: cd tests && octave-cli --eval "s = run_unittests(); exit(s);"
       - persist_to_workspace:
           root: ~/project/
           paths:
@@ -86,17 +94,18 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/project/
-      # - codecov/upload:
-      #     file: tests/results/coverage.xml
-      #     flags: unittests
-      - run: echo "NO UPLOAD"
+      - codecov/upload:
+          file: tests/results/coverage.xml
+          flags: unittests
 
   # build documentation with sphinx
   build_docs:
     executor: build_env
     steps:
       - checkout
-      - run: cd docs && make html
+      - run:
+          name: Make HTML
+          command: cd docs && make html
       - persist_to_workspace:
           root: ~/project/
           paths:
@@ -112,7 +121,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/
-      - run: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+      - run:
+          name: gh-pages
+          command: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
 
 # DEPLOY jobs
   # build a Docker image based on Octave 5 with TensorFlow libraries and tensorflow.m set up
@@ -124,13 +135,18 @@ jobs:
       - prepare_libraries:
           dest: tensorflow/mex/third_party
           url: $LIBTENSORFLOW_URL
-      - run: |
-          export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-          cp .circleci/Dockerfiles/Dockerfile.deploy Dockerfile
-          docker build -t $SHORT_SHA1 .
-          mkdir -p ../images
-          docker save --output ../images/$SHORT_SHA1.tar $SHORT_SHA1
-          rm Dockerfile
+      - run:
+          name: docker build
+          command: |
+            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
+            cp .circleci/Dockerfiles/Dockerfile.deploy Dockerfile
+            docker build -t $SHORT_SHA1 .
+      - run:
+          name: docker save
+          command: |
+            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
+            mkdir -p ../images
+            docker save --output ../images/$SHORT_SHA1.tar $SHORT_SHA1
       - persist_to_workspace:
           root: ~/
           paths:
@@ -144,12 +160,17 @@ jobs:
       - setup_remote_docker
       - attach_workspace:
           at: ~/
-      - run: |
-          export SHORT_SHA1=${CIRCLE_SHA1:0:7}
-          docker load --input ../images/$SHORT_SHA1.tar
-          docker run $SHORT_SHA1 /bin/bash -c "cd tests && ./setup_unittests.sh"
-          docker exec $SHORT_SHA1 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
-          docker stop $SHORT_SHA1 && docker rm $SHORT_SHA1
+      - run:
+          name: docker load
+          command: |
+            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
+            docker load --input ../images/$SHORT_SHA1.tar
+      - run:
+          name: docker run
+          command: |
+            export SHORT_SHA1=${CIRCLE_SHA1:0:7}
+            docker run --rm $SHORT_SHA1 /bin/bash -c \
+              "cd tests && ./setup_unittests.sh && cd ../ && octave-cli --eval \"s = run_unittests(); exit(s);\""
 
   # deploy image to github packages
   deploy_image:
@@ -158,8 +179,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - run: |
-          ls -l images/
+      - run:
+          name: deploy
+          command: |
+            ls -l images/
 
 ################################################################################
 # WORKFLOWS
