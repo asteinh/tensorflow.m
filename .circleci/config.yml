@@ -224,28 +224,28 @@ workflows:
   master:
     jobs:
       - prepare_tests:
-          <<: *develop_filter
+          <<: *master_filter
       - run_tests:
-          <<: *develop_filter
+          <<: *master_filter
           executor: octave4_env
           name: tests-octave4-master
           requires:
             - prepare_tests
       - run_tests:
-          <<: *develop_filter
+          <<: *master_filter
           executor: octave5_env
           name: tests-octave5-master
           with_coverage: true
           requires:
             - prepare_tests
       - coverage:
-          <<: *develop_filter
+          <<: *master_filter
           requires:
             - tests-octave5-master
       - build_docs:
-          <<: *develop_filter
+          <<: *master_filter
       - deploy_docs:
-          <<: *develop_filter
+          <<: *master_filter
           requires: # deploy iff tests and building succeeds
             - tests-octave4-master
             - tests-octave5-master
