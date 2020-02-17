@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; tensorflow.m  documentation</title>
+  <title>Installation details &mdash; tensorflow.m  documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="examples/index.html" />
+    <link rel="next" title="&lt;no title&gt;" href="examples/index.html" />
     <link rel="prev" title="Quick start" href="quick-start.html" /> 
 </head>
 
@@ -80,14 +80,24 @@
               
             
             
-              <ul class="current">
+              <p class="caption"><span class="caption-text">Docs</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation details</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#flags">Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mex-function">MEX function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#operations">Operations</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api-doc/index.html">API documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/regression/index.html">Regression</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api-doc/tensorflow/index.html">+tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api-doc/util/index.html">+util</a></li>
 </ul>
 
             
@@ -133,13 +143,15 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Installation</li>
+      <li>Installation details</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/installation.md.txt" rel="nofollow"> View page source</a>
+            
+              <a href="https://github.com/asteinh/tensorflow.m/blob/master/docs/source/installation.md" class="fa fa-github"> Edit on GitHub</a>
+            
           
         
       </li>
@@ -152,18 +164,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>If you have sufficient user rights to adapt the path, this setup will automatically add the required paths to your MATLAB/Octave path.
+  <div class="section" id="installation-details">
+<h1>Installation details<a class="headerlink" href="#installation-details" title="Permalink to this headline">¶</a></h1>
+<p>Let’s assume you cloned the repository to your preferred location</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:asteinh/tensorflow.m.git rootdir
+</pre></div>
+</div>
+<p>where we will refer to the root directory as <code class="docutils literal notranslate"><span class="pre">rootdir</span></code>.
+If you have sufficient user rights to adapt the path, the setup script will automatically add the required paths to your MATLAB/Octave path.
 It will further automatically download the TensorFlow libraries and unpack them to <code class="docutils literal notranslate"><span class="pre">rootdir/tensorflow/mex/third-party</span></code>, unless it finds an already available library in a number of default locations, including the user’s downloads folder.</p>
 <div class="section" id="flags">
 <h2>Flags<a class="headerlink" href="#flags" title="Permalink to this headline">¶</a></h2>
-<p>The setup checks for the existence/value of some variables which you can set prior to running the function.</p>
+<p>The setup checks the existence/value of some variables which you can set prior to running the function.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">DEBUG</span></code>: a boolean (logical) flag; produces debug output if set to true</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LIBTENSORFLOW</span></code>: a string (char array) hinting to the location of the TensorFlow library; if you have downloaded/built the shared library manually, set this variable to the root location (i.e. where LICENSE can be found) of the download</p></li>
 </ul>
-<p>If you provide a path to a manually downloaded library folder, the library (even if not found in the hinted path) will not be automatically downloaded.</p>
+<p>If you provide a path to a manually downloaded library folder, the libraries (even if not found in the hinted path) will not be automatically downloaded.</p>
+</div>
+<div class="section" id="mex-function">
+<h2>MEX function<a class="headerlink" href="#mex-function" title="Permalink to this headline">¶</a></h2>
+<p>The source of the C MEX interface is located in <code class="docutils literal notranslate"><span class="pre">rootdir/tensorflow/mex/src</span></code>, split into an interface, a utilities and an implementation file. Corresponding headers can be found in <code class="docutils literal notranslate"><span class="pre">rootdir/tensorflow/mex/include</span></code>.
+The setup script takes care of linking against required libraries and generates the resulting MEX function <code class="docutils literal notranslate"><span class="pre">tensorflow_m_.*</span></code> in <code class="docutils literal notranslate"><span class="pre">rootdir/tensorflow/mex/build</span></code>.</p>
+</div>
+<div class="section" id="operations">
+<h2>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h2>
+<p>More than 1200 TensorFlow operations are automatically generated during the setup. The corresponding functions are placed in <code class="docutils literal notranslate"><span class="pre">rootdir/tensorflow/+tensorflow/&#64;Ops</span></code> and available to the user as methods of <code class="docutils literal notranslate"><span class="pre">tensorflow.Graph</span></code> objects - <code class="docutils literal notranslate"><span class="pre">tensorflow.Graph</span></code> inherits the <code class="docutils literal notranslate"><span class="pre">tensorflow.Ops</span></code> class.</p>
 </div>
 </div>
 
@@ -175,7 +201,7 @@ It will further automatically download the TensorFlow libraries and unpack them 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="examples/index.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="examples/index.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="quick-start.html" class="btn btn-neutral float-left" title="Quick start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
