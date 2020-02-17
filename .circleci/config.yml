@@ -152,7 +152,7 @@ jobs:
       - run:
           name: Prepare build
           command: |
-            export IMAGE=<< parameters.name >>
+            export IMAGE=$CIRCLE_JOB
             echo 'export IMAGE_TAG=docker.pkg.github.com/asteinh/tensorflow.m/$IMAGE:latest' >> $BASH_ENV
             cp .circleci/Dockerfiles/<< parameters.dockerfile >> Dockerfile
       - run:
