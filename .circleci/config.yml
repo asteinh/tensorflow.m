@@ -1,7 +1,7 @@
 version: 2.1
 
 defaults: &defaults
-  working_directory: ~/
+  working_directory: ~/project/
   shell: /bin/bash
   environment:
     - SHORT_SHA1: ${CIRCLE_SHA1:0:7}
@@ -75,7 +75,7 @@ jobs:
           steps:
             - run: octave-cli --eval "s = run_unittests(); exit(s);"
       - persist_to_workspace:
-          root: ~/
+          root: ~/project/
           paths:
             - tests/results/
 
@@ -84,7 +84,7 @@ jobs:
     executor: build_exec
     steps:
       - attach_workspace:
-          at: ~/
+          at: ~/project/
       # - codecov/upload:
       #     file: tests/results/coverage.xml
       #     flags: unittests
@@ -97,7 +97,7 @@ jobs:
       - checkout
       - run: cd docs && make html
       - persist_to_workspace:
-          root: ~/
+          root: ~/project/
           paths:
             - docs/build/html
 
@@ -110,7 +110,7 @@ jobs:
             - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
       - checkout
       - attach_workspace:
-          at: ~/
+          at: ~/project/
       - run: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
       - run: echo "NO UPLOAD"
 
@@ -124,10 +124,10 @@ jobs:
       - prepare_libraries:
           destination: tensorflow/mex/third_party
       - run: |
-          mkdir -p images
           cp .circleci/Dockerfiles/Dockerfile.deploy Dockerfile
           docker build -t $SHORT_SHA1 .
-          docker save --output images/$SHORT_SHA1.tar $SHORT_SHA1
+          mkdir -p ../images
+          docker save --output ../images/$SHORT_SHA1.tar $SHORT_SHA1
           rm Dockerfile
       - persist_to_workspace:
           root: ~/
@@ -143,7 +143,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: |
-          docker load --input images/$SHORT_SHA1.tar
+          docker load --input ../images/$SHORT_SHA1.tar
           docker run $SHORT_SHA1 /bin/bash -c "cd tests && ./setup_unittests.sh"
           docker exec $SHORT_SHA1 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
           docker stop $SHORT_SHA1 && docker rm $SHORT_SHA1
