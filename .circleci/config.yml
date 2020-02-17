@@ -30,17 +30,18 @@ orbs:
 commands:
   prepare_libraries:
     parameters:
-      destination:
+      dest:
         description: relative path, where to store libraries
+        type: string
+      url:
+        description: url of the TensorFlow libraries
         type: string
     steps:
       - run: |
-          export FILE=$(echo $LIBTENSORFLOW_URL | awk -F '/' '{print $NF}')
-          echo $FILE
+          export FILE=$(echo << parameters.url >> | awk -F '/' '{print $NF}')
           export FOLDER=${FILE%.tar.gz}
-          echo $FOLDER
-          export DEST=$LIBTENSORFLOW_URL/$FOLDER
-          curl $LIBTENSORFLOW_URL -o /tmp/$FILE
+          export DEST=<< parameters.dest >>/$FOLDER
+          curl << parameters.url >> -o /tmp/$FILE
           mkdir -p $DEST && tar -xzf /tmp/$FILE -C $DEST
           rm /tmp/$FILE
 
@@ -62,16 +63,17 @@ jobs:
     steps:
       - checkout
       - prepare_libraries:
-          destination: tensorflow/mex/third_party
+          dest: tensorflow/mex/third_party
+          url: $LIBTENSORFLOW_URL
       - run: |
           octave-cli --eval "setup();"
           cd tests && ./setup_unittests.sh
       - when:
-          condition: <<parameters.with_coverage>>
+          condition: << parameters.with_coverage >>
           steps:
             - run: octave-cli --eval "s = run_unittests('--with-coverage'); exit(s);"
       - unless:
-          condition: <<parameters.with_coverage>>
+          condition: << parameters.with_coverage >>
           steps:
             - run: octave-cli --eval "s = run_unittests(); exit(s);"
       - persist_to_workspace:
@@ -122,7 +124,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - prepare_libraries:
-          destination: tensorflow/mex/third_party
+          dest: tensorflow/mex/third_party
+          url: $LIBTENSORFLOW_URL
       - run: |
           cp .circleci/Dockerfiles/Dockerfile.deploy Dockerfile
           docker build -t $SHORT_SHA1 .
