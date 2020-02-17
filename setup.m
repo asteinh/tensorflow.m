@@ -26,7 +26,7 @@ function setup()
   % add path, if not already added
   pkg_dir = fullfile(pwd, 'tensorflow');
   if DEBUG; disp(['Root folder of tensorflow.m: ' pkg_dir]); end
-  
+
   paths_ = regexp(path, pathsep, 'split');
   required_paths = { pkg_dir, fullfile(pkg_dir, 'mex', 'build') };
   for i = 1:numel(required_paths)
@@ -36,7 +36,6 @@ function setup()
       % not yet in path, add root folder
       if DEBUG; disp(['Folder ''' p ''' not found in path - adding it and saving the path.']); end
       addpath(p);
-      addpath(fullfile(p, 'mex', 'build'));
       savepath;
     else
       if DEBUG; disp(['Folder ''' p ''' already in path.']); end

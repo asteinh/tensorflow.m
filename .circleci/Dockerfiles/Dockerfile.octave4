@@ -1,0 +1,7 @@
+FROM asteinh/docker:tensorflowm-octave4-base
+
+MAINTAINER asteinh
+
+COPY --chown=octave:octave ./ ./
+
+RUN octave-cli --eval "setup();"

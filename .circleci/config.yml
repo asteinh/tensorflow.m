@@ -1,116 +1,270 @@
-only-master: &only-master
-  filters:
-    branches:
-      only: master
-
-no-pages: &no-pages
-  filters:
-    branches:
-      ignore: gh-pages
-
 version: 2.1
+
+defaults: &defaults
+  working_directory: ~/project/
+  shell: /bin/bash
+  environment:
+    - LIBTENSORFLOW_URL: https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+
+executors:
+  build_env:
+    <<: *defaults
+    docker:
+      - image: asteinh/docker:tensorflowm-ci
+  octave4_env:
+    <<: *defaults
+    docker:
+      - image: asteinh/docker:tensorflowm-octave4-base
+  octave5_env:
+    <<: *defaults
+    docker:
+      - image: asteinh/docker:tensorflowm-octave5-base
+
 orbs:
   codecov: codecov/codecov@1.0.5
 
+################################################################################
+# COMMANDS
+################################################################################
+commands:
+  prepare_libraries:
+    parameters:
+      dest:
+        description: relative path, where to store libraries
+        type: string
+      url:
+        description: url of the TensorFlow libraries
+        type: string
+    steps:
+      - run:
+          name: Prepare TensorFlow libraries
+          command: |
+            export FILE=$(echo << parameters.url >> | awk -F '/' '{print $NF}')
+            export FOLDER=${FILE%.tar.gz}
+            export DEST=<< parameters.dest >>/$FOLDER
+            curl << parameters.url >> -o /tmp/$FILE
+            mkdir -p $DEST && tar -xzf /tmp/$FILE -C $DEST
+            rm /tmp/$FILE
+
+################################################################################
+# JOBS
+################################################################################
 jobs:
-  prepare-dependencies:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave4
+
+  # prepare unit test environment
+  prepare_tests:
+    executor: build_env
     steps:
       - checkout
-      - run: |
-          curl https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz -o libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
-          mkdir -p tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0
-          tar -C tensorflow/mex/third_party/libtensorflow-cpu-linux-x86_64-1.15.0 -xzf libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+      - prepare_libraries:
+          dest: tensorflow/mex/third_party
+          url: $LIBTENSORFLOW_URL
+      - run:
+          name: Set up unit tests
+          command: cd tests && ./setup_unittests.sh
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/*
-  octave4:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave4
+            - project/
+
+  # run unit tests
+  run_tests:
+    parameters:
+      executor:
+        type: executor
+        default: octave5_env
+      with_coverage:
+        type: boolean
+        default: false
+    executor: << parameters.executor >>
     steps:
       - attach_workspace:
           at: ~/
-      - run: octave --eval "DEBUG=true; run setup"
-      - run: |
-          cd tests
-          sh setup_unittests.sh
-          octave --eval "s = run_unittests(); exit(s)"
-  octave5:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave5
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: octave --eval "DEBUG=true; run setup"
-      - run: |
-          cd tests
-          sh setup_unittests.sh
-          octave --eval "s = run_unittests('-with_coverage'); exit(s)"
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/*
-  codecov:
-    docker:
-      - image: asteinh/docker:amd64-debian-octave5
+      - run:
+          name: Setup
+          command: octave-cli --eval "setup();"
+      - when:
+          condition: << parameters.with_coverage >>
+          steps:
+            - run:
+                name: Unit tests + coverage
+                command: cd tests && octave-cli --eval "s = run_unittests('-with_coverage'); exit(s);"
+            - persist_to_workspace:
+                root: ~/
+                paths:
+                  - project/
+      - unless:
+          condition: << parameters.with_coverage >>
+          steps:
+            - run:
+                name: Unit tests
+                command: cd tests && octave-cli --eval "s = run_unittests(); exit(s);"
+
+  # upload coverage report
+  coverage:
+    executor: build_env
     steps:
       - attach_workspace:
           at: ~/
       - codecov/upload:
           file: tests/results/coverage.xml
           flags: unittests
-  sphinx:
-    docker:
-      - image: asteinh/docker:sphinx
+
+  # build documentation with sphinx
+  build_docs:
+    executor: build_env
     steps:
-      - attach_workspace:
-          at: ~/
-      - run: cd docs/ && make html
+      - checkout
+      - run:
+          name: Make HTML
+          command: cd docs && make html
       - persist_to_workspace:
-          root: ~/
+          root: ~/project/
           paths:
-            - project/*
+            - docs/build/html
       - store_artifacts:
-          path: docs/build
-  pages:
-    docker:
-      - image: node:8.10.0
+          path: docs/build/
+
+  # deploy documentation to github pages
+  deploy_docs:
+    executor: build_env
     steps:
       - add_ssh_keys:
           fingerprints:
             - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
+      - checkout
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: gh-pages
+          command: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+
+  # build, test and deploy a Docker image with TensorFlow libraries and tensorflow.m set up
+  deploy_package:
+    parameters:
+      dockerfile:
+        type: string
+    executor: build_env
+    steps:
       - attach_workspace:
           at: ~/
-      - run: |
-          npm install -g --silent gh-pages@2.2.0
-          git config user.email "ci-build@tensorflowm"
-          git config user.name "ci-build"
-      - run: |
-          ssh -o "StrictHostKeyChecking no" github.com || true
-          touch docs/build/html/.nojekyll
-          gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+      - setup_remote_docker
+      - run:
+          name: Export variables
+          command: |
+            echo 'export TAG=$CIRCLE_TAG' >> $BASH_ENV
+            echo 'export JOB=$CIRCLE_JOB' >> $BASH_ENV
+      - run:
+          name: Prepare build
+          command: |
+            echo 'export IMAGE=docker.pkg.github.com/asteinh/tensorflow.m/$JOB:$TAG' >> $BASH_ENV
+            cp .circleci/Dockerfiles/<< parameters.dockerfile >> Dockerfile
+      - run:
+          name: docker build
+          command: |
+            docker build -t $IMAGE .
+      - run:
+          name: docker run
+          command: |
+            docker run --rm $IMAGE /bin/bash -c \
+              "cd tests && ./setup_unittests.sh && octave-cli --eval \"s = run_unittests(); exit(s);\""
+      - run:
+          name: docker push
+          command: |
+            echo $GITHUB_TOKEN | docker login docker.pkg.github.com --username $GITHUB_USER --password-stdin
+            docker push $IMAGE
+            rm ~/.docker/config.json
+
+################################################################################
+# WORKFLOWS
+################################################################################
+
+# filters for workflows
+develop: &develop_filter
+  filters:
+    branches:
+      ignore:
+        - master
+        - gh-pages
+master: &master_filter
+  filters:
+    branches:
+      only: master
+deploy: &deploy_filter
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      ignore: /.*/
 
 workflows:
   version: 2
+
+  # development workflow - run unit tests and build docs
   develop:
     jobs:
-      - prepare-dependencies: *no-pages
-      - octave4:
+      - prepare_tests:
+          <<: *develop_filter
+      - run_tests:
+          <<: *develop_filter
+          executor: octave4_env
+          name: tests-octave4
           requires:
-            - prepare-dependencies
-      - octave5:
+            - prepare_tests
+      - run_tests:
+          <<: *develop_filter
+          executor: octave5_env
+          name: tests-octave5
           requires:
-            - prepare-dependencies
-      - codecov:
-          <<: *only-master
+            - prepare_tests
+      - build_docs:
+          <<: *develop_filter
+
+  # master workflow - run unit tests, coverage, build and deploy docs
+  master:
+    jobs:
+      - prepare_tests:
+          <<: *master_filter
+      - run_tests:
+          <<: *master_filter
+          executor: octave4_env
+          name: tests-octave4-master
           requires:
-            - octave5
-      - sphinx:
+            - prepare_tests
+      - run_tests:
+          <<: *master_filter
+          executor: octave5_env
+          name: tests-octave5-master
+          with_coverage: true
           requires:
-            - octave5
-      - pages:
-          <<: *only-master
+            - prepare_tests
+      - coverage:
+          <<: *master_filter
           requires:
-            - sphinx
+            - tests-octave5-master
+      - build_docs:
+          <<: *master_filter
+      - deploy_docs:
+          <<: *master_filter
+          requires: # deploy iff tests and building succeeds
+            - tests-octave4-master
+            - tests-octave5-master
+            - build_docs
+
+  # release workflow - build Docker image, run unit tests in container and deploy image
+  deploy:
+    jobs:
+      - prepare_tests:
+          <<: *deploy_filter
+      - deploy_package:
+          <<: *deploy_filter
+          name: octave4-debian10-x64
+          dockerfile: Dockerfile.octave4
+          requires:
+            - prepare_tests
+      - deploy_package:
+          <<: *deploy_filter
+          name: octave5-debian11-x64
+          dockerfile: Dockerfile.octave5
+          requires:
+            - prepare_tests
