@@ -4,7 +4,7 @@ defaults: &defaults
   working_directory: ~/project/
   shell: /bin/bash
   environment:
-    - SHORT_SHA1: echo ${CIRCLE_SHA1:0:7}
+    - SHORT_SHA1: $(echo ${CIRCLE_SHA1:0:7})
     - LIBTENSORFLOW_URL: https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
 
 executors:
