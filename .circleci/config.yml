@@ -1,165 +1,232 @@
 version: 2.1
 
+defaults: &defaults
+  working_directory: ~/
+  shell: /bin/bash
+  environment:
+    - SHORT_SHA1: ${CIRCLE_SHA1:0:7}
+    - LIBTENSORFLOW_URL: https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
+
 executors:
-  tensorflowm-ci:
+  build_env:
+    <<: *defaults
     docker:
       - image: asteinh/docker:tensorflowm-ci
+  octave4:
+    <<: *defaults
+    docker:
+      - image: asteinh/docker:tensorflowm-octave4-base
+  octave5:
+    <<: *defaults
+    docker:
+      - image: asteinh/docker:tensorflowm-octave5-base
 
-default-config: &config
-  executor: tensorflowm-ci
+orbs:
+  codecov: codecov/codecov@1.0.5
 
-# FILTERS FOR WORKFLOWS
-develop: &develop-filter
-  filters:
-    branches:
-      ignore:
-        - master
-        - gh-pages
-master: &master-filter
-  filters:
-    branches:
-      only: master
-deploy: &deploy-filter
-  filters:
-    tags:
-      only: /^v.*/
-    branches:
-      ignore: /.*/
+################################################################################
+# COMMANDS
+################################################################################
+commands:
+  prepare_libraries:
+    parameters:
+      destination:
+        description: relative path, where to store libraries
+        type: string
+    steps:
+      - run: |
+          export FILE=$(echo $LIBTENSORFLOW_URL | awk -F '/' '{print $NF}')
+          echo $FILE
+          export FOLDER=${FILE%.tar.gz}
+          echo $FOLDER
+          export DEST=<< parameters.libtensorflow_url >>/$FOLDER
+          curl << parameters.libtensorflow_url >> -o /tmp/$FILE
+          mkdir -p $DEST && tar -xzf /tmp/$FILE -C $DEST
+          rm /tmp/$FILE
 
 ################################################################################
 # JOBS
 ################################################################################
 jobs:
-  # BUILD DOCKER IMAGES
-  build-images:
-    <<: *config
+
+  # run unit tests
+  run_tests:
+    parameters:
+      with_coverage:
+        type: boolean
+        default: false
+    steps:
+      - checkout
+      - prepare_libraries:
+          destination: tensorflow/mex/third_party
+      - run: |
+          octave-cli --eval "setup();"
+          cd tests && ./setup_unittests.sh
+      - when:
+          condition: <<parameters.with_coverage>>
+          steps:
+            - run: octave-cli --eval "s = run_unittests('--with-coverage'); exit(s);"
+      - unless:
+          condition: <<parameters.with_coverage>>
+          steps:
+            - run: octave-cli --eval "s = run_unittests(); exit(s);"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - tests/results/
+
+  # upload coverage report
+  coverage:
+    executor: build_env
+    steps:
+      - attach_workspace:
+          at: ~/
+      # - codecov/upload:
+      #     file: tests/results/coverage.xml
+      #     flags: unittests
+      - run: echo "NO UPLOAD"
+
+  # build documentation with sphinx
+  build_docs:
+    executor: build_env
+    steps:
+      - checkout
+      - run: cd docs && make html
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - docs/build/html
+
+  # deploy documentation to github pages
+  deploy_docs:
+    executor: build_env
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run: gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+      - run: echo "NO UPLOAD"
+
+# DEPLOY jobs
+  # build a Docker image based on Octave 5 with TensorFlow libraries and tensorflow.m set up
+  build_image:
+    executor: build_env
     steps:
       - checkout
       - setup_remote_docker
+      - prepare_libraries:
+          destination: tensorflow/mex/third_party
       - run: |
-          cd .. && mkdir -p images
-          cp project/.circleci/docker/octave5/Dockerfile .
-          # export IMAGENAME=tensorflowm-octave5:${CIRCLE_SHA1:0:7}
-          docker build -t octave5 .
-          docker save --output images/octave5.tar octave5
-          # echo $IMAGENAME > images/octave5
+          mkdir -p images
+          cp .circleci/Dockerfiles/Dockerfile.deploy Dockerfile
+          docker build -t $SHORT_SHA1 .
+          docker save --output images/$SHORT_SHA1.tar $SHORT_SHA1
           rm Dockerfile
       - persist_to_workspace:
           root: ~/
           paths:
             - images/
 
-  # RUN UNIT TESTS, needs to run on 'machine' to be able to mount repository
-  unit-tests:
-    <<: *config
-    # machine:
-    #   image: circleci/classic:latest
+  # run unit tests in built image
+  test_image:
+    executor: build_env
     steps:
       - checkout
       - setup_remote_docker
       - attach_workspace:
           at: ~/
       - run: |
-          docker load --input ../images/octave5.tar
-          docker run octave5 /bin/bash -c "cd tests && ./setup_unittests.sh"
-          docker exec octave5 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
-          docker stop octave5 && docker rm octave5
-      - persist_to_workspace:
-          root: ~/project/
-          paths:
-            - tests/*
+          docker load --input images/$SHORT_SHA1.tar
+          docker run $SHORT_SHA1 /bin/bash -c "cd tests && ./setup_unittests.sh"
+          docker exec $SHORT_SHA1 /bin/bash -c "octave-cli --eval \"s = run_unittests(); exit(s);\""
+          docker stop $SHORT_SHA1 && docker rm $SHORT_SHA1
 
-  # UPLOAD COVERAGE REPORT
-  coverage:
-    <<: *config
+  # deploy image to github packages
+  deploy_image:
+    executor: build_env
     steps:
-      - attach_workspace:
-          at: ~/project/
-      - run: |
-          ls -l
-          ls -l tests/
-
-  # DEPLOY DOCKER IMAGES
-  deploy-images:
-    <<: *config
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: ls -l
-
-  # BUILD DOCS
-  build-docs:
-    <<: *config
-    steps:
-      - run: |
-          ls -l
-          mkdir -p docs && touch docs/test-doc.md
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - docs/*
-
-  # DEPLOY DOCS TO GITHUB PAGES
-  deploy-docs:
-    <<: *config
-    steps:
-      # - add_ssh_keys:
-      #     fingerprints:
-      #       - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
       - checkout
       - attach_workspace:
           at: ~/
       - run: |
-          ls -l
-          ls -l docs/
-#          gh-pages --dotfiles --message "Update pages" --dist docs/build/html
+          ls -l images/
 
 ################################################################################
 # WORKFLOWS
 ################################################################################
+
+# filters for workflows
+develop: &develop_filter
+  filters:
+    branches:
+      ignore:
+        - master
+        - gh-pages
+master: &master_filter
+  filters:
+    branches:
+      only: master
+deploy: &deploy_filter
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      ignore: /.*/
+
 workflows:
   version: 2
-  # DEVELOPMENT WORKFLOW: BUILD & TEST
+
+  # development workflow - run unit tests and build docs
   develop:
     jobs:
-      - build-images:
-          <<: *develop-filter
-      - unit-tests:
-          requires:
-            - build-images
-      - build-docs:
-          requires:
-            - unit-tests
+      - run_tests:
+          <<: *develop_filter
+          executor: octave4
+          name: tests_octave4
+      - run_tests:
+          <<: *develop_filter
+          executor: octave5
+          name: tests_octave5
+      - build_docs:
+          <<: *develop_filter
 
-  # MASTER WORKFLOW: BUILD, TEST, DOCUMENT
+  # master workflow - run unit tests, coverage, build and deploy docs
   master:
     jobs:
-      - build-images:
-          <<: *master-filter
-      - unit-tests:
-          requires:
-            - build-images
+      - run_tests:
+          <<: *master_filter
+          executor: octave4
+          name: tests_octave4
+      - run_tests:
+          <<: *master_filter
+          executor: octave5
+          name: tests_octave5
       - coverage:
+          <<: *master_filter
           requires:
-            - unit-tests
-      - build-docs:
-          requires:
-            - unit-tests
-      - deploy-docs:
-          requires:
-            - build-docs
+            - tests_octave5
+      - build_docs:
+          <<: *master_filter
+      - deploy_docs:
+          <<: *master_filter
+          requires: # deploy iff tests and building succeeds
+            - tests_octave4
+            - tests_octave5
+            - build_docs
 
-  # RELEASE WORKFLOW: BUILD, TEST, DEPLOY
-  # seems the tag-filter needs to be applied for every job
+  # release workflow - build Docker image, run unit tests in container and deploy image
   deploy:
     jobs:
-      - build-images:
-          <<: *deploy-filter
-      - unit-tests:
-          <<: *deploy-filter
+      - build_image:
+          <<: *deploy_filter
+      - test_image:
+          <<: *deploy_filter
           requires:
-            - build-images
-      - deploy-images:
-          <<: *deploy-filter
+            - build_image
+      - deploy_image:
+          <<: *deploy_filter
           requires:
-            - unit-tests
+            - test_image
