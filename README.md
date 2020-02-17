@@ -13,4 +13,4 @@ Head over to our [documentation](https://asteinh.github.io/tensorflow.m/) to see
 Whenever possible, the development of these bindings tries to obey [the approach recommended](https://github.com/tensorflow/docs/blob/master/site/en/r1/guide/extend/bindings.md) by TensorFlow.
 
 ## Contributions
-This package is in active development - please open an issue if you encounter any problems or faulty/missing features. You can also reach us on [gitter](https://gitter.im/tensorflowm/community). Furthermore, your contributions are very welcome via pull requests.
+This package is in active development - please open an issue if you encounter any problems or faulty/missing features. You can also reach us on [gitter](https://gitter.im/tensorflowm/community). Furthermore, any code contributions are very welcome via pull requests.
