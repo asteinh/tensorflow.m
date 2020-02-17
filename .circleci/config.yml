@@ -88,7 +88,7 @@ jobs:
           steps:
             - run:
                 name: Unit tests + coverage
-                command: cd tests && octave-cli --eval "s = run_unittests('--with-coverage'); exit(s);"
+                command: cd tests && octave-cli --eval "s = run_unittests('-with-coverage'); exit(s);"
       - unless:
           condition: << parameters.with_coverage >>
           steps:
@@ -119,9 +119,11 @@ jobs:
           name: Make HTML
           command: cd docs && make html
       - persist_to_workspace:
-          root: ~/
+          root: ~/project/
           paths:
-            - project/docs/build/html
+            - docs/build/html
+      - store_artifacts:
+          path: docs/build/
 
   # deploy documentation to github pages
   deploy_docs:
@@ -131,7 +133,7 @@ jobs:
           fingerprints:
             - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
       - attach_workspace:
-          at: ~/
+          at: ~/project/
       - run:
           name: gh-pages
           command: gh-pages --dotfiles --message "Update pages" --dist docs/build/html

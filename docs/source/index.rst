@@ -20,7 +20,7 @@ Welcome to tensorflow.m's documentation!
 
 tensorflow.m is a free and open-source MATLAB/Octave package, interfacing `TensorFlow <https://www.tensorflow.org/>`_'s `C API <https://www.tensorflow.org/install/lang_c>`_ without requiring any additional tools.
 
-Looking for an easy way to get started? Check out the `quick start guide <quick-start.html>`__.
+Looking for an easy way to get started? Check out the `quick start guide <quick-start.html>`_.
 
 This allows you to use the functionality of TensorFlow's core from within MATLAB/Octave via a MEX function and wrapper classes.
 Since the purpose of this package is to interface libraries provided by TensorFlow (rather than duplicating code in another language), anything not exposed to the C API is considered beyond the scope.
