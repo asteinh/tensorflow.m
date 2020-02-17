@@ -8,15 +8,15 @@ defaults: &defaults
     - LIBTENSORFLOW_URL: https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-1.15.0.tar.gz
 
 executors:
-  build_env:
+  build_exec:
     <<: *defaults
     docker:
       - image: asteinh/docker:tensorflowm-ci
-  octave4:
+  octave4_exec:
     <<: *defaults
     docker:
       - image: asteinh/docker:tensorflowm-octave4-base
-  octave5:
+  octave5_exec:
     <<: *defaults
     docker:
       - image: asteinh/docker:tensorflowm-octave5-base
@@ -54,10 +54,11 @@ jobs:
     parameters:
       executor:
         type: executor
-        default: octave5
+        default: octave5_exec
       with_coverage:
         type: boolean
         default: false
+    executor: << parameters.executor >>
     steps:
       - checkout
       - prepare_libraries:
@@ -80,7 +81,7 @@ jobs:
 
   # upload coverage report
   coverage:
-    executor: build_env
+    executor: build_exec
     steps:
       - attach_workspace:
           at: ~/
@@ -91,7 +92,7 @@ jobs:
 
   # build documentation with sphinx
   build_docs:
-    executor: build_env
+    executor: build_exec
     steps:
       - checkout
       - run: cd docs && make html
@@ -102,7 +103,7 @@ jobs:
 
   # deploy documentation to github pages
   deploy_docs:
-    executor: build_env
+    executor: build_exec
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -116,7 +117,7 @@ jobs:
 # DEPLOY jobs
   # build a Docker image based on Octave 5 with TensorFlow libraries and tensorflow.m set up
   build_image:
-    executor: build_env
+    executor: build_exec
     steps:
       - checkout
       - setup_remote_docker
@@ -135,7 +136,7 @@ jobs:
 
   # run unit tests in built image
   test_image:
-    executor: build_env
+    executor: build_exec
     steps:
       - checkout
       - setup_remote_docker
@@ -149,7 +150,7 @@ jobs:
 
   # deploy image to github packages
   deploy_image:
-    executor: build_env
+    executor: build_exec
     steps:
       - checkout
       - attach_workspace:
@@ -187,11 +188,11 @@ workflows:
     jobs:
       - run_tests:
           <<: *develop_filter
-          executor: octave4
+          executor: octave4_exec
           name: tests_octave4
       - run_tests:
           <<: *develop_filter
-          executor: octave5
+          executor: octave5_exec
           name: tests_octave5
       - build_docs:
           <<: *develop_filter
@@ -201,12 +202,13 @@ workflows:
     jobs:
       - run_tests:
           <<: *master_filter
-          executor: octave4
+          executor: octave4_exec
           name: tests_octave4
       - run_tests:
           <<: *master_filter
-          executor: octave5
+          executor: octave5_exec
           name: tests_octave5
+          with_coverage: true
       - coverage:
           <<: *master_filter
           requires:
