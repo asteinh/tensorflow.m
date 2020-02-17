@@ -89,16 +89,16 @@ jobs:
             - run:
                 name: Unit tests + coverage
                 command: cd tests && octave-cli --eval "s = run_unittests('-with-coverage'); exit(s);"
+            - persist_to_workspace:
+                root: ~/
+                paths:
+                  - project/tests/results/
       - unless:
           condition: << parameters.with_coverage >>
           steps:
             - run:
                 name: Unit tests
                 command: cd tests && octave-cli --eval "s = run_unittests(); exit(s);"
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/tests/results/
 
   # upload coverage report
   coverage:
@@ -132,6 +132,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "fb:e4:cf:7b:a9:c3:73:e1:a1:bf:bd:31:52:9f:5c:f0"
+      - checkout
       - attach_workspace:
           at: ~/project/
       - run:
