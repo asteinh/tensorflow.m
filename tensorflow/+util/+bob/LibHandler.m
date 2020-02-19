@@ -7,11 +7,15 @@ classdef LibHandler < util.mixin.Base
     version = [];
     searchpaths = {};
     libfile = [];
+    with_gpu = false;
   end
 
   methods
-    function obj = LibHandler(benv, hints)
+    function obj = LibHandler(benv, hints, with_gpu)
       obj.prepare();
+
+      %TODO add full gpu support
+      obj.with_gpu = logical(with_gpu);
 
       if ~isempty(hints)
         % manually supplied hint

@@ -5,7 +5,7 @@ function setup()
   disp('Setting up tensorflow.m');
   tstart = tic;
 
-  % 1) check if debug mode is activated
+  % check if debug mode is activated
   if evalin('base', 'exist(''DEBUG'', ''var'')') == 0
     DEBUG = false;
   else
@@ -13,7 +13,7 @@ function setup()
   end
   if DEBUG; disp('Debug mode active, will produce verbose output.'); end
 
-  % 2) check if hints for the location of C library were given
+  % check if hints for the location of C library were given
   if evalin('base', 'exist(''LIBTENSORFLOW'', ''var'')') == 0
     LIBTENSORFLOW = '';
   else
@@ -21,7 +21,17 @@ function setup()
     assert(ischar(LIBTENSORFLOW), 'Hint for location (LIBTENSORFLOW) must be provided as char array.');
   end
 
-  % 3) adjust paths
+  % check if GPU support is requested
+  if evalin('base', 'exist(''WITH_GPU'', ''var'')') == 0
+    WITH_GPU = false;
+  else
+    WITH_GPU = evalin('base', 'WITH_GPU');
+    if DEBUG && WITH_GPU
+      disp('Will build with GPU support.');
+    end
+  end
+
+  % adjust paths
   disp('Adding required paths ...');
   % add path, if not already added
   pkg_dir = fullfile(pwd, 'tensorflow');
@@ -45,7 +55,7 @@ function setup()
   % 4) build MEX
   disp('Building MEX interface ...');
   warning('off', 'MATLAB:mex:GccVersion_link');
-  util.bob.BuildEnvironment(pkg_dir, LIBTENSORFLOW);
+  util.bob.BuildEnvironment(pkg_dir, LIBTENSORFLOW, WITH_GPU);
 
   % 5) generate OPs
   op_dir = fullfile(pkg_dir, '+tensorflow', '@Ops');

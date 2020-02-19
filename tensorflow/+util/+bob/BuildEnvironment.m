@@ -11,7 +11,7 @@ classdef BuildEnvironment < util.mixin.Base & util.mixin.Platform
   end
 
   methods
-    function obj = BuildEnvironment(env_root, libhint)
+    function obj = BuildEnvironment(env_root, libhint, with_gpu)
       % root directory of build environment (i.e. package location)
       obj.pkg = env_root;
 
@@ -19,7 +19,7 @@ classdef BuildEnvironment < util.mixin.Base & util.mixin.Platform
       obj.prepare();
 
       % find or download TensorFlow C library
-      obj.lib = util.bob.LibHandler(obj, libhint);
+      obj.lib = util.bob.LibHandler(obj, libhint, with_gpu);
 
       % build the MEX interface
       obj.build_mex_interface();
