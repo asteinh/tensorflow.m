@@ -58,7 +58,11 @@ classdef LibHandler < util.mixin.Base
         dl_file = fullfile(tempdir, [fname '.' fext]);
         if exist(dl_file, 'file') ~= 2
           obj.debugMsg('Downloading TensorFlow C library ...\n');
-          websave(dl_file, dl_link);
+          if benv.platform.ismatlab
+            websave(dl_file, dl_link);
+          else
+            system(['curl -L ' dl_link ' -o ' dl_file]);
+          end
         else
           obj.debugMsg('Using TensorFlow C library archive already present in temp directory.\n');
         end
