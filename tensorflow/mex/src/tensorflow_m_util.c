@@ -129,7 +129,7 @@ void TFM_SetTensorData(MEX_ARGS) {
   TF_DataType dtype = TF_TensorType(tensor);
   if(dtype == TF_STRING) {
     size_t len = (size_t) mxGetN(prhs[1]);
-    void* dst = TF_TensorData(tensor) + sizeof(uint64_t);
+    void* dst = ((char*) TF_TensorData(tensor)) + sizeof(uint64_t);
     size_t dst_len = TF_StringEncodedSize(len);
     TF_Status* status = TF_NewStatus();
     size_t consumed = TF_StringEncode(src, len, dst, dst_len, status);
@@ -155,7 +155,7 @@ void TFM_GetTensorData(MEX_ARGS) {
     const char** dst = (const char**) mxCalloc(1, sizeof(char*));
     size_t* dst_len = (size_t*) mxCalloc(1, sizeof(size_t));
     TF_Status* status = TF_NewStatus();
-    size_t consumed = TF_StringDecode((char*) (TF_TensorData(tensor) + sizeof(uint64_t)), len, dst, dst_len, status);
+    size_t consumed = TF_StringDecode(((char*) TF_TensorData(tensor)) + sizeof(uint64_t), len, dst, dst_len, status);
     if(TF_GetCode(status) != TF_OK)
       mexErrMsgTxt("Error decoding string from Tensor data.");
 
